@@ -11,7 +11,7 @@
 */
 #include <math.h>
 
-#include "SDL_extras.h"
+#include "tux4kids-common.h"
 
 static SDL_Surface* screen = NULL;
 
@@ -75,15 +75,6 @@ SDL_Surface* CreateButton(int w, int h, int radius,
   RoundCorners(tmp_surf, radius);
   return tmp_surf;
 }
-
-
-
-/**
- * TODO ***Migrate other functions! Oh, and test on Win/Mac
- */
-
-#if 0
-
 
 void RoundCorners(SDL_Surface* s, Uint16 radius)
 {
@@ -182,7 +173,11 @@ void RoundCorners(SDL_Surface* s, Uint16 radius)
   SDL_UnlockSurface(s);
 }
 
+/**
+ * TODO ***Migrate other functions! Oh, and test on Win/Mac
+ */
 
+#if 0
 /**********************
  Flip:
    input: a SDL_Surface, x, y
