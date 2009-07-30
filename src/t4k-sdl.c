@@ -9,9 +9,11 @@
 * Copyright: GPL v3 or later
 *
 */
+
 #include <math.h>
 
 #include "tux4kids-common.h"
+#include "t4k-globals.h"
 
 static SDL_Surface* screen = NULL;
 
