@@ -2,6 +2,10 @@
 #other CMakeLists.txt and is not safe for human consumption. 
 #Please hack responsibly.
 
+project(Tux4Kids-common)
+
+set(CMAKE_MODULE_PATH "${Tux4Kids-common_SOURCE_DIR}/cmake-modules")
+
 cmake_minimum_required(VERSION 2.6)
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)

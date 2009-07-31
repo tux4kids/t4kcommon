@@ -17,6 +17,13 @@
 
 static SDL_Surface* screen = NULL;
 
+char* font_name;
+
+void SetFontName(char* fname)
+{
+  font_name = fname;
+}
+
 /*
 Return a pointer to the screen we're using, as an alternative to making screen
 global. Not sure what is involved performance-wise in SDL_GetVideoSurface,
@@ -677,6 +684,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
 /************************************************************************/
 
 #define MAX_FONT_SIZE 40
+#define DEFAULT_FONT_SIZE 10
 
 //NOTE to test program with SDL_ttf, do "./configure --without-sdlpango"
 
@@ -712,7 +720,7 @@ int Setup_SDL_Text(void)
   DEBUGMSG(dbg_sdl, "Setup_SDL_Text() - using SDL_Pango\n");
 
   SDLPango_Init();
-  if (!Set_SDL_Pango_Font_Size(DEFAULT_MENU_FONT_SIZE))
+  if (!Set_SDL_Pango_Font_Size(DEFAULT_FONT_SIZE))
   {
     fprintf(stderr, "\nError: I could not set SDL_Pango context\n");
     return 0;
@@ -992,7 +1000,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   /* Do nothing unless we need to change size or font: */
   if ((size == prev_pango_font_size)
       &&
-      (0 == strncmp(prev_font_name, Opts_FontName(), sizeof(prev_font_name))))
+      (0 == strncmp(prev_font_name, font_name, sizeof(prev_font_name))))
     return 1;
   else
   {
@@ -1003,7 +1011,7 @@ static int Set_SDL_Pango_Font_Size(int size)
     if(context != NULL)
       SDLPango_FreeContext(context);
     context = NULL;
-    snprintf(buf, sizeof(buf), "%s %d", Opts_FontName(), (int)((size * 3)/4));
+    snprintf(buf, sizeof(buf), "%s %d", font_name, (int)((size * 3)/4));
     context =  SDLPango_CreateContext_GivenFontDesc(buf);
   }
 
@@ -1012,7 +1020,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   else
   {
     prev_pango_font_size = size;
-    strncpy(prev_font_name, Opts_FontName(), sizeof(prev_font_name));
+    strncpy(prev_font_name, font_name, sizeof(prev_font_name));
     return 1;
   }
 }
@@ -1061,7 +1069,6 @@ static void free_font_list(void)
   }
 }
 
-#if 0
 /* FIXME - could combine this with load_font() below:         */
 /* Loads and caches fonts in each size as they are requested: */
 /* We use the font size as an array index, keeping each size  */
@@ -1083,10 +1090,10 @@ static TTF_Font* get_font(int size)
   }
 
   /* If the font has changed, we need to wipe out the old ones: */
-  if (0 != strncmp(prev_font_name, Opts_FontName(),sizeof(prev_font_name)))
+  if (0 != strncmp(prev_font_name, font_name, sizeof(prev_font_name)))
   {
     free_font_list();
-    strncpy(prev_font_name, Opts_FontName(), sizeof(prev_font_name));
+    strncpy(prev_font_name, font_name, sizeof(prev_font_name));
   }
 
   if(font_list[size] == NULL)
@@ -1126,5 +1133,4 @@ static TTF_Font* load_font(const char* font_name, int font_size)
    return NULL;
   }
 }
-#endif
 #endif

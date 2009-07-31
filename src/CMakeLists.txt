@@ -5,8 +5,9 @@
 cmake_minimum_required(VERSION 2.6)
 
 find_library(SDL REQUIRED)
-include_directories( ${SDL_INCLUDE_DIR} )
+find_package(SDL_Pango)
 
+include_directories( ${SDL_INCLUDE_DIR} )
 
 set( T4KCOMMON_SOURCE_DIR . )
 set( TUXMATH_DESTINATION_DIR ${CMAKE_SOURCE_DIR}/../../tuxmath/trunk/ )
@@ -35,11 +36,16 @@ if(HAVE_RSVG)
   set(_rsvg_def "-DHAVE_RSVG=1")
 endif(HAVE_RSVG)
 
+set(_pango_def "")
+if (SDLPANGO_FOUND)
+  set(_pango_def "-DHAVE_LIBSDL_PANGO=1")
+endif (SDLPANGO_FOUND)
+
 
 set_target_properties (
   t4kcommon
   PROPERTIES COMPILE_FLAGS
-  "${_rsvg_def} ${_rsvg_cflags} ${_cairo_cflags}"
+  "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
   )
 
 
