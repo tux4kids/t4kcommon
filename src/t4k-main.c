@@ -16,7 +16,10 @@
 
 int dbg_status;
 
+char* data_prefix;
+
 /* these values have to match those used in games */
+const int dbg_loaders       = 1 << 2;
 const int dbg_menu          = 1 << 4;
 const int dbg_menu_parser   = 1 << 5;
 const int dbg_sdl           = 1 << 10;
@@ -27,3 +30,7 @@ void SetDebugMode(int dbg_flags)
   dbg_status = dbg_flags;
 }
 
+void SetDataPrefix(char* pref)
+{
+  data_prefix = pref;
+}
