@@ -54,7 +54,6 @@ typedef struct mNode MenuNode;
 int n_of_activities;
 char** activities;
 
-SDL_Color red, yellow, white, black;
 
 Mix_Chunk* snd_click;
 Mix_Chunk* snd_hover;
@@ -63,12 +62,18 @@ Mix_Music* menu_music;
 #define N_OF_MENUS 10
 MenuNode* menus[N_OF_MENUS];
 
+/* font size used in current resolution */
+int curr_font_size;
+
+/* buffer size used when reading attributes or names */
+const int buf_size = 128;
+
 /* actions available while viewing the menu */
 enum { NONE, CLICK, PAGEUP, PAGEDOWN, STOP_ESC, RESIZED };
 
 /* stop button, left and right arrow positions do not
    depend on currently displayed menu */
-SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
+SDL_Rect menu_rect, stop_rect, prev_rect, next_rect, menu_title_rect;
 SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 
 /*TODO: move these constants into a config file (maybe together with
@@ -84,15 +89,6 @@ const char* prev_gray_path = "status/left_gray.svg";
 const char* next_gray_path = "status/right_gray.svg";
 const float button_gap = 0.2, text_h_gap = 0.4, text_w_gap = 0.5, button_radius = 0.27;
 const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
-
-/* font size used in current resolution */
-int curr_font_size;
-
-/* menu title rect */
-SDL_Rect menu_title_rect;
-
-/* buffer size used when reading attributes or names */
-const int buf_size = 128;
 
 
 
@@ -113,6 +109,19 @@ void            set_font_size();
 void            prerender_all();
 
 
+/* initialization of menu module */
+void SetActivitiesList(int num, char** acts)
+{
+  n_of_activities = num;
+  activities = acts;
+}
+
+void SetMenuSounds(Mix_Music* music, Mix_Chunk* click, Mix_Chunk* hover)
+{
+  snd_click = click;
+  snd_hover = hover;
+  menu_music = music;
+}
 
 /*
   functions responsible for parsing menu files
@@ -291,26 +300,7 @@ MenuNode* CreateOneLevelMenu(int items, char** item_names, char* title, char* tr
   return menu;
 }
 
-void SetActivitiesList(int num, char** acts)
-{
-  n_of_activities = num;
-  activities = acts;
-}
 
-void SetMenuSounds(Mix_Music* music, Mix_Chunk* click, Mix_Chunk* hover)
-{
-  snd_click = click;
-  snd_hover = hover;
-  menu_music = music;
-}
-
-void InitMenu()
-{
-    black.r       = 0x00; black.g       = 0x00; black.b       = 0x00;
-    red.r         = 0xff; red.g         = 0x00; red.b         = 0x00;
-    white.r       = 0xff; white.g       = 0xff; white.b       = 0xff;
-    yellow.r      = 0xff; yellow.g      = 0xff; yellow.b      = 0x00;
-}
 
 /* Display the menu and run the event loop.
    if return_choice = true then return chosen value instead of

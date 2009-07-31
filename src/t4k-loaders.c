@@ -29,8 +29,6 @@
 #include<librsvg/rsvg-cairo.h>
 #endif
 
-#define PATH_MAX 1024
-
 /* local functions */
 int             check_file(const char* file);
 

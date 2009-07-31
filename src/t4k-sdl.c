@@ -175,11 +175,6 @@ void RoundCorners(SDL_Surface* s, Uint16 radius)
   SDL_UnlockSurface(s);
 }
 
-/**
- * TODO ***Migrate other functions! Oh, and test on Win/Mac
- */
-
-#if 0
 /**********************
  Flip:
    input: a SDL_Surface, x, y
@@ -431,6 +426,7 @@ void DarkenScreen(Uint8 bits)
 #elif PIXEL_BITS == 16
   Uint16* p;
 #else
+  Uint16* p;
   return;
 #endif
   Uint32 rm = screen->format->Rmask;
@@ -458,6 +454,7 @@ void DarkenScreen(Uint8 bits)
   }
 }
 
+#if 0
 /* change window size (works only in windowed mode) */
 void ChangeWindowSize(int new_res_x, int new_res_y)
 {
@@ -479,7 +476,7 @@ void ChangeWindowSize(int new_res_x, int new_res_y)
     }
     else
     {
-      DEBUGMSG(debug_sdl, "ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
+      DEBUGMSG(dbg_sdl, "ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
       oldscreen = NULL;
       win_res_x = screen->w;
       win_res_y = screen->h;
@@ -487,7 +484,7 @@ void ChangeWindowSize(int new_res_x, int new_res_y)
     }
   }
   else
-    DEBUGMSG(debug_sdl, "ChangeWindowSize() can be run only in windowed mode !");
+    DEBUGMSG(dbg_sdl, "ChangeWindowSize() can be run only in windowed mode !");
 }
 
 /* switch between fullscreen and windowed mode */
@@ -514,12 +511,12 @@ void SwitchScreenMode(void)
   else
   {
     //success, no need to free the old video surface
-    DEBUGMSG(debug_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
+    DEBUGMSG(dbg_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
     oldscreen = NULL;
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
 }
-
+#endif
 /*
 Block application until SDL receives an appropriate event. Events can be
 a single or OR'd combination of event masks. 
@@ -566,7 +563,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
   Uint8 r4, g4, b4, a4;
   Uint8 r, g, b, a;
 
-  DEBUGMSG(debug_sdl, "Entering zoom():\n");
+  DEBUGMSG(dbg_sdl, "Entering zoom():\n");
 
   /* Create surface for zoom: */
 
@@ -587,9 +584,9 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
 //    exit(1);
   }
 
-  DEBUGMSG(debug_sdl, "zoom(): orig surface %dx%d, %d bytes per pixel\n",
+  DEBUGMSG(dbg_sdl, "zoom(): orig surface %dx%d, %d bytes per pixel\n",
             src->w, src->h, src->format->BytesPerPixel);
-  DEBUGMSG(debug_sdl, "zoom(): new surface %dx%d, %d bytes per pixel\n",
+  DEBUGMSG(dbg_sdl, "zoom(): new surface %dx%d, %d bytes per pixel\n",
             s->w, s->h, s->format->BytesPerPixel);
 
   /* Now assign function pointers to correct functions based */
@@ -664,7 +661,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
   SDL_UnlockSurface(s);
   SDL_UnlockSurface(src);
 
-  DEBUGMSG(debug_sdl, "Leaving zoom():\n");
+  DEBUGMSG(dbg_sdl, "Leaving zoom():\n");
 
   return s;
 }
@@ -697,8 +694,8 @@ static int Set_SDL_Pango_Font_Size(int size);
 /* We cache fonts here once loaded to improve performance: */
 TTF_Font* font_list[MAX_FONT_SIZE + 1] = {NULL};
 static void free_font_list(void);
-static TTF_Font* get_font(int size);
-static TTF_Font* load_font(const char* font_name, int font_size);
+//static TTF_Font* get_font(int size);
+//static TTF_Font* load_font(const char* font_name, int font_size);
 #endif
 
 
@@ -712,7 +709,7 @@ int Setup_SDL_Text(void)
 {
 #ifdef HAVE_LIBSDL_PANGO
 
-  DEBUGMSG(debug_sdl, "Setup_SDL_Text() - using SDL_Pango\n");
+  DEBUGMSG(dbg_sdl, "Setup_SDL_Text() - using SDL_Pango\n");
 
   SDLPango_Init();
   if (!Set_SDL_Pango_Font_Size(DEFAULT_MENU_FONT_SIZE))
@@ -724,7 +721,7 @@ int Setup_SDL_Text(void)
 
 #else
 /* using SDL_ttf: */
-  DEBUGMSG(debug_sdl, "Setup_SDL_Text() - using SDL_ttf\n");
+  DEBUGMSG(dbg_sdl, "Setup_SDL_Text() - using SDL_ttf\n");
 
   if (TTF_Init() < 0)
   {
@@ -793,8 +790,8 @@ SDL_Surface* BlackOutline(const char* t, int size, SDL_Color* c)
     return NULL;
   }
 
-  DEBUGMSG(debug_sdl, "Entering BlackOutline():\n");
-  DEBUGMSG(debug_sdl, "BlackOutline of \"%s\"\n", t );
+  DEBUGMSG(dbg_sdl, "Entering BlackOutline():\n");
+  DEBUGMSG(dbg_sdl, "BlackOutline of \"%s\"\n", t );
 
 #ifdef HAVE_LIBSDL_PANGO
   Set_SDL_Pango_Font_Size(size);
@@ -867,7 +864,7 @@ SDL_Surface* BlackOutline(const char* t, int size, SDL_Color* c)
   out = SDL_DisplayFormatAlpha(bg);
   SDL_FreeSurface(bg);
 
-  DEBUGMSG(debug_sdl, "\nLeaving BlackOutline(): \n");
+  DEBUGMSG(dbg_sdl, "\nLeaving BlackOutline(): \n");
 
   return out;
 }
@@ -1001,7 +998,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   {
     char buf[64];
 
-    DEBUGMSG(debug_sdl, "Setting font size to %d\n", size);
+    DEBUGMSG(dbg_sdl, "Setting font size to %d\n", size);
 
     if(context != NULL)
       SDLPango_FreeContext(context);
@@ -1064,6 +1061,7 @@ static void free_font_list(void)
   }
 }
 
+#if 0
 /* FIXME - could combine this with load_font() below:         */
 /* Loads and caches fonts in each size as they are requested: */
 /* We use the font size as an array index, keeping each size  */
@@ -1096,7 +1094,6 @@ static TTF_Font* get_font(int size)
   return font_list[size];
 }
 
-
 /* FIXME: I think we need to provide a single default font with the program data, */
 /* then more flexible code to try to locate or load system fonts. DSB             */
 /* Returns ptr to loaded font if successful, NULL otherwise. */
@@ -1104,7 +1101,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
 {
   TTF_Font* f;
   char fontfile[PATH_MAX];
-  sprintf(fontfile, "%s/fonts/%s", DATA_PREFIX, font_name);
+  sprintf(fontfile, "%s/fonts/%s", data_prefix, font_name);
 
   f = TTF_OpenFont(fontfile, font_size);
 
@@ -1120,7 +1117,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
 
   if (f)
   {
-    DEBUGMSG(debug_sdl, "LoadFont(): %s loaded successfully\n\n", fontfile);
+    DEBUGMSG(dbg_sdl, "LoadFont(): %s loaded successfully\n\n", fontfile);
     return f;
   }
   else
@@ -1130,5 +1127,4 @@ static TTF_Font* load_font(const char* font_name, int font_size)
   }
 }
 #endif
-
 #endif
