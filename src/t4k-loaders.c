@@ -46,15 +46,6 @@ sprite*         load_sprite(const char* name, int mode, int w, int h, bool propo
 
 
 
-/* check to see if file exists, if so return true */
-// int checkFile( const char *file ) {
-//         static struct stat fileStats;
-//         fileStats.st_mode = 0;
-//         stat( file, &fileStats );
-//         return (S_IFREG & fileStats.st_mode);
-// }
-
-
 int check_file(const char* file)
 {
   FILE* fp = NULL;
@@ -179,20 +170,20 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
   }
 
   /* set color masks */
-  Rmask = screen->format->Rmask;
-  Gmask = screen->format->Gmask;
-  Bmask = screen->format->Bmask;
-  if(screen->format->Amask == 0)
+  Rmask = GetScreen()->format->Rmask;
+  Gmask = GetScreen()->format->Gmask;
+  Bmask = GetScreen()->format->Bmask;
+  if(GetScreen()->format->Amask == 0)
     /* find a free byte to use for Amask */
     Amask = ~(Rmask | Gmask | Bmask);
   else
-    Amask = screen->format->Amask;
+    Amask = GetScreen()->format->Amask;
 
   DEBUGMSG(dbg_loaders, "render_svg_from_handle(): color masks: R=%u, G=%u, B=%u, A=%u\n",
         Rmask, Gmask, Bmask, Amask);
 
   dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-        width, height, screen->format->BitsPerPixel, Rmask, Gmask, Bmask, Amask);
+        width, height, GetScreen()->format->BitsPerPixel, Rmask, Gmask, Bmask, Amask);
 
   SDL_LockSurface(dest);
   temp_surf = cairo_image_surface_create_for_data(dest->pixels,

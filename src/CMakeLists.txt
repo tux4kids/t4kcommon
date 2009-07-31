@@ -19,6 +19,30 @@ file(GLOB_RECURSE T4KCOMMON_HEADERS ${T4KCOMMON_SOURCE_DIR}/*.h)
 add_library( t4kcommon STATIC
 	${T4KCOMMON_SOURCES} ${T4KCOMMON_HEADERS} )
 
+# getting rid of semicolons
+set(_rsvg_cflags "")
+foreach(f ${RSVG_CFLAGS})
+  set(_rsvg_cflags "${_rsvg_cflags} ${f}")
+endforeach(f)
+
+set(_cairo_cflags "")
+foreach(f ${CAIRO_CFLAGS})
+  set(_cairo_cflags "${_cairo_cflags} ${f}")
+endforeach(f)
+
+set(_rsvg_def "")
+if(HAVE_RSVG)
+  set(_rsvg_def "-DHAVE_RSVG=1")
+endif(HAVE_RSVG)
+
+
+set_target_properties (
+  t4kcommon
+  PROPERTIES COMPILE_FLAGS
+  "${_rsvg_def} ${_rsvg_cflags} ${_cairo_cflags}"
+  )
+
+
 INSTALL( TARGETS t4kcommon
 	ARCHIVE DESTINATION lib )
 INSTALL( TARGETS t4kcommon
