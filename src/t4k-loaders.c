@@ -279,7 +279,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   /* run loader depending on file extension */
 
   /* add path prefix */
-  snprintf(fn, PATH_MAX, "%s/images/%s", data_prefix, file_name);
+  snprintf(fn, PATH_MAX, "%s", file_name);
   fn_len = strlen(fn);
 
   if(strcmp(fn + fn_len - 4, ".svg"))
@@ -470,7 +470,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
 #ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
-  sprintf(fn, "%s/images/%s.svg", data_prefix, name);
+  sprintf(fn, "%s.svg", name);
   if(1 == check_file(fn))
   {
     if(proportional)
@@ -589,8 +589,7 @@ Mix_Chunk* LoadSound( char *datafile )
   Mix_Chunk* tempChunk = NULL;
   char fn[PATH_MAX];
 
-//    sprintf(fn , "%s/sounds/%s", realPath[i], datafile);
-  sprintf(fn , "%s/sounds/%s", data_prefix, datafile);
+  sprintf(fn , "%s", datafile);
   tempChunk = Mix_LoadWAV(fn);
   if (!tempChunk)
   {
@@ -605,7 +604,7 @@ Mix_Music* LoadMusic(char *datafile )
   char fn[PATH_MAX];
   Mix_Music* tempMusic = NULL;
 
-  sprintf( fn , "%s/sounds/%s", data_prefix, datafile );
+  sprintf(fn, "%s", datafile);
   if (1 != check_file(fn))
   {
     fprintf(stderr, "LoadMusic(): %s not found\n\n", fn);

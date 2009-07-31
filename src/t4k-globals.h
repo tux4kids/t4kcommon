@@ -12,8 +12,6 @@
 
 #include "SDL.h"
 
-typedef enum { false, true } bool;
-
 #define REG_RGBA 16,16,96,96
 #define SEL_RGBA 16,16,128,128
 
@@ -30,8 +28,6 @@ extern const int dbg_menu;
 extern const int dbg_menu_parser;
 extern const int dbg_sdl;
 extern const int dbg_all;
-
-extern char* data_prefix;
 
 extern SDL_Color red, yellow, white, black;
 /* debug macros */

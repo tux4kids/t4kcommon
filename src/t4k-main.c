@@ -23,16 +23,13 @@ const int dbg_menu_parser   = 1 << 5;
 const int dbg_sdl           = 1 << 10;
 const int dbg_all           = ~0;
 
-char* data_prefix;
-
 SDL_Color red, yellow, white, black;
 
 
 /* set global variables */
-void InitT4KCommon(int debug_flags, char* data_pref)
+void InitT4KCommon(int debug_flags)
 {
   dbg_status = debug_flags;
-  data_prefix = data_pref;
 
   black.r       = 0x00; black.g       = 0x00; black.b       = 0x00;
   red.r         = 0xff; red.g         = 0x00; red.b         = 0x00;

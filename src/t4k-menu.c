@@ -54,6 +54,7 @@ typedef struct mNode MenuNode;
 int n_of_activities;
 char** activities;
 
+char* data_prefix;
 
 Mix_Chunk* snd_click;
 Mix_Chunk* snd_hover;
@@ -82,11 +83,11 @@ const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
-const char* stop_path = "status/stop.svg";
-const char* prev_path = "status/left.svg";
-const char* next_path = "status/right.svg";
-const char* prev_gray_path = "status/left_gray.svg";
-const char* next_gray_path = "status/right_gray.svg";
+const char* stop_path = "/images/status/stop.svg";
+const char* prev_path = "/images/status/left.svg";
+const char* next_path = "/images/status/right.svg";
+const char* prev_gray_path = "/images/status/left_gray.svg";
+const char* next_gray_path = "/images/status/right_gray.svg";
 const float button_gap = 0.2, text_h_gap = 0.4, text_w_gap = 0.5, button_radius = 0.27;
 const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
 
@@ -99,9 +100,7 @@ char*           get_attribute_value(const char* token);
 void            read_attributes(FILE* xml_file, MenuNode* node);
 MenuNode*       load_menu_from_file(FILE* xml_file, MenuNode* parent);
 void            free_menu(MenuNode* menu);
-MenuNode*       CreateOneLevelMenu(int items, char** item_names, char* title, char* trailer);
 
-int             RunMenu(MenuNode* root, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
 SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
 void            prerender_menu(MenuNode* menu);
 char*           find_longest_text(MenuNode* menu, int* length);
@@ -121,6 +120,11 @@ void SetMenuSounds(Mix_Music* music, Mix_Chunk* click, Mix_Chunk* hover)
   snd_click = click;
   snd_hover = hover;
   menu_music = music;
+}
+
+void SetImagePathPrefix(char* pref)
+{
+  data_prefix = pref;
 }
 
 /*
@@ -271,7 +275,7 @@ void free_menu(MenuNode* menu)
 
 /* create a simple one-level menu without sprites.
    all given strings are copied */
-MenuNode* CreateOneLevelMenu(int items, char** item_names, char* title, char* trailer)
+void CreateOneLevelMenu(int index, int items, char** item_names, char* title, char* trailer)
 {
   MenuNode* menu = create_empty_node();
   int i;
@@ -297,7 +301,7 @@ MenuNode* CreateOneLevelMenu(int items, char** item_names, char* title, char* tr
     menu->submenu[items]->activity = items;
   }
 
-  return menu;
+  menus[index] = menu;
 }
 
 
@@ -306,13 +310,13 @@ MenuNode* CreateOneLevelMenu(int items, char** item_names, char* title, char* tr
    if return_choice = true then return chosen value instead of
    running handle_activity()
    this function is a modified copy of choose_menu_item() */
-int RunMenu(MenuNode* root, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int))
+int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int))
 {
   SDL_Surface** menu_item_unselected = NULL;
   SDL_Surface** menu_item_selected = NULL;
   SDL_Surface* title_surf;
   SDL_Event event;
-  MenuNode* menu = root;
+  MenuNode* menu = menus[index];
   MenuNode* tmp_node;
 
   SDL_Rect tmp_rect;
@@ -666,7 +670,7 @@ int RunMenu(MenuNode* root, bool return_choice, void (*draw_background)(), int (
                   if(tmp_node->activity == RUN_MAIN_MENU)
                   {
                     /* go back to the root of this menu */
-                    menu = root;
+                    menu = menus[index];
                   }
                   else
                   {
@@ -861,7 +865,7 @@ void prerender_menu(MenuNode* menu)
 
     if(curr_node->icon_name)
     {
-      sprintf(filename, "sprites/%s", curr_node->icon_name);
+      sprintf(filename, "%s/images/sprites/%s", data_prefix, curr_node->icon_name);
       DEBUGMSG(dbg_menu, "prerender_menu(): loading sprite %s for item #%d.\n", filename, i);
       curr_node->icon = LoadSpriteOfBoundingBox(filename, IMG_ALPHA, button_h, button_h);
     }
@@ -946,33 +950,39 @@ void set_font_size()
 void PrerenderAll()
 {
   int i;
+  char fn[PATH_MAX];
 
   SetRect(&menu_rect, menu_pos);
 
   SetRect(&stop_rect, stop_pos);
   if(stop_button)
     SDL_FreeSurface(stop_button);
-  stop_button = LoadImageOfBoundingBox(stop_path, IMG_ALPHA, stop_rect.w, stop_rect.h);
+  sprintf("%s%s", data_prefix, stop_path);
+  stop_button = LoadImageOfBoundingBox(fn, IMG_ALPHA, stop_rect.w, stop_rect.h);
   /* move button to the right */
   stop_rect.x = GetScreen()->w - stop_button->w;
 
   SetRect(&prev_rect, prev_pos);
   if(prev_arrow)
     SDL_FreeSurface(prev_arrow);
-  prev_arrow = LoadImageOfBoundingBox(prev_path, IMG_ALPHA, prev_rect.w, prev_rect.h);
+  sprintf("%s%s", data_prefix, prev_path);
+  prev_arrow = LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
   if(prev_gray)
     SDL_FreeSurface(prev_gray);
-  prev_gray = LoadImageOfBoundingBox(prev_gray_path, IMG_ALPHA, prev_rect.w, prev_rect.h);
+  sprintf("%s%s", data_prefix, prev_gray_path);
+  prev_gray = LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
   /* move button to the right */
   prev_rect.x += prev_rect.w - prev_arrow->w;
 
   SetRect(&next_rect, next_pos);
   if(next_arrow)
     SDL_FreeSurface(next_arrow);
-  next_arrow = LoadImageOfBoundingBox(next_path, IMG_ALPHA, next_rect.w, next_rect.h);
+  sprintf("%s%s", data_prefix, next_path);
+  next_arrow = LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
   if(next_gray)
     SDL_FreeSurface(next_gray);
-  next_gray = LoadImageOfBoundingBox(next_gray_path, IMG_ALPHA, next_rect.w, next_rect.h);
+  sprintf("%s%s", data_prefix, next_gray_path);
+  next_gray = LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
 
   set_font_size();
 
