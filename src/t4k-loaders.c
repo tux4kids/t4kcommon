@@ -23,6 +23,7 @@
 
 #include "tux4kids-common.h"
 #include "t4k-globals.h"
+#include "t4k-compiler.h"
 
 #ifdef HAVE_RSVG
 #include<librsvg/rsvg.h>

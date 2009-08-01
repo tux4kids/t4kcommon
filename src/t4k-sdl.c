@@ -17,6 +17,14 @@
 
 static SDL_Surface* screen = NULL;
 
+/* window size */
+int win_res_x = 640;
+int win_res_y = 480;
+
+/* full screen size (set in initialize_SDL() ) */
+int fs_res_x = 0;
+int fs_res_y = 0;
+
 char* font_name;
 
 void SetFontName(char* fname)
@@ -461,7 +469,6 @@ void DarkenScreen(Uint8 bits)
   }
 }
 
-#if 0
 /* change window size (works only in windowed mode) */
 void ChangeWindowSize(int new_res_x, int new_res_y)
 {
@@ -523,7 +530,7 @@ void SwitchScreenMode(void)
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
 }
-#endif
+
 /*
 Block application until SDL receives an appropriate event. Events can be
 a single or OR'd combination of event masks. 

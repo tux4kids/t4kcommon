@@ -13,6 +13,7 @@
 #define TUX4KIDS_COMMON_H
 
 #include "SDL.h"
+#include "SDL_image.h"
 #include "SDL_mixer.h"
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -26,6 +27,8 @@
 #define bmask 0x00ff0000
 #define amask 0xff000000
 #endif
+
+#define _(String) gettext (String)
 
 typedef enum { false, true } bool;
 
@@ -111,5 +114,12 @@ void            NextFrame(sprite* s);
 Mix_Chunk*      LoadSound(char* datafile);
 Mix_Music*      LoadMusic(char *datafile);
 
+/* from tk4-loaders.c */
+
+void            PlaySound(Mix_Chunk* sound);
+void            AudioMusicLoad(Mix_Music* music, int loops);
+void            AudioMusicUnload();
+bool            IsPlayingMusic();
+void            AudioMusicPlay(Mix_Music *musicData, int loops);
 
 #endif

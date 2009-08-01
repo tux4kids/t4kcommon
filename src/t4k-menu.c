@@ -13,6 +13,7 @@
 
 #include "tux4kids-common.h"
 #include "t4k-globals.h"
+#include "t4k-compiler.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -105,7 +106,6 @@ SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
 void            prerender_menu(MenuNode* menu);
 char*           find_longest_text(MenuNode* menu, int* length);
 void            set_font_size();
-void            prerender_all();
 
 
 /* initialization of menu module */
@@ -411,7 +411,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               if (inRect(menu->submenu[menu->first_entry + i]->button_rect, event.motion.x, event.motion.y))
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 loc = i;
                 break;   /* from for loop */
               }
@@ -424,7 +424,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               if(click_flag)
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 click_flag = 0;
               }
             }
@@ -436,7 +436,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               if(click_flag)
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 click_flag = 0;
               }
             }
@@ -447,7 +447,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               if(click_flag)
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 click_flag = 0;
               }
             }
@@ -467,7 +467,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               {
                 // Play sound if loc is being changed:
                 if(snd_click)
-                  playsound(snd_click);
+                  PlaySound(snd_click);
                 loc = i;
                 action = CLICK;
                 break;   /* from for loop */
@@ -479,7 +479,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                && menu->first_entry > 0)
             {
               if(snd_click)
-                playsound(snd_click);
+                PlaySound(snd_click);
               action = PAGEUP;
             }
 
@@ -488,7 +488,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                && menu->first_entry + items < menu->submenu_size)
             {
               if(snd_click)
-                playsound(snd_click);
+                PlaySound(snd_click);
               action = PAGEDOWN;
             }
 
@@ -496,7 +496,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
             else if (inRect(stop_rect, event.button.x, event.button.y ))
             {
               if(snd_click)
-                playsound(snd_click);
+                PlaySound(snd_click);
               action = STOP_ESC;
             }
 
@@ -519,7 +519,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               case SDLK_KP_ENTER:
               {
                 if(snd_click)
-                  playsound(snd_click);
+                  PlaySound(snd_click);
                 action = CLICK;
                 break;
               }
@@ -529,7 +529,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               case SDLK_PAGEUP:
               {
                 if(snd_click)
-                  playsound(snd_click);
+                  PlaySound(snd_click);
                 if (menu->first_entry > 0)
                   action = PAGEUP;
                 break;
@@ -540,7 +540,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               case SDLK_PAGEDOWN:
               {
                 if(snd_click)
-                  playsound(snd_click);
+                  PlaySound(snd_click);
                 if (menu->first_entry + items < menu->submenu_size)
                   action = PAGEDOWN;
                 break;
@@ -550,7 +550,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               case SDLK_UP:
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 if (loc > 0)
                   loc--;
                 else if (menu->submenu_size <= menu->entries_per_screen) 
@@ -566,7 +566,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               case SDLK_DOWN:
               {
                 if(snd_hover)
-                  playsound(snd_hover);
+                  PlaySound(snd_hover);
                 if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
                   loc++;
                 else if (menu->submenu_size <= menu->entries_per_screen) 
@@ -588,20 +588,18 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               }
 
               /* Toggle menu music: */
-/*              case SDLK_F11:
+              case SDLK_F11:
               {
-                if (Opts_GetGlobalOpt(MENU_MUSIC))
+                if(IsPlayingMusic())
                 {
-                  audioMusicUnload( );
-                  Opts_SetGlobalOpt(MENU_MUSIC, 0);
+                  AudioMusicUnload();
                 }
-                else
+                else if(menu_music)
                 {
-                  Opts_SetGlobalOpt(MENU_MUSIC, 1);
-                  audioMusicLoad("tuxi.ogg", -1);
+                  AudioMusicLoad(menu_music, -1);
                 }
                 break;
-              }*/
+              }
 
               default:
               {
@@ -645,7 +643,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
           case RESIZED:
             RenderTitleScreen();
             menu->first_entry = 0;
-            prerender_all();
+            PrerenderAll();
             stop = true;
             break;
 
