@@ -21,18 +21,12 @@
 #define PATH_MAX 1024
 #define FONT_NAME_LENGTH 64
 
-extern int dbg_status;
-
-extern const int dbg_loaders;
-extern const int dbg_menu;
-extern const int dbg_menu_parser;
-extern const int dbg_sdl;
-extern const int dbg_all;
+extern int debug_status;
 
 extern SDL_Color red, yellow, white, black;
 /* debug macros */
-#define DEBUGCODE(mask) if((mask) & dbg_status)
-#define DEBUGMSG(mask, ...) if((mask) & dbg_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
+#define DEBUGCODE(mask) if((mask) & debug_status)
+#define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
 
 void putpixel8(SDL_Surface * surface, int x, int y, Uint32 pixel);
 void putpixel16(SDL_Surface * surface, int x, int y, Uint32 pixel);

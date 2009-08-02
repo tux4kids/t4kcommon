@@ -32,6 +32,12 @@
 
 typedef enum { false, true } bool;
 
+extern const int debug_loaders;
+extern const int debug_menu;
+extern const int debug_menu_parser;
+extern const int debug_sdl;
+extern const int debug_all;
+
 #define MAX_SPRITE_FRAMES 10
 
 typedef struct {

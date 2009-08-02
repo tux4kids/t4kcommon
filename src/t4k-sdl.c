@@ -490,7 +490,7 @@ void ChangeWindowSize(int new_res_x, int new_res_y)
     }
     else
     {
-      DEBUGMSG(dbg_sdl, "ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
+      DEBUGMSG(debug_sdl, "ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
       oldscreen = NULL;
       win_res_x = screen->w;
       win_res_y = screen->h;
@@ -498,7 +498,7 @@ void ChangeWindowSize(int new_res_x, int new_res_y)
     }
   }
   else
-    DEBUGMSG(dbg_sdl, "ChangeWindowSize() can be run only in windowed mode !");
+    DEBUGMSG(debug_sdl, "ChangeWindowSize() can be run only in windowed mode !");
 }
 
 /* switch between fullscreen and windowed mode */
@@ -525,7 +525,7 @@ void SwitchScreenMode(void)
   else
   {
     //success, no need to free the old video surface
-    DEBUGMSG(dbg_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
+    DEBUGMSG(debug_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
     oldscreen = NULL;
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
@@ -577,7 +577,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
   Uint8 r4, g4, b4, a4;
   Uint8 r, g, b, a;
 
-  DEBUGMSG(dbg_sdl, "Entering zoom():\n");
+  DEBUGMSG(debug_sdl, "Entering zoom():\n");
 
   /* Create surface for zoom: */
 
@@ -598,9 +598,9 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
 //    exit(1);
   }
 
-  DEBUGMSG(dbg_sdl, "zoom(): orig surface %dx%d, %d bytes per pixel\n",
+  DEBUGMSG(debug_sdl, "zoom(): orig surface %dx%d, %d bytes per pixel\n",
             src->w, src->h, src->format->BytesPerPixel);
-  DEBUGMSG(dbg_sdl, "zoom(): new surface %dx%d, %d bytes per pixel\n",
+  DEBUGMSG(debug_sdl, "zoom(): new surface %dx%d, %d bytes per pixel\n",
             s->w, s->h, s->format->BytesPerPixel);
 
   /* Now assign function pointers to correct functions based */
@@ -675,7 +675,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
   SDL_UnlockSurface(s);
   SDL_UnlockSurface(src);
 
-  DEBUGMSG(dbg_sdl, "Leaving zoom():\n");
+  DEBUGMSG(debug_sdl, "Leaving zoom():\n");
 
   return s;
 }
@@ -724,7 +724,7 @@ int Setup_SDL_Text(void)
 {
 #ifdef HAVE_LIBSDL_PANGO
 
-  DEBUGMSG(dbg_sdl, "Setup_SDL_Text() - using SDL_Pango\n");
+  DEBUGMSG(debug_sdl, "Setup_SDL_Text() - using SDL_Pango\n");
 
   SDLPango_Init();
   if (!Set_SDL_Pango_Font_Size(DEFAULT_FONT_SIZE))
@@ -736,7 +736,7 @@ int Setup_SDL_Text(void)
 
 #else
 /* using SDL_ttf: */
-  DEBUGMSG(dbg_sdl, "Setup_SDL_Text() - using SDL_ttf\n");
+  DEBUGMSG(debug_sdl, "Setup_SDL_Text() - using SDL_ttf\n");
 
   if (TTF_Init() < 0)
   {
@@ -805,8 +805,8 @@ SDL_Surface* BlackOutline(const char* t, int size, SDL_Color* c)
     return NULL;
   }
 
-  DEBUGMSG(dbg_sdl, "Entering BlackOutline():\n");
-  DEBUGMSG(dbg_sdl, "BlackOutline of \"%s\"\n", t );
+  DEBUGMSG(debug_sdl, "Entering BlackOutline():\n");
+  DEBUGMSG(debug_sdl, "BlackOutline of \"%s\"\n", t );
 
 #ifdef HAVE_LIBSDL_PANGO
   Set_SDL_Pango_Font_Size(size);
@@ -879,7 +879,7 @@ SDL_Surface* BlackOutline(const char* t, int size, SDL_Color* c)
   out = SDL_DisplayFormatAlpha(bg);
   SDL_FreeSurface(bg);
 
-  DEBUGMSG(dbg_sdl, "\nLeaving BlackOutline(): \n");
+  DEBUGMSG(debug_sdl, "\nLeaving BlackOutline(): \n");
 
   return out;
 }
@@ -1013,7 +1013,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   {
     char buf[64];
 
-    DEBUGMSG(dbg_sdl, "Setting font size to %d\n", size);
+    DEBUGMSG(debug_sdl, "Setting font size to %d\n", size);
 
     if(context != NULL)
       SDLPango_FreeContext(context);
@@ -1131,7 +1131,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
 
   if (f)
   {
-    DEBUGMSG(dbg_sdl, "LoadFont(): %s loaded successfully\n\n", fontfile);
+    DEBUGMSG(debug_sdl, "LoadFont(): %s loaded successfully\n\n", fontfile);
     return f;
   }
   else

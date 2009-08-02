@@ -14,14 +14,14 @@
 #include "tux4kids-common.h"
 #include "t4k-globals.h"
 
-int dbg_status;
+int debug_status;
 
 /* these values have to match those used in games */
-const int dbg_loaders       = 1 << 2;
-const int dbg_menu          = 1 << 4;
-const int dbg_menu_parser   = 1 << 5;
-const int dbg_sdl           = 1 << 10;
-const int dbg_all           = ~0;
+const int debug_loaders       = 1 << 0;
+const int debug_menu          = 1 << 1;
+const int debug_menu_parser   = 1 << 2;
+const int debug_sdl           = 1 << 3;
+const int debug_all           = ~0;
 
 SDL_Color red, yellow, white, black;
 
@@ -29,7 +29,7 @@ SDL_Color red, yellow, white, black;
 /* set global variables */
 void InitT4KCommon(int debug_flags)
 {
-  dbg_status = debug_flags;
+  debug_status = debug_flags;
 
   black.r       = 0x00; black.g       = 0x00; black.b       = 0x00;
   red.r         = 0xff; red.g         = 0x00; red.b         = 0x00;

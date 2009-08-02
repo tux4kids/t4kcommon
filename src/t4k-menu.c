@@ -162,12 +162,12 @@ void read_attributes(FILE* xml_file, MenuNode* node)
   {
     fscanf(xml_file, " %[^=\n]", attr_name);
 
-    DEBUGMSG(dbg_menu_parser, "read_attributes(): read attribute name: %s\n", attr_name);
+    DEBUGMSG(debug_menu_parser, "read_attributes(): read attribute name: %s\n", attr_name);
     if(strchr(attr_name, '>'))
       break;
 
     fscanf(xml_file, "=\"%[^\"]\"", attr_val);
-    DEBUGMSG(dbg_menu_parser, "read_attributes(): read attribute value: %s\n", attr_val);
+    DEBUGMSG(debug_menu_parser, "read_attributes(): read attribute value: %s\n", attr_val);
 
     if(strcmp(attr_name, "title") == 0)
       node->title = strdup(attr_val);
@@ -186,7 +186,7 @@ void read_attributes(FILE* xml_file, MenuNode* node)
           node->activity = i;
     }
     else
-      DEBUGMSG(dbg_menu_parser, "read_attributes(): unknown attribute %s , omitting\n", attr_name);
+      DEBUGMSG(debug_menu_parser, "read_attributes(): unknown attribute %s , omitting\n", attr_name);
 
   } while(strchr(attr_val, '>') == NULL);
 }
@@ -201,7 +201,7 @@ MenuNode* load_menu_from_file(FILE* xml_file, MenuNode* parent)
 
   new_node->parent = parent;
 
-  DEBUGMSG(dbg_menu_parser, "entering load_menu_from_file()\n");
+  DEBUGMSG(debug_menu_parser, "entering load_menu_from_file()\n");
   fscanf(xml_file, " < %s", buffer);
 
   if(strcmp(buffer, "menu") == 0)
@@ -209,7 +209,7 @@ MenuNode* load_menu_from_file(FILE* xml_file, MenuNode* parent)
     read_attributes(xml_file, new_node);
     if(new_node->title == NULL)
     {
-      DEBUGMSG(dbg_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
+      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
       return NULL;
     }
 
@@ -222,24 +222,24 @@ MenuNode* load_menu_from_file(FILE* xml_file, MenuNode* parent)
 
     fscanf(xml_file, " </%[^>\n]> ", buffer);
     if(strcmp(buffer, "menu") != 0)
-      DEBUGMSG(dbg_menu_parser, "load_menu_from_file(): warning - no closing menu tag, found %s instead\n", buffer);
+      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): warning - no closing menu tag, found %s instead\n", buffer);
   }
   else if(strcmp(buffer, "item") == 0)
   {
     read_attributes(xml_file, new_node);
     if(new_node->title == NULL)
     {
-      DEBUGMSG(dbg_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
+      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
       return NULL;
     }
   }
   else
   {
-    DEBUGMSG(dbg_menu_parser, "load_menu_from_file(): unknown tag: %s\n, exiting\n", buffer);
+    DEBUGMSG(debug_menu_parser, "load_menu_from_file(): unknown tag: %s\n, exiting\n", buffer);
     return NULL;
   }
 
-  DEBUGMSG(dbg_menu_parser, "load_menu_from_file(): node loaded successfully\n");
+  DEBUGMSG(debug_menu_parser, "load_menu_from_file(): node loaded successfully\n");
   return new_node;
 }
 
@@ -248,7 +248,7 @@ void free_menu(MenuNode* menu)
 {
   int i;
 
-  DEBUGMSG(dbg_menu, "entering free_menu()\n");
+  DEBUGMSG(debug_menu, "entering free_menu()\n");
   if(menu != NULL)
   {
     if(menu->title != NULL)
@@ -336,7 +336,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
 
   for(;;) /* one loop body execution for one menu page */
   {
-    DEBUGMSG(dbg_menu, "run_menu(): drawing whole new menu page\n");
+    DEBUGMSG(debug_menu, "run_menu(): drawing whole new menu page\n");
 
     draw_background();
     /* render buttons for current menu page */
@@ -344,7 +344,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
     menu_item_selected = render_buttons(menu, true);
     items = min(menu->entries_per_screen, menu->submenu_size - menu->first_entry);
 
-    DEBUGMSG(dbg_menu, "run_menu(): drawing %d buttons\n", items);
+    DEBUGMSG(debug_menu, "run_menu(): drawing %d buttons\n", items);
     for(i = 0; i < items; i++)
     {
       if(loc == i)
@@ -386,7 +386,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
 
     /******** Main loop: *********/
     stop = false;
-    DEBUGMSG(dbg_menu, "run_menu(): entering menu loop\n");
+    DEBUGMSG(debug_menu, "run_menu(): entering menu loop\n");
     while (!stop)
     {
       frame_start = SDL_GetTicks();         /* For keeping frame rate constant.*/
@@ -612,7 +612,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
         }  // End event switch statement
 
         if (old_loc != loc) {
-          DEBUGMSG(dbg_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
+          DEBUGMSG(debug_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
           if(old_loc >= 0 && old_loc < items)
           {
             tmp_rect = menu->submenu[old_loc + menu->first_entry]->button_rect;
@@ -650,7 +650,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
           case CLICK:
             if(loc < 0 || loc >= items)
             {
-              DEBUGMSG(dbg_menu, "run_menu(): incorrect location for CLICK action (%d) !\n", loc);
+              DEBUGMSG(debug_menu, "run_menu(): incorrect location for CLICK action (%d) !\n", loc);
             }
             else
             {
@@ -674,7 +674,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                   {
                     if(handle_activity(tmp_node->activity, tmp_node->param) == QUIT)
                     {
-                      DEBUGMSG(dbg_menu, "run_menu(): handle_activity() returned QUIT message, exiting.\n");
+                      DEBUGMSG(debug_menu, "run_menu(): handle_activity() returned QUIT message, exiting.\n");
                       FreeSurfaceArray(menu_item_unselected, items);
                       FreeSurfaceArray(menu_item_selected, items);
                       return QUIT;
@@ -745,7 +745,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
     } // End of while(!stop) loop
 
     /* free button surfaces */
-    DEBUGMSG(dbg_menu, "run_menu(): freeing %d button surfaces\n", items);
+    DEBUGMSG(debug_menu, "run_menu(): freeing %d button surfaces\n", items);
     FreeSurfaceArray(menu_item_unselected, items);
     FreeSurfaceArray(menu_item_selected, items);
   }
@@ -765,7 +765,7 @@ SDL_Surface** render_buttons(MenuNode* menu, bool selected)
   menu_items = (SDL_Surface**) malloc(items * sizeof(SDL_Surface*));
   if(NULL == menu_items)
   {
-    DEBUGMSG(dbg_menu, "render_buttons(): failed to allocate memory for buttons!\n");
+    DEBUGMSG(debug_menu, "render_buttons(): failed to allocate memory for buttons!\n");
     return NULL;  // error
   }
 
@@ -811,13 +811,13 @@ void prerender_menu(MenuNode* menu)
 
   if(NULL == menu)
   {
-    DEBUGMSG(dbg_menu, "prerender_menu(): NULL pointer, exiting !\n");
+    DEBUGMSG(debug_menu, "prerender_menu(): NULL pointer, exiting !\n");
     return;
   }
 
   if(0 == menu->submenu_size)
   {
-    DEBUGMSG(dbg_menu, "prerender_menu(): no submenu, exiting.\n");
+    DEBUGMSG(debug_menu, "prerender_menu(): no submenu, exiting.\n");
     return;
   }
 
@@ -864,11 +864,11 @@ void prerender_menu(MenuNode* menu)
     if(curr_node->icon_name)
     {
       sprintf(filename, "%s/images/sprites/%s", data_prefix, curr_node->icon_name);
-      DEBUGMSG(dbg_menu, "prerender_menu(): loading sprite %s for item #%d.\n", filename, i);
+      DEBUGMSG(debug_menu, "prerender_menu(): loading sprite %s for item #%d.\n", filename, i);
       curr_node->icon = LoadSpriteOfBoundingBox(filename, IMG_ALPHA, button_h, button_h);
     }
     else
-      DEBUGMSG(dbg_menu, "prerender_menu(): no sprite for item #%d.\n", i);
+      DEBUGMSG(debug_menu, "prerender_menu(): no sprite for item #%d.\n", i);
 
     prerender_menu(menu->submenu[i]);
   }
@@ -1003,7 +1003,7 @@ void LoadMenu(int index, const char* file_name)
   menu_file = fopen(file_name, "r");
   if(menu_file == NULL)
   {
-    DEBUGMSG(dbg_menu, "LoadMenu(): Could not load %s !\n", file_name);
+    DEBUGMSG(debug_menu, "LoadMenu(): Could not load %s !\n", file_name);
   }
   else
   {
@@ -1019,7 +1019,7 @@ void UnloadMenus(void)
 {
   int i;
 
-  DEBUGMSG(dbg_menu, "entering UnloadMenus()\n");
+  DEBUGMSG(debug_menu, "entering UnloadMenus()\n");
 
   if(stop_button)
   {
@@ -1042,10 +1042,10 @@ void UnloadMenus(void)
   for(i = 0; i < N_OF_MENUS; i++)
     if(menus[i] != NULL)
     {
-      DEBUGMSG(dbg_menu, "UnloadMenus(): freeing menu #%d\n", i);
+      DEBUGMSG(debug_menu, "UnloadMenus(): freeing menu #%d\n", i);
       free_menu(menus[i]);
     }
 
-  DEBUGMSG(dbg_menu, "leaving UnloadMenus()\n");
+  DEBUGMSG(debug_menu, "leaving UnloadMenus()\n");
 }
 

@@ -53,21 +53,21 @@ int check_file(const char* file)
 
   if (!file)
   {
-    DEBUGMSG(dbg_loaders, "check_file(): invalid char* argument!\n");
+    DEBUGMSG(debug_loaders, "check_file(): invalid char* argument!\n");
     return 0;
   }
 
-  DEBUGMSG(dbg_loaders, "check_file(): checking: %s\n", file);
+  DEBUGMSG(debug_loaders, "check_file(): checking: %s\n", file);
 
   fp = fopen(file, "r");
   if (fp)
   {
-    DEBUGMSG(dbg_loaders, "check_file(): Opened successfully as FILE\n");
+    DEBUGMSG(debug_loaders, "check_file(): Opened successfully as FILE\n");
     fclose(fp);
     return 1;
   }
 
-  DEBUGMSG(dbg_loaders, "check_file(): Unable to open '%s' as either FILE or DIR\n", file);
+  DEBUGMSG(debug_loaders, "check_file(): Unable to open '%s' as either FILE or DIR\n", file);
   return 0;
 }
 
@@ -85,14 +85,14 @@ SDL_Surface* load_svg(const char* file_name, int width, int height, const char* 
   SDL_Surface* dest;
   RsvgHandle* file_handle;
 
-  DEBUGMSG(dbg_loaders, "load_svg(): loading %s\n", file_name);
+  DEBUGMSG(debug_loaders, "load_svg(): loading %s\n", file_name);
 
   rsvg_init();
 
   file_handle = rsvg_handle_new_from_file(file_name, NULL);
   if(NULL == file_handle)
   {
-    DEBUGMSG(dbg_loaders, "load_svg(): file %s not found\n", file_name);
+    DEBUGMSG(debug_loaders, "load_svg(): file %s not found\n", file_name);
     rsvg_term();
     return NULL;
   }
@@ -112,14 +112,14 @@ sprite* load_svg_sprite(const char* file_name, int width, int height)
   char lay_name[20];
   int i;
 
-  DEBUGMSG(dbg_loaders, "load_svg_sprite(): loading sprite from %s\n", file_name);
+  DEBUGMSG(debug_loaders, "load_svg_sprite(): loading sprite from %s\n", file_name);
 
   rsvg_init();
 
   file_handle = rsvg_handle_new_from_file(file_name, NULL);
   if(NULL == file_handle)
   {
-    DEBUGMSG(dbg_loaders, "load_svg_sprite(): file %s not found\n", file_name);
+    DEBUGMSG(debug_loaders, "load_svg_sprite(): file %s not found\n", file_name);
     rsvg_term();
     return NULL;
   }
@@ -129,7 +129,7 @@ sprite* load_svg_sprite(const char* file_name, int width, int height)
 
   /* get number of frames from description */
   sscanf(rsvg_handle_get_desc(file_handle), "%d", &new_sprite->num_frames);
-  DEBUGMSG(dbg_loaders, "load_svg_sprite(): loading %d frames\n", new_sprite->num_frames);
+  DEBUGMSG(debug_loaders, "load_svg_sprite(): loading %d frames\n", new_sprite->num_frames);
 
   for(i = 0; i < new_sprite->num_frames; i++)
   {
@@ -180,7 +180,7 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
   else
     Amask = GetScreen()->format->Amask;
 
-  DEBUGMSG(dbg_loaders, "render_svg_from_handle(): color masks: R=%u, G=%u, B=%u, A=%u\n",
+  DEBUGMSG(debug_loaders, "render_svg_from_handle(): color masks: R=%u, G=%u, B=%u, A=%u\n",
         Rmask, Gmask, Bmask, Amask);
 
   dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
@@ -193,7 +193,7 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
   context = cairo_create(temp_surf);
   if(cairo_status(context) != CAIRO_STATUS_SUCCESS)
   {
-    DEBUGMSG(dbg_loaders, "render_svg_from_handle(): error rendering SVG\n");
+    DEBUGMSG(debug_loaders, "render_svg_from_handle(): error rendering SVG\n");
     cairo_surface_destroy(temp_surf);
     return NULL;
   }
@@ -220,7 +220,7 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
   file_handle = rsvg_handle_new_from_file(file_name, NULL);
   if(file_handle == NULL)
   {
-    DEBUGMSG(dbg_loaders, "get_svg_dimensions(): file %s not found\n", file_name);
+    DEBUGMSG(debug_loaders, "get_svg_dimensions(): file %s not found\n", file_name);
     rsvg_term();
     return;
   }
@@ -273,7 +273,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 
   if(NULL == file_name)
   {
-    DEBUGMSG(dbg_loaders, "load_image(): file_name is NULL, exiting.\n");
+    DEBUGMSG(debug_loaders, "load_image(): file_name is NULL, exiting.\n");
     return NULL;
   }
 
@@ -285,20 +285,20 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 
   if(strcmp(fn + fn_len - 4, ".svg"))
   {
-    DEBUGMSG(dbg_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
+    DEBUGMSG(debug_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
     loaded_pic = IMG_Load(fn);
     is_svg = false;
     if (NULL == loaded_pic)
     {
       is_svg = true;
-      DEBUGMSG(dbg_loaders, "load_image(): Trying to load SVG equivalent of %s\n", fn);
+      DEBUGMSG(debug_loaders, "load_image(): Trying to load SVG equivalent of %s\n", fn);
       sprintf(strrchr(fn, '.'), ".svg");
     }
   }
   if (is_svg)
   {
 #ifdef HAVE_RSVG
-    DEBUGMSG(dbg_loaders, "load_image(): trying to load %s as SVG.\n", fn);
+    DEBUGMSG(debug_loaders, "load_image(): trying to load %s as SVG.\n", fn);
     if(proportional)
     {
       get_svg_dimensions(fn, &width, &height);
@@ -316,17 +316,17 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     if(loaded_pic == NULL)
     {
 #ifdef HAVE_RSVG
-      DEBUGMSG(dbg_loaders, "load_image(): failed to load %s as SVG.\n", fn);
+      DEBUGMSG(debug_loaders, "load_image(): failed to load %s as SVG.\n", fn);
 #else
-      DEBUGMSG(dbg_loaders, "load_image(): SVG support not available.\n");
+      DEBUGMSG(debug_loaders, "load_image(): SVG support not available.\n");
 #endif
       if(mode & IMG_NO_PNG_FALLBACK)
       {
-        DEBUGMSG(dbg_loaders, "load_image(): %s : IMG_NO_PNG_FALLBACK is set.\n", fn);
+        DEBUGMSG(debug_loaders, "load_image(): %s : IMG_NO_PNG_FALLBACK is set.\n", fn);
       }
       else
       {
-        DEBUGMSG(dbg_loaders, "load_image(): Trying to load PNG equivalent of %s\n", fn);
+        DEBUGMSG(debug_loaders, "load_image(): Trying to load PNG equivalent of %s\n", fn);
         strcpy(fn + fn_len - 3, "png");
 
         loaded_pic = IMG_Load(fn);
@@ -339,7 +339,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   {
     if (mode & IMG_NOT_REQUIRED)
     {
-      DEBUGMSG(dbg_loaders, "load_image(): Warning: could not load optional graphics file %s\n", file_name);
+      DEBUGMSG(debug_loaders, "load_image(): Warning: could not load optional graphics file %s\n", file_name);
       return NULL;  /* Allow program to continue */
     }
     /* If image was required, exit from program: */
@@ -368,7 +368,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 
   final_pic = set_format(loaded_pic, mode);
   SDL_FreeSurface(loaded_pic);
-  DEBUGMSG(dbg_loaders, "Leaving load_image()\n\n");
+  DEBUGMSG(debug_loaders, "Leaving load_image()\n\n");
 
   return final_pic;
 }
@@ -394,19 +394,19 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
   {
     case IMG_REGULAR:
     {
-      DEBUGMSG(dbg_loaders, "set_format(): handling IMG_REGULAR mode.\n");
+      DEBUGMSG(debug_loaders, "set_format(): handling IMG_REGULAR mode.\n");
       return SDL_DisplayFormat(img);
     }
 
     case IMG_ALPHA:
     {
-      DEBUGMSG(dbg_loaders, "set_format(): handling IMG_ALPHA mode.\n");
+      DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
       return SDL_DisplayFormatAlpha(img);
     }
 
     case IMG_COLORKEY:
     {
-      DEBUGMSG(dbg_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
+      DEBUGMSG(debug_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
       SDL_LockSurface(img);
       SDL_SetColorKey(img, (SDL_SRCCOLORKEY | SDL_RLEACCEL),
                       SDL_MapRGB(img->format, 255, 255, 0));
@@ -415,7 +415,7 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 
     default:
     {
-      DEBUGMSG(dbg_loaders, "set_format(): Image mode not recognized\n");
+      DEBUGMSG(debug_loaders, "set_format(): Image mode not recognized\n");
     }
   }
 
@@ -434,7 +434,7 @@ SDL_Surface* LoadBkgd(const char* file_name, int width, int height)
 
   if (!orig)
   {
-    DEBUGMSG(dbg_loaders, "In LoadBkgd(), LoadImage() returned NULL on %s\n",
+    DEBUGMSG(debug_loaders, "In LoadBkgd(), LoadImage() returned NULL on %s\n",
              file_name);
     return NULL;
   }
@@ -510,7 +510,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       new_sprite->default_img = LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
 
     if(!new_sprite->default_img)
-      DEBUGMSG(dbg_loaders, "load_sprite(): failed to load default image for %s\n", name);
+      DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
 
     for(i = 0; i < MAX_SPRITE_FRAMES; i++)
     {
@@ -527,7 +527,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
         break;
       }
       else
-        DEBUGMSG(dbg_loaders, "load_sprite(): loaded frame %d of %s\n", i, name);
+        DEBUGMSG(debug_loaders, "load_sprite(): loaded frame %d of %s\n", i, name);
     }
   }
 
@@ -555,10 +555,10 @@ void FreeSprite(sprite* gfx)
   if (!gfx)
     return;
 
-  DEBUGMSG(dbg_loaders, "Freeing image at %p", gfx);
+  DEBUGMSG(debug_loaders, "Freeing image at %p", gfx);
   for (x = 0; x < gfx->num_frames; x++)
   {
-    DEBUGMSG(dbg_loaders, ".");
+    DEBUGMSG(debug_loaders, ".");
     if (gfx->frame[x])
     {
       SDL_FreeSurface(gfx->frame[x]);
@@ -572,7 +572,7 @@ void FreeSprite(sprite* gfx)
     gfx->default_img = NULL;
   }
 
-  DEBUGMSG(dbg_loaders, "FreeSprite() - done\n");
+  DEBUGMSG(debug_loaders, "FreeSprite() - done\n");
   free(gfx);
 }
 
