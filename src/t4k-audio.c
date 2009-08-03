@@ -34,10 +34,10 @@ void PlaySound(Mix_Chunk* sound)
 /* audioMusicLoad attempts to load and play the music file
  * Note: loops == -1 means forever
  */
-void AudioMusicLoad(Mix_Music* music, int loops)
+void AudioMusicLoad(char* music_path, int loops)
 {
   audioMusicUnload(); // make sure defaultMusic is clear
-  default_music = music;
+  default_music = LoadMusic(music_path);
   Mix_PlayMusic(default_music, loops);
 }
 

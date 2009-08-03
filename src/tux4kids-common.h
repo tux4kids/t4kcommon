@@ -55,11 +55,12 @@ extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
 extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 
 void            SetActivitiesList(int num, char** acts);
-void            SetMenuSounds(Mix_Music* music, Mix_Chunk* click, Mix_Chunk* hover);
+void            SetMenuSounds(char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
 void            SetImagePathPrefix(char* pref);
 
-void            CreateOneLevelMenu(int index, int items, char** item_names, char* title, char* trailer);
+void            CreateOneLevelMenu(int index, int items, char** item_names, char** sprite_names, char* title, char* trailer);
 int             RunMenu(int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
+void            PrerenderMenu(int index);
 void            PrerenderAll();
 void            LoadMenu(int index, const char* file_name);
 void            UnloadMenus(void);
@@ -80,8 +81,8 @@ void            SetRect(SDL_Rect* rect, const float* pos);
 void            UpdateRect(SDL_Surface* surf, SDL_Rect* rect);
 
 void            DarkenScreen(Uint8 bits);
-//void            ChangeWindowSize(int new_res_x, int new_res_y);
-//void            SwitchScreenMode(void);
+void            ChangeWindowSize(int new_res_x, int new_res_y);
+void            SwitchScreenMode(void);
 
 SDL_EventType   WaitForEvent(SDL_EventMask events);
 SDL_Surface*    zoom(SDL_Surface* src, int new_w, int new_h);
@@ -123,7 +124,7 @@ Mix_Music*      LoadMusic(char *datafile);
 /* from tk4-loaders.c */
 
 void            PlaySound(Mix_Chunk* sound);
-void            AudioMusicLoad(Mix_Music* music, int loops);
+void            AudioMusicLoad(char* music_path, int loops);
 void            AudioMusicUnload();
 bool            IsPlayingMusic();
 void            AudioMusicPlay(Mix_Music *musicData, int loops);

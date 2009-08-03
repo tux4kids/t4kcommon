@@ -39,7 +39,7 @@ or if this check is even necessary -Cheez
 */
 SDL_Surface* GetScreen()
 {
-#ifdef TUXMATH_DEBUG
+  DEBUGCODE(debug_sdl)
   {
     if (screen != SDL_GetVideoSurface() )
     {
@@ -47,7 +47,6 @@ SDL_Surface* GetScreen()
       screen = SDL_GetVideoSurface();
     }
   }
-#endif
   return screen;
 }
 
@@ -709,8 +708,8 @@ static int Set_SDL_Pango_Font_Size(int size);
 /* We cache fonts here once loaded to improve performance: */
 TTF_Font* font_list[MAX_FONT_SIZE + 1] = {NULL};
 static void free_font_list(void);
-//static TTF_Font* get_font(int size);
-//static TTF_Font* load_font(const char* font_name, int font_size);
+static TTF_Font* get_font(int size);
+static TTF_Font* load_font(const char* font_name, int font_size);
 #endif
 
 
