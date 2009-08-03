@@ -181,9 +181,10 @@ void read_attributes(FILE* xml_file, MenuNode* node)
     {
       if(strcmp(attr_val, "RUN_MAIN_MENU") == 0)
         node->activity = RUN_MAIN_MENU;
-      for(i = 0; i < n_of_activities; i++)
-        if(strcmp(attr_val, activities[i]) == 0)
-          node->activity = i;
+      else
+        for(i = 0; i < n_of_activities; i++)
+          if(strcmp(attr_val, activities[i]) == 0)
+            node->activity = i;
     }
     else
       DEBUGMSG(debug_menu_parser, "read_attributes(): unknown attribute %s , omitting\n", attr_name);
@@ -412,7 +413,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
             {
               if (inRect(menu->submenu[menu->first_entry + i]->button_rect, event.motion.x, event.motion.y))
               {
-                if(snd_hover)
+                if(old_loc != i && snd_hover)
                   PlaySound(snd_hover);
                 loc = i;
                 break;   /* from for loop */

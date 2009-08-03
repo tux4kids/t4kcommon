@@ -698,7 +698,7 @@ SDL_Surface* zoom(SDL_Surface* src, int new_w, int new_h)
 /*-- file-scope variables and local file prototypes for SDL_Pango-based code: */
 #ifdef HAVE_LIBSDL_PANGO
 #include "SDL_Pango.h"
-SDLPango_Context* context = NULL;
+static SDLPango_Context* context = NULL;
 static SDLPango_Matrix* SDL_Colour_to_SDLPango_Matrix(const SDL_Color* cl);
 static int Set_SDL_Pango_Font_Size(int size);
 
