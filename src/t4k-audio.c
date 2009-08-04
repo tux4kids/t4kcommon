@@ -28,7 +28,8 @@ Mix_Music *default_music;
 
 void PlaySound(Mix_Chunk* sound)
 {
-  Mix_PlayChannel(-1, sound, 0);
+  if(sound)
+    Mix_PlayChannel(-1, sound, 0);
 }
 
 /* audioMusicLoad attempts to load and play the music file

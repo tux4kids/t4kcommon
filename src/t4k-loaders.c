@@ -31,7 +31,6 @@
 #endif
 
 /* local functions */
-int             check_file(const char* file);
 
 #ifdef HAVE_RSVG
 SDL_Surface*    load_svg(const char* file_name, int width, int height, const char* layer_name);
@@ -47,27 +46,27 @@ sprite*         load_sprite(const char* name, int mode, int w, int h, bool propo
 
 
 
-int check_file(const char* file)
+int CheckFile(const char* file)
 {
   FILE* fp = NULL;
 
   if (!file)
   {
-    DEBUGMSG(debug_loaders, "check_file(): invalid char* argument!\n");
+    DEBUGMSG(debug_loaders, "CheckFile(): invalid char* argument!\n");
     return 0;
   }
 
-  DEBUGMSG(debug_loaders, "check_file(): checking: %s\n", file);
+  DEBUGMSG(debug_loaders, "CheckFile(): checking: %s\n", file);
 
   fp = fopen(file, "r");
   if (fp)
   {
-    DEBUGMSG(debug_loaders, "check_file(): Opened successfully as FILE\n");
+    DEBUGMSG(debug_loaders, "CheckFile(): Opened successfully as FILE\n");
     fclose(fp);
     return 1;
   }
 
-  DEBUGMSG(debug_loaders, "check_file(): Unable to open '%s' as either FILE or DIR\n", file);
+  DEBUGMSG(debug_loaders, "CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
   return 0;
 }
 
@@ -472,7 +471,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 #ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
   sprintf(fn, "%s.svg", name);
-  if(1 == check_file(fn))
+  if(1 == CheckFile(fn))
   {
     if(proportional)
     {
@@ -606,7 +605,7 @@ Mix_Music* LoadMusic(char *datafile )
   Mix_Music* tempMusic = NULL;
 
   sprintf(fn, "%s", datafile);
-  if (1 != check_file(fn))
+  if (1 != CheckFile(fn))
   {
     fprintf(stderr, "LoadMusic(): %s not found\n\n", fn);
     return NULL;

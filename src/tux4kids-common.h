@@ -105,6 +105,8 @@ SDL_Surface*    SimpleTextWithOffset(const char *t, int size, SDL_Color* col, in
 #define IMG_NO_PNG_FALLBACK 0x20
 
 
+int             CheckFile(const char* file);
+
 SDL_Surface*    LoadImage(const char* file_name, int mode);
 SDL_Surface*    LoadScaledImage(const char* file_name, int mode, int width, int height);
 SDL_Surface*    LoadImageOfBoundingBox(const char* file_name, int mode, int max_width, int max_height);
