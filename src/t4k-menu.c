@@ -866,7 +866,7 @@ void prerender_menu(MenuNode* menu)
 
     if(curr_node->icon_name)
     {
-      sprintf(filename, "%s/images/sprites/%s", data_prefix, curr_node->icon_name);
+      sprintf(filename, "%s/images/menu/%s", data_prefix, curr_node->icon_name);
       DEBUGMSG(debug_menu, "prerender_menu(): loading sprite %s for item #%d.\n", filename, i);
       curr_node->icon = LoadSpriteOfBoundingBox(filename, IMG_ALPHA, button_h, button_h);
     }
