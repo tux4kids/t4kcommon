@@ -20,6 +20,8 @@
 #define DEFAULT_FONT_NAME "AndikaDesRevG.ttf"
 #define PATH_MAX 1024
 #define FONT_NAME_LENGTH 64
+#define ERASE_MARGIN 5
+
 
 extern int debug_status;
 

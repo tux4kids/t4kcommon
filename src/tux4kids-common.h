@@ -38,6 +38,8 @@ extern const int debug_menu_parser;
 extern const int debug_sdl;
 extern const int debug_all;
 
+extern SDL_Surface* screen;
+
 #define MAX_SPRITE_FRAMES 10
 
 typedef struct {
@@ -66,6 +68,17 @@ void            LoadMenu(int index, const char* file_name);
 void            UnloadMenus(void);
 
 /* from tk4-sdl.c */
+
+/* For TransWipe(): */
+enum
+{
+  WIPE_BLINDS_VERT,
+  WIPE_BLINDS_HORIZ,
+  WIPE_BLINDS_BOX,
+  RANDOM_WIPE,
+  NUM_WIPES
+};
+
 SDL_Surface*    GetScreen();
 void            DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void            DrawButtonOn(SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
@@ -87,12 +100,15 @@ void            SwitchScreenMode(void);
 SDL_EventType   WaitForEvent(SDL_EventMask events);
 SDL_Surface*    zoom(SDL_Surface* src, int new_w, int new_h);
 
-/*Text rendering functions: */
-int             Setup_SDL_Text(void);
-void            Cleanup_SDL_Text(void);
-SDL_Surface*    BlackOutline(const char* t, int size, SDL_Color* c);
-SDL_Surface*    SimpleText(const char *t, int size, SDL_Color* col);
-SDL_Surface*    SimpleTextWithOffset(const char *t, int size, SDL_Color* col, int *glyph_offset);
+int             TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration);
+void            InitBlitQueue(void);
+void            ResetBlitQueue(void);
+int             AddRect(SDL_Rect* src, SDL_Rect* dst);
+int             DrawSprite(sprite* gfx, int x, int y);
+int             DrawObject(SDL_Surface* surf, int x, int y);
+void            UpdateScreen(int* frame);
+int             EraseSprite(sprite* img, SDL_Surface* curr_bkgd, int x, int y);
+int             EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
 
 /* from tk4-loaders.c */
