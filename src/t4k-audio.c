@@ -37,7 +37,7 @@ void PlaySound(Mix_Chunk* sound)
  */
 void AudioMusicLoad(char* music_path, int loops)
 {
-  audioMusicUnload(); // make sure defaultMusic is clear
+  AudioMusicUnload(); // make sure defaultMusic is clear
   default_music = LoadMusic(music_path);
   Mix_PlayMusic(default_music, loops);
 }
@@ -64,7 +64,7 @@ bool IsPlayingMusic()
  */
 void AudioMusicPlay(Mix_Music *musicData, int loops)
 {
-  audioMusicUnload();
+  AudioMusicUnload();
   Mix_PlayMusic(musicData, loops);
 }
 
