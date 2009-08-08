@@ -327,6 +327,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
   int i;
   int stop = 0;
   int items;
+  int old_w, old_h;
 
   int action = NONE;
 
@@ -675,6 +676,8 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                   }
                   else
                   {
+                    old_w = GetScreen()->w;
+                    old_h = GetScreen()->h;
                     if(handle_activity(tmp_node->activity, tmp_node->param) == QUIT)
                     {
                       DEBUGMSG(debug_menu, "run_menu(): handle_activity() returned QUIT message, exiting.\n");
@@ -682,6 +685,8 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                       FreeSurfaceArray(menu_item_selected, items);
                       return QUIT;
                     }
+                    if(old_w != GetScreen()->w || old_h != GetScreen()->h)
+                      PrerenderAll();
                   }
                 }
               }
