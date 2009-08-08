@@ -40,7 +40,7 @@ extern const int debug_all;
 
 extern SDL_Surface* screen;
 
-#define MAX_SPRITE_FRAMES 10
+#define MAX_SPRITE_FRAMES 15
 
 typedef struct {
   SDL_Surface *frame[MAX_SPRITE_FRAMES];

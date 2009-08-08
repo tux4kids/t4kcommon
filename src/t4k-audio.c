@@ -24,7 +24,7 @@
 #include "tux4kids-common.h"
 #include "t4k-globals.h"
 
-Mix_Music *default_music;
+static Mix_Music *default_music = NULL;
 
 void PlaySound(Mix_Chunk* sound)
 {

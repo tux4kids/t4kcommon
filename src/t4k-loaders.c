@@ -500,7 +500,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
   if(!new_sprite)
   {
     /* SVG sprite was not loaded, try to load it frame by frame from PNG files */
-    new_sprite = malloc(sizeof(sprite));
+    new_sprite = (sprite*) malloc(sizeof(sprite));
 
     sprintf(fn, "%sd.png", name);  // The 'd' means the default image
     if(proportional)
@@ -511,6 +511,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
     if(!new_sprite->default_img)
       DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
 
+    new_sprite->cur = 0;
     for(i = 0; i < MAX_SPRITE_FRAMES; i++)
     {
       sprintf(fn, "%s%d.png", name, i);
@@ -521,12 +522,13 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
       if(new_sprite->frame[i] == NULL)
       {
-        new_sprite->cur = 0;
-        new_sprite->num_frames = i;
         break;
       }
       else
+      {
         DEBUGMSG(debug_loaders, "load_sprite(): loaded frame %d of %s\n", i, name);
+        new_sprite->num_frames = i + 1;
+      }
     }
   }
 

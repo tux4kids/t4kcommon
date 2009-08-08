@@ -53,7 +53,7 @@ typedef struct mNode MenuNode;
 #define RUN_MAIN_MENU -3
 
 int n_of_activities;
-char** activities;
+static char** activities;
 
 char* data_prefix;
 
@@ -645,7 +645,6 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
         switch(action)
         {
           case RESIZED:
-            RenderTitleScreen();
             menu->first_entry = 0;
             PrerenderAll();
             stop = true;
@@ -817,6 +816,7 @@ void prerender_menu(MenuNode* menu)
   bool found_icons = false;
   char filename[buf_size];
 
+  DEBUGMSG(debug_menu, "Entering prerender_menu()\n");
   if(NULL == menu)
   {
     DEBUGMSG(debug_menu, "prerender_menu(): NULL pointer, exiting !\n");
@@ -867,7 +867,10 @@ void prerender_menu(MenuNode* menu)
     curr_node->text_rect.w = max_text_w;
 
     if(curr_node->icon)
+    {
       FreeSprite(curr_node->icon);
+      curr_node->icon = NULL;
+    }
 
     if(curr_node->icon_name)
     {
@@ -880,6 +883,7 @@ void prerender_menu(MenuNode* menu)
 
     prerender_menu(menu->submenu[i]);
   }
+  DEBUGMSG(debug_menu, "Leaving prerender_menu()\n");
 }
 
 void PrerenderMenu(int index)
@@ -893,6 +897,7 @@ char* find_longest_text(MenuNode* menu, int* length)
   char *ret = NULL, *temp = NULL;
   int i;
 
+  DEBUGMSG(debug_menu, "Entering find_longest_text()\n");
   if(menu->submenu_size == 0)
   {
     text = SimpleText(_(menu->title), curr_font_size, &black);
@@ -912,6 +917,7 @@ char* find_longest_text(MenuNode* menu, int* length)
         ret = temp;
     }
   }
+  DEBUGMSG(debug_menu, "Leaving find_longest_text()\n");
   return ret;
 }
 
