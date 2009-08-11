@@ -512,6 +512,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
 
     new_sprite->cur = 0;
+    new_sprite->num_frames = 0;
     for(i = 0; i < MAX_SPRITE_FRAMES; i++)
     {
       sprintf(fn, "%s%d.png", name, i);
@@ -521,15 +522,20 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
         new_sprite->frame[i] = LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
 
       if(new_sprite->frame[i] == NULL)
-      {
         break;
-      }
       else
       {
         DEBUGMSG(debug_loaders, "load_sprite(): loaded frame %d of %s\n", i, name);
         new_sprite->num_frames = i + 1;
       }
     }
+  }
+
+  if(0 == new_sprite->num_frames)
+  {
+    DEBUGMSG(debug_loaders, "load_sprite(): failed to load %s\n", name);
+    free(new_sprite);
+    return NULL;
   }
 
   return new_sprite;
