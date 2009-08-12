@@ -53,6 +53,14 @@ typedef struct {
 void            InitT4KCommon(int debug_flags);
 
 /* from tk4-menu.c */
+
+/* special values used by RunMenu. RUN_MAIN_MENU is a special
+   activity that can be used in .xml menu structures but should not
+   be declared in activities' lists.
+   RunMenu returning QUIT indicates that user decided to quit application while
+   running the menu. Returning STOP indicates that user pressed stop button. */
+enum { RUN_MAIN_MENU = -3, QUIT = -2, STOP = -1 };
+
 extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
 extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 

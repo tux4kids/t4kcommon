@@ -19,6 +19,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/*
+  representation of a menu tree node
+*/
+
 struct mNode {
   struct mNode* parent;
 
@@ -48,38 +53,50 @@ struct mNode {
 
 typedef struct mNode MenuNode;
 
-#define QUIT -2
-#define STOP -1
-#define RUN_MAIN_MENU -3
 
-int n_of_activities;
+/*
+  menu globals
+*/
+
+/* activities array is used to parse xml menu files */
+static int n_of_activities;
 static char** activities;
 
-char* data_prefix;
+/* prefix that is added to sprite paths */
+static char* data_prefix;
 
-Mix_Chunk* snd_click;
-Mix_Chunk* snd_hover;
-char* music_path;
-
-#define N_OF_MENUS 10
-MenuNode* menus[N_OF_MENUS];
+static Mix_Chunk* snd_click;
+static Mix_Chunk* snd_hover;
+static char* music_path;
 
 /* font size used in current resolution */
-int curr_font_size;
+static int curr_font_size;
 
 /* buffer size used when reading attributes or names */
-const int buf_size = 512;
+static const int buf_size = 512;
 
 /* actions available while viewing the menu */
 enum { NONE, CLICK, PAGEUP, PAGEDOWN, STOP_ESC, RESIZED };
+
+/* menus is a global array when user can save up to 10 loaded menus.
+   From outside this file we identify menu trees by their ids (indexes in this array)
+   so as not to expose MenuNode struct to the user */
+#define N_OF_MENUS 10
+static MenuNode* menus[N_OF_MENUS];
 
 /* stop button, left and right arrow positions do not
    depend on currently displayed menu */
 SDL_Rect menu_rect, stop_rect, prev_rect, next_rect, menu_title_rect;
 SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 
-/*TODO: move these constants into a config file (maybe together with
-  titlescreen paths and rects ? ) */
+
+/*
+  positioning constants
+*/
+
+/*TODO: maybe move these constants into a config file ?
+  these paths may vary between games. Maybe it is better to
+  keep arrow & stop buttons in t4kcommon ? */
 const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
@@ -94,7 +111,10 @@ const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
 
 
 
-/* local functions */
+/*
+  local functions
+*/
+
 MenuNode*       create_empty_node();
 char*           get_attribute_name(const char* token);
 char*           get_attribute_value(const char* token);
@@ -108,7 +128,11 @@ void            set_font_size();
 void            prerender_menu(MenuNode* menu);
 
 
-/* initialization of menu module */
+/*
+  functions initializing the menu module
+  (they shoul be called before any other menu activity)
+*/
+
 void SetActivitiesList(int num, char** acts)
 {
   n_of_activities = num;
@@ -307,12 +331,72 @@ void CreateOneLevelMenu(int index, int items, char** item_names, char** sprite_n
   menus[index] = menu;
 }
 
+/* load menu from given XML file and store its tree under given index
+   in "menus" array */
+void LoadMenu(int index, const char* file_name)
+{
+  FILE* menu_file = NULL;
+
+  if(menus[index])
+  {
+    free_menu(menus[index]);
+    menus[index] = NULL;
+  }
+
+  menu_file = fopen(file_name, "r");
+  if(menu_file == NULL)
+  {
+    DEBUGMSG(debug_menu, "LoadMenu(): Could not load %s !\n", file_name);
+  }
+  else
+  {
+    menus[index] = load_menu_from_file(menu_file, NULL);
+    fclose(menu_file);
+  }
+}
+
+/* free all loaded menu trees */
+void UnloadMenus(void)
+{
+  int i;
+
+  DEBUGMSG(debug_menu, "entering UnloadMenus()\n");
+
+  if(stop_button)
+  {
+    SDL_FreeSurface(stop_button);
+    stop_button = NULL;
+  }
+
+  if(prev_arrow)
+  {
+    SDL_FreeSurface(prev_arrow);
+    prev_arrow = NULL;
+  }
+
+  if(next_arrow)
+  {
+    SDL_FreeSurface(next_arrow);
+    next_arrow = NULL;
+  }
+
+  for(i = 0; i < N_OF_MENUS; i++)
+    if(menus[i] != NULL)
+    {
+      DEBUGMSG(debug_menu, "UnloadMenus(): freeing menu #%d\n", i);
+      free_menu(menus[i]);
+    }
+
+  DEBUGMSG(debug_menu, "leaving UnloadMenus()\n");
+}
 
 
-/* Display the menu and run the event loop.
+/*
+   RunMenu - main function to display the menu and run the event loop
    if return_choice = true then return chosen value instead of
    running handle_activity()
-   this function is a modified copy of choose_menu_item() */
+   this function is a modified copy of choose_menu_item()
+*/
 int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int))
 {
   SDL_Surface** menu_item_unselected = NULL;
@@ -760,6 +844,10 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
   return QUIT;
 }
 
+/*
+  functins responsible for rendering menus
+*/
+
 /* return button surfaces that are currently displayed (without sprites) */
 SDL_Surface** render_buttons(MenuNode* menu, bool selected)
 {
@@ -1008,62 +1096,6 @@ void PrerenderAll()
       PrerenderMenu(i);
 }
 
-void LoadMenu(int index, const char* file_name)
-{
-  FILE* menu_file = NULL;
-
-  if(menus[index])
-  {
-    free_menu(menus[index]);
-    menus[index] = NULL;
-  }
-
-  menu_file = fopen(file_name, "r");
-  if(menu_file == NULL)
-  {
-    DEBUGMSG(debug_menu, "LoadMenu(): Could not load %s !\n", file_name);
-  }
-  else
-  {
-    menus[index] = load_menu_from_file(menu_file, NULL);
-    fclose(menu_file);
-  }
-}
 
 
-
-/* free all loaded menu trees */
-void UnloadMenus(void)
-{
-  int i;
-
-  DEBUGMSG(debug_menu, "entering UnloadMenus()\n");
-
-  if(stop_button)
-  {
-    SDL_FreeSurface(stop_button);
-    stop_button = NULL;
-  }
-
-  if(prev_arrow)
-  {
-    SDL_FreeSurface(prev_arrow);
-    prev_arrow = NULL;
-  }
-
-  if(next_arrow)
-  {
-    SDL_FreeSurface(next_arrow);
-    next_arrow = NULL;
-  }
-
-  for(i = 0; i < N_OF_MENUS; i++)
-    if(menus[i] != NULL)
-    {
-      DEBUGMSG(debug_menu, "UnloadMenus(): freeing menu #%d\n", i);
-      free_menu(menus[i]);
-    }
-
-  DEBUGMSG(debug_menu, "leaving UnloadMenus()\n");
-}
 
