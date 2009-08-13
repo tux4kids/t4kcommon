@@ -25,5 +25,25 @@ if(PKG_CONFIG_FOUND)
   endif(RSVG_FOUND)
 endif(PKG_CONFIG_FOUND)
 
-add_subdirectory(src)
+# based on tuxmath's CMakeLists.txt
+if (APPLE)
+  set(TUX4KIDS-COMMON_MACOSX_BUNDLE_NAME tux4kids-common)
+  set(TUX4KIDS-COMMON_DATA_PREFIX
+      ${TUX4KIDS-COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
+elseif (UNIX)
+  set (TUX4KIDS-COMMON_DATA_PREFIX
+      ${CMAKE_INSTALL_PREFIX}/share/tux4kids-common)
+endif (APPLE)
 
+
+add_subdirectory(t4kcommon)
+
+if (UNIX)
+  set (DESTDIR "${TUX4KIDS-COMMON_DATA_PREFIX}")
+  install (DIRECTORY data
+    DESTINATION ${DESTDIR}
+    PATTERN Makefile* EXCLUDE
+    PATTERN .svn EXCLUDE
+    PATTERN CMakeLists.txt EXCLUDE
+    PATTERN *~ EXCLUDE )
+endif (UNIX)
