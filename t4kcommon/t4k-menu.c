@@ -94,18 +94,16 @@ SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
   positioning constants
 */
 
-/*TODO: maybe move these constants into a config file ?
-  these paths may vary between games. Maybe it is better to
-  keep arrow & stop buttons in t4kcommon ? */
+/* NOTE: maybe it is better to move these constants into a config file ? */
 const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
-const char* stop_path = "/images/status/stop.svg";
-const char* prev_path = "/images/status/left.svg";
-const char* next_path = "/images/status/right.svg";
-const char* prev_gray_path = "/images/status/left_gray.svg";
-const char* next_gray_path = "/images/status/right_gray.svg";
+const char* stop_path = "/images/menu/stop.svg";
+const char* prev_path = "/images/menu/left.svg";
+const char* next_path = "/images/menu/right.svg";
+const char* prev_gray_path = "/images/menu/left_gray.svg";
+const char* next_gray_path = "/images/menu/right_gray.svg";
 const float button_gap = 0.2, text_h_gap = 0.4, text_w_gap = 0.5, button_radius = 0.27;
 const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
 
@@ -146,6 +144,7 @@ void SetMenuSounds(char* mus_path, Mix_Chunk* click, Mix_Chunk* hover)
   music_path = mus_path;
 }
 
+/* prefix that is used whe loading menu sprites */
 void SetImagePathPrefix(char* pref)
 {
   data_prefix = pref;
@@ -1062,7 +1061,7 @@ void PrerenderAll()
   SetRect(&stop_rect, stop_pos);
   if(stop_button)
     SDL_FreeSurface(stop_button);
-  sprintf(fn, "%s%s", data_prefix, stop_path);
+  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, stop_path);
   stop_button = LoadImageOfBoundingBox(fn, IMG_ALPHA, stop_rect.w, stop_rect.h);
   /* move button to the right */
   stop_rect.x = GetScreen()->w - stop_button->w;
@@ -1070,11 +1069,11 @@ void PrerenderAll()
   SetRect(&prev_rect, prev_pos);
   if(prev_arrow)
     SDL_FreeSurface(prev_arrow);
-  sprintf(fn, "%s%s", data_prefix, prev_path);
+  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, prev_path);
   prev_arrow = LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
   if(prev_gray)
     SDL_FreeSurface(prev_gray);
-  sprintf(fn, "%s%s", data_prefix, prev_gray_path);
+  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, prev_gray_path);
   prev_gray = LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
   /* move button to the right */
   prev_rect.x += prev_rect.w - prev_arrow->w;
@@ -1082,11 +1081,11 @@ void PrerenderAll()
   SetRect(&next_rect, next_pos);
   if(next_arrow)
     SDL_FreeSurface(next_arrow);
-  sprintf(fn, "%s%s", data_prefix, next_path);
+  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, next_path);
   next_arrow = LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
   if(next_gray)
     SDL_FreeSurface(next_gray);
-  sprintf(fn, "%s%s", data_prefix, next_gray_path);
+  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, next_gray_path);
   next_gray = LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
 
   set_font_size();

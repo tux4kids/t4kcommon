@@ -45,7 +45,7 @@ endif (SDLPANGO_FOUND)
 set_target_properties (
   t4kcommon
   PROPERTIES COMPILE_FLAGS
-  "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
+  "-DCOMMON_DATA_PREFIX=\\\"${TUX4KIDS-COMMON_DATA_PREFIX}\\\" ${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
   )
 
 

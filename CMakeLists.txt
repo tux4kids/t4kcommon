@@ -37,13 +37,5 @@ endif (APPLE)
 
 
 add_subdirectory(t4kcommon)
+add_subdirectory(data)
 
-if (UNIX)
-  set (DESTDIR "${TUX4KIDS-COMMON_DATA_PREFIX}")
-  install (DIRECTORY data
-    DESTINATION ${DESTDIR}
-    PATTERN Makefile* EXCLUDE
-    PATTERN .svn EXCLUDE
-    PATTERN CMakeLists.txt EXCLUDE
-    PATTERN *~ EXCLUDE )
-endif (UNIX)
