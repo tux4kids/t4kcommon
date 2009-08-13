@@ -75,6 +75,9 @@ static int curr_font_size;
 /* buffer size used when reading attributes or names */
 static const int buf_size = 512;
 
+/* maximum menu buttons per page */
+static const int MAX_PAGE_SIZE = 8;
+
 /* actions available while viewing the menu */
 enum { NONE, CLICK, PAGEUP, PAGEDOWN, STOP_ESC, RESIZED };
 
@@ -95,6 +98,7 @@ SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 */
 
 /* NOTE: maybe it is better to move these constants into a config file ? */
+/* X Y W H */
 const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
@@ -104,7 +108,7 @@ const char* prev_path = "/images/menu/left.svg";
 const char* next_path = "/images/menu/right.svg";
 const char* prev_gray_path = "/images/menu/left_gray.svg";
 const char* next_gray_path = "/images/menu/right_gray.svg";
-const float button_gap = 0.2, text_h_gap = 0.4, text_w_gap = 0.5, button_radius = 0.27;
+const float button_gap = 0.18, text_h_gap = 0.35, text_w_gap = 0.5, button_radius = 0.27;
 const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
 
 
@@ -122,6 +126,7 @@ void            free_menu(MenuNode* menu);
 
 SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
 char*           find_longest_text(MenuNode* menu, int* length);
+int             find_longest_menu_page(MenuNode* menu);
 void            set_font_size();
 void            prerender_menu(MenuNode* menu);
 
@@ -202,6 +207,7 @@ void read_attributes(FILE* xml_file, MenuNode* node)
       node->icon_name = strdup(attr_val);
     else if(strcmp(attr_name, "run") == 0)
     {
+      /* special activity - should be handled separately */
       if(strcmp(attr_val, "RUN_MAIN_MENU") == 0)
         node->activity = RUN_MAIN_MENU;
       else
@@ -431,6 +437,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
     menu_item_selected = render_buttons(menu, true);
     items = min(menu->entries_per_screen, menu->submenu_size - menu->first_entry);
 
+    /* draw buttons */
     DEBUGMSG(debug_menu, "run_menu(): drawing %d buttons\n", items);
     for(i = 0; i < items; i++)
     {
@@ -457,6 +464,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
         SDL_BlitSurface(next_gray, NULL, GetScreen(), &next_rect);
     }
 
+    /* display red menu title (if present) */
     if(menu->show_title)
     {
       menu_title_rect = menu->submenu[0]->button_rect;
@@ -483,6 +491,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
       {
         switch (event.type)
         {
+          /* user decided to quit the application (for example by closing the window) */
           case SDL_QUIT:
           {
             FreeSurfaceArray(menu_item_unselected, items);
@@ -698,6 +707,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
           }  // End of case SDL_KEYDOWN in outer switch statement
         }  // End event switch statement
 
+        /* handle button focus */
         if (old_loc != loc) {
           DEBUGMSG(debug_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
           if(old_loc >= 0 && old_loc < items)
@@ -762,6 +772,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                     old_h = GetScreen()->h;
                     if(handle_activity(tmp_node->activity, tmp_node->param) == QUIT)
                     {
+                      /* user decided to quit while playing a game */
                       DEBUGMSG(debug_menu, "run_menu(): handle_activity() returned QUIT message, exiting.\n");
                       FreeSurfaceArray(menu_item_unselected, items);
                       FreeSurfaceArray(menu_item_selected, items);
@@ -810,6 +821,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
       if(stop)
         break;
 
+      /* handle icon animation of selected button */
       if(!stop && frame_counter % 5 == 0 && loc >= 0 && loc < items)
       {
         tmp_sprite = menu->submenu[menu->first_entry + loc]->icon;
@@ -822,6 +834,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
         }
       }
 
+      /* handle titlescreen animations */
       handle_animations();
 
       /* Wait so we keep frame rate constant: */
@@ -978,6 +991,8 @@ void PrerenderMenu(int index)
   prerender_menu(menus[index]);
 }
 
+/* recursively search for longest menu caption in currently
+   used menus and in current language */
 char* find_longest_text(MenuNode* menu, int* length)
 {
   SDL_Surface* text = NULL;
@@ -1008,6 +1023,21 @@ char* find_longest_text(MenuNode* menu, int* length)
   return ret;
 }
 
+/* recursively search for longest (sub)menu that is not longer
+   than MAX_PAGE_SIZE to ensure better menu outlook */
+int find_longest_menu_page(MenuNode* menu)
+{
+  int longest = 0, i;
+
+  if(menu->submenu_size <= MAX_PAGE_SIZE)
+    longest = menu->submenu_size;
+
+  for(i = 0; i < menu->submenu_size; i++)
+    longest = max(longest, find_longest_menu_page(menu->submenu[i]));
+
+  return longest;
+}
+
 /* find the longest text in all existing menus and binary search
    for the best font size */
 void set_font_size()
@@ -1015,7 +1045,7 @@ void set_font_size()
   char* longest = NULL;
   char* temp;
   SDL_Surface* surf;
-  int length = 0, i, min_f, max_f, mid_f;
+  int length = 0, i, min_f, max_f, mid_f, max_buttons = 0;
 
   curr_font_size = default_font_size;
 
@@ -1023,6 +1053,7 @@ void set_font_size()
   {
     if(menus[i])
     {
+      max_buttons = max(max_buttons, find_longest_menu_page(menus[i]));
       temp = find_longest_text(menus[i], &length);
       if(temp)
         longest = temp;
@@ -1035,11 +1066,13 @@ void set_font_size()
   min_f = min_font_size;
   max_f = max_font_size;
 
+  /* run binary search */
   while(min_f < max_f)
   {
     mid_f = (min_f + max_f) / 2;
     surf = SimpleText(_(longest), mid_f, &black);
-    if(surf->w + (1.0 + 2.0 * text_w_gap) * (1.0 + 2.0 * text_h_gap) * surf->h < menu_rect.w)
+    if(surf->w + (1.0 + 2.0 * text_w_gap) * (1.0 + 2.0 * text_h_gap) * surf->h  <  menu_rect.w
+       && (1.0 + button_gap) * (max_buttons + 1) + (1.5 + 2.0 * text_h_gap) * surf->h * max_buttons  <  menu_rect.h)
       min_f = mid_f + 1;
     else
       max_f = mid_f;
@@ -1094,7 +1127,4 @@ void PrerenderAll()
     if(menus[i])
       PrerenderMenu(i);
 }
-
-
-
 
