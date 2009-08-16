@@ -451,6 +451,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
 
     SDL_BlitSurface(stop_button, NULL, GetScreen(), &stop_rect);
 
+    /* check if there is a need to draw menu arrows */
     if(menu->entries_per_screen < menu->submenu_size)
     {
       /* display arrows */
@@ -715,7 +716,8 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
             tmp_rect = menu->submenu[old_loc + menu->first_entry]->button_rect;
             SDL_BlitSurface(menu_item_unselected[old_loc], NULL, GetScreen(), &tmp_rect);
             if(menu->submenu[menu->first_entry + old_loc]->icon)
-              SDL_BlitSurface(menu->submenu[menu->first_entry + old_loc]->icon->default_img, NULL, GetScreen(), &menu->submenu[menu->first_entry + old_loc]->icon_rect);
+              SDL_BlitSurface(menu->submenu[menu->first_entry + old_loc]->icon->default_img,
+                  NULL, GetScreen(), &menu->submenu[menu->first_entry + old_loc]->icon_rect);
             SDL_UpdateRect(GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
           }
           if(loc >= 0 && loc < items)
@@ -724,7 +726,8 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
             SDL_BlitSurface(menu_item_selected[loc], NULL, GetScreen(), &tmp_rect);
             if(menu->submenu[menu->first_entry + loc]->icon)
             {
-              SDL_BlitSurface(menu->submenu[menu->first_entry + loc]->icon->default_img, NULL, GetScreen(), &menu->submenu[menu->first_entry + loc]->icon_rect);
+              SDL_BlitSurface(menu->submenu[menu->first_entry + loc]->icon->default_img,
+                  NULL, GetScreen(), &menu->submenu[menu->first_entry + loc]->icon_rect);
               menu->submenu[menu->first_entry + loc]->icon->cur = 0;
             }
             SDL_UpdateRect(GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
@@ -732,9 +735,12 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
           old_loc = loc;
         }
 
+        /* check if catched event causes any changes to titlescreen,
+           if handle_event() returns 1, menu should be redrawn */
         if(handle_event(&event))
           stop = true;
 
+        /* handle special action that was caused by an event */
         switch(action)
         {
           case RESIZED:
@@ -755,6 +761,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
               {
                 if(return_choice)
                 {
+                  /* return choice instead of running a handler function */
                   FreeSurfaceArray(menu_item_unselected, items);
                   FreeSurfaceArray(menu_item_selected, items);
                   return tmp_node->activity;
@@ -768,6 +775,8 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                   }
                   else
                   {
+                    /* we are going to run a handler function that probably will run a game,
+                       save current screen resolution in case it is changed while running a game */
                     old_w = GetScreen()->w;
                     old_h = GetScreen()->h;
                     if(handle_activity(tmp_node->activity, tmp_node->param) == QUIT)
@@ -779,7 +788,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                       return QUIT;
                     }
                     if(old_w != GetScreen()->w || old_h != GetScreen()->h)
-                      PrerenderAll();
+                      PrerenderAll(); /* resolution has changed */
                   }
                 }
               }
@@ -819,6 +828,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
       }  // End of SDL_PollEvent while loop
 
       if(stop)
+        /* whole menu will be redrawn so there is no need to draw anything now */
         break;
 
       /* handle icon animation of selected button */

@@ -38,6 +38,8 @@ extern const int debug_menu_parser;
 extern const int debug_sdl;
 extern const int debug_all;
 
+/* FIXME: global vars such as screen should be hidden when all games
+   are using only getters (such as GetScreen() ) */
 extern SDL_Surface* screen;
 
 #define MAX_SPRITE_FRAMES 15
