@@ -43,15 +43,17 @@ SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool p
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
+char*           find_file(const char* base_name);
 
-
+//directories to search in for loaded files, in addition to common data dir (just one for now)
+static char app_prefix_path[1][PATH_MAX];
 
 int CheckFile(const char* file)
 {
   FILE* fp = NULL;
-
+                                                       
   if (!file)
-  {
+  {                                                 
     DEBUGMSG(debug_loaders, "CheckFile(): invalid char* argument!\n");
     return 0;
   }
@@ -69,8 +71,27 @@ int CheckFile(const char* file)
   DEBUGMSG(debug_loaders, "CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
   return 0;
 }
+                            
+void AddDataPrefix(const char* path)
+{
+  strncpy(app_prefix_path, path, PATH_MAX);
+}
 
-
+/* Look for a file as an absolute path, then in 
+   potential install directories */
+char* find_file(const char* base_name)
+{
+  static char tmp_path[PATH_MAX];
+  if (CheckFile(base_name))
+    return base_name;
+  snprintf(tmp_path, PATH_MAX, "%s%s", app_prefix_path[0], base_name); 
+  if (CheckFile(tmp_path))
+    return tmp_path;
+  snprintf(tmp_path, PATH_MAX, "%s%s", COMMON_DATA_PREFIX, base_name); 
+  if (CheckFile(tmp_path))
+    return tmp_path;
+  return "";
+}
 #ifdef HAVE_RSVG
 
 /* Load a layer of SVG file and resize it to given dimensions.
@@ -273,7 +294,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   if(NULL == file_name)
   {
     DEBUGMSG(debug_loaders, "load_image(): file_name is NULL, exiting.\n");
-    return NULL;
+    return NULL;                    
   }
 
   /* run loader depending on file extension */
@@ -285,7 +306,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   if(strcmp(fn + fn_len - 4, ".svg"))
   {
     DEBUGMSG(debug_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
-    loaded_pic = IMG_Load(fn);
+    loaded_pic = IMG_Load(find_file(fn));
     is_svg = false;
     if (NULL == loaded_pic)
     {
@@ -309,7 +330,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
       width = w;
       height = h;
     }
-    loaded_pic = load_svg(fn, width, height, NULL);
+    loaded_pic = load_svg(find_file(fn), width, height, NULL);
 #endif
 
     if(loaded_pic == NULL)
@@ -328,7 +349,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
         DEBUGMSG(debug_loaders, "load_image(): Trying to load PNG equivalent of %s\n", fn);
         strcpy(fn + fn_len - 3, "png");
 
-        loaded_pic = IMG_Load(fn);
+        loaded_pic = IMG_Load(find_file(fn));
         is_svg = false;
       }
     }
@@ -343,10 +364,14 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     }
     /* If image was required, exit from program: */
     fprintf(stderr, "load_image(): ERROR could not load required graphics file %s\n", file_name);
-    fprintf(stderr, "%s", SDL_GetError() );
+    fprintf(stderr, "%s\n", SDL_GetError() );
+    //should do some cleanup first...
+    exit(EXIT_FAILURE);
     return NULL;
   }
-  else if(!is_svg && w > 0 && h > 0)
+  
+  //if we need to resize a loaded raster image
+  if(!is_svg && w > 0 && h > 0)
   {
     if(proportional)
     {

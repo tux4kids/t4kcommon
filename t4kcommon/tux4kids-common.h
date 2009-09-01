@@ -89,6 +89,8 @@ enum
   NUM_WIPES
 };
 
+//TODO most of these functions are documented...somewhere. That should end up
+//in this header eventually
 SDL_Surface*    GetScreen();
 void            DrawButton(SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void            DrawButtonOn(SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
@@ -132,6 +134,12 @@ int             EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, in
 
 
 int             CheckFile(const char* file);
+/**
+ * Add a path to search for data (in addition to t4kcommon's install path and 
+ * the root directory) This affects how LoadImage and friends are able to
+ * find files.
+ */
+void            AddDataPrefix(const char* path);
 
 SDL_Surface*    LoadImage(const char* file_name, int mode);
 SDL_Surface*    LoadScaledImage(const char* file_name, int mode, int width, int height);
