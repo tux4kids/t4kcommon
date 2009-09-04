@@ -2,10 +2,9 @@
 ## Process with Automake to create Makefile.in
 
 SUBDIRS = data \
-  po	\
-  t4kcommon
-  
-EXTRA_DIST = CMakeLists.txt
+	po	\
+	t4kcommon
 
+EXTRA_DIST = CMakeLists.txt
 
 ACLOCAL_AMFLAGS = -I m4

@@ -3,6 +3,7 @@
 
 AC_INIT([Tux4Kids-Common],[0.0.1],[tuxmath-devel@lists.sourceforge.net],[t4kcommon])
 AC_CONFIG_SRCDIR([t4kcommon/t4k-audio.c])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_PREREQ([2.63])
 AC_CANONICAL_HOST
@@ -38,9 +39,8 @@ AC_PROG_MAKE_SET
 AC_PROG_AWK
 AC_PROG_CPP
 AC_PROG_MKDIR_P
-AC_PROG_RANLIB
 AC_PROG_YACC
-
+AC_PROG_LIBTOOL
 
 # -----------------------------------------------------------------------
 # Checks for libraries.
