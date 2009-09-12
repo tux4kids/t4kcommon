@@ -160,6 +160,8 @@ Mix_Music*      LoadMusic(char *datafile);
 /* from tk4-loaders.c */
 
 void            PlaySound(Mix_Chunk* sound);
+void            PlaySoundLoop(Mix_Chunk* sound, int loops);
+void            AudioHaltChannel( int channel );
 void            AudioMusicLoad(char* music_path, int loops);
 void            AudioMusicUnload();
 bool            IsPlayingMusic();

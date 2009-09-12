@@ -26,10 +26,22 @@
 
 static Mix_Music *default_music = NULL;
 
+// play sound once and exit
 void PlaySound(Mix_Chunk* sound)
 {
-  if(sound)
-    Mix_PlayChannel(-1, sound, 0);
+   PlaySoundLoop(sound, 0);
+}
+
+// play sound "loops" times, -1 for infinite
+void PlaySoundLoop(Mix_Chunk* sound, int loops)
+{
+   if(sound)
+    Mix_PlayChannel(-1, sound, loops);
+}
+
+void audioHaltChannel( int channel )
+{
+      Mix_HaltChannel(channel);
 }
 
 /* audioMusicLoad attempts to load and play the music file
