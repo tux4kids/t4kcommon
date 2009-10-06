@@ -21,7 +21,7 @@
 ***************************************************************************/
 
 
-#include "tux4kids-common.h"
+#include "t4kcommon.h"
 #include "t4k-globals.h"
 
 static Mix_Music *default_music = NULL;

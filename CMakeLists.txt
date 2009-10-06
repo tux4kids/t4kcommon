@@ -36,6 +36,6 @@ elseif (UNIX)
 endif (APPLE)
 
 
-add_subdirectory(t4kcommon)
+add_subdirectory(src)
 add_subdirectory(data)
 
