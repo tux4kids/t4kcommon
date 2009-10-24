@@ -27,7 +27,7 @@
   $Id: pixels.c,v 1.3 2006/08/27 21:00:55 wkendrick Exp $
 */
 
-#include "t4kcommon.h"
+#include "t4k-common.h"
 #include "t4k-globals.h"
 #include "t4k-compiler.h"
 

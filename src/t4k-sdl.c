@@ -12,7 +12,7 @@
 
 #include <math.h>
 
-#include "t4kcommon.h"
+#include "t4k-common.h"
 #include "t4k-globals.h"
 
 SDL_Surface* screen = NULL;

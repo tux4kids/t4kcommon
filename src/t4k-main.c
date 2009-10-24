@@ -11,7 +11,7 @@
   Copyright: See COPYING file that comes with this distribution.
 */
 
-#include "t4kcommon.h"
+#include "t4k-common.h"
 #include "t4k-globals.h"
 
 int debug_status;

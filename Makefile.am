@@ -3,7 +3,7 @@
 
 SUBDIRS = data \
 	po	\
-	t4kcommon
+	src
 
 EXTRA_DIST = CMakeLists.txt
 

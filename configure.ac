@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_INIT([Tux4Kids-Common],[0.0.1],[tuxmath-devel@lists.sourceforge.net],[t4kcommon])
-AC_CONFIG_SRCDIR([t4kcommon/t4k-audio.c])
+AC_CONFIG_SRCDIR([src/t4k-audio.c])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_PREREQ([2.63])
@@ -197,5 +197,5 @@ AC_CONFIG_FILES([Makefile
                  data/images/Makefile
                  data/images/menu/Makefile
                  po/Makefile.in
-                 t4kcommon/Makefile])
+                 src/Makefile])
 AC_OUTPUT
