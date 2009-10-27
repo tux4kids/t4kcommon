@@ -122,6 +122,8 @@ void            UpdateScreen(int* frame);
 int             EraseSprite(sprite* img, SDL_Surface* curr_bkgd, int x, int y);
 int             EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
+/* TODO add prototypes for t4k-sdl.c text functions */
+
 
 /* from tk4-loaders.c */
 #define IMG_REGULAR         0x01

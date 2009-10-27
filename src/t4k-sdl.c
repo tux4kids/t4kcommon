@@ -1172,7 +1172,8 @@ int EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
   return 1;
 }
 
-#if 0
+//#if 0
+
 /************************************************************************/
 /*                                                                      */
 /*        Begin text drawing functions                                  */
@@ -1554,6 +1555,7 @@ SDLPango_Matrix* SDL_Colour_to_SDLPango_Matrix(const SDL_Color *cl)
 }
 
 #else
+
 /* Local functions when using SDL_ttf: */
 
 static void free_font_list(void)
@@ -1608,7 +1610,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
 {
   TTF_Font* f;
   char fontfile[PATH_MAX];
-  sprintf(fontfile, "%s/fonts/%s", data_prefix, font_name);
+  sprintf(fontfile, "%s/fonts/%s", COMMON_DATA_PREFIX, font_name);
 
   f = TTF_OpenFont(fontfile, font_size);
 
@@ -1633,6 +1635,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
    return NULL;
   }
 }
-#endif
+
+//#endif
 
 #endif

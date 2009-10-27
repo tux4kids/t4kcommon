@@ -10,6 +10,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include "config.h"
+
 #include "SDL.h"
 
 #define REG_RGBA 16,16,96,96
