@@ -19,6 +19,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* TODO do we want t4k-common to use gettext directly, or should we     */
+/* rely on the game programs to pass t4k-common the translated strings? */
+/* The latter would seem to make sense, but I don't quite see how we    */
+/* would then translate the menu entries that this file reads from the  */
+/* menu.xml files. It seems the code ought to be here, but the data and */
+/* po files would belong to tuxmath or tuxtype.  I really don't know    */
+/* how this should work.  For now I'm inactivating the gettext() define - DSB */                                         
 
 /*
   representation of a menu tree node

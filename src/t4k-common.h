@@ -28,7 +28,10 @@
 #define amask 0xff000000
 #endif
 
-#define _(String) gettext (String)
+//Hold off on gettext until we decide if we are really going to
+//use it from within t4kcommon - DSB
+#define _(String) String
+//#define _(String) gettext (String)
 
 typedef enum { false, true } bool;
 
