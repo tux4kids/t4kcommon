@@ -122,8 +122,12 @@ void            UpdateScreen(int* frame);
 int             EraseSprite(sprite* img, SDL_Surface* curr_bkgd, int x, int y);
 int             EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
-/* TODO add prototypes for t4k-sdl.c text functions */
-
+/* Prototypes for t4k-sdl.c text functions */
+int             Setup_SDL_Text(void);
+void            Cleanup_SDL_Text(void);
+SDL_Surface*    BlackOutline(const char* t, int size, SDL_Color* c);
+SDL_Surface*    SimpleText(const char *t, int size, SDL_Color* col);
+SDL_Surface*    SimpleTextWithOffset(const char *t, int size, SDL_Color* col, int *glyph_offset);
 
 /* from tk4-loaders.c */
 #define IMG_REGULAR         0x01
