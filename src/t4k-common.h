@@ -66,6 +66,17 @@ void            InitT4KCommon(int debug_flags);
    running the menu. Returning STOP indicates that user pressed stop button. */
 enum { RUN_MAIN_MENU = -3, QUIT = -2, STOP = -1 };
 
+
+/* Windows is silly and defines some things to win32 calls. Perhaps we should
+** adopt some sort of prefix to get around this --BML
+*/
+#ifdef WIN32
+#undef LoadMenu
+#undef PlaySound
+#undef SetRect
+#undef LoadImage
+#endif
+
 extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
 extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 
