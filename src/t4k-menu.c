@@ -135,7 +135,8 @@ char*           find_longest_text(MenuNode* menu, int* length);
 int             find_longest_menu_page(MenuNode* menu);
 void            set_font_size();
 void            prerender_menu(MenuNode* menu);
-
+int		min(int a, int b);
+int		max(int a, int b);
 
 /*
   functions initializing the menu module
@@ -1143,4 +1144,20 @@ void PrerenderAll()
     if(menus[i])
       PrerenderMenu(i);
 }
+
+int min(int a, int b)
+{
+  if(a < b) return a;
+  else return b;
+}
+
+int max(int a, int b)
+{
+  if(a > b) return a;
+  else return b;
+}
+
+
+
+
 
