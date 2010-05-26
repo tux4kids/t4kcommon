@@ -2,40 +2,45 @@
 #other CMakeLists.txt and is not safe for human consumption. 
 #Please hack responsibly.
 
-project(Tux4Kids-common)
-
-set(CMAKE_MODULE_PATH "${Tux4Kids-common_SOURCE_DIR}/cmake-modules")
-
 cmake_minimum_required(VERSION 2.6)
+
+set(PACKAGE_NAME Tux4Kids-common)
+set(LIB_NAME t4kcommon)
+project(${PACKAGE_NAME})
+
+set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(SDL_mixer REQUIRED)
 
-include(FindPkgConfig OPTIONAL)
+find_package(RSVG)
+#include(FindPkgConfig)
+#pkg_check_modules(rsvg librsvg-2.0)
+#if(rsvg_found)
+#  pkg_check_modules(cairo cairo)
+#  if(cairo_found)
+#    set(have_rsvg 1)  # for the config.h file
+#  endif(cairo_found)
+#endif(rsvg_found)
 
-if(PKG_CONFIG_FOUND)
-  include(FindPkgConfig)
-  PKG_CHECK_MODULES(RSVG librsvg-2.0)
-  if(RSVG_FOUND)
-    PKG_CHECK_MODULES(CAIRO cairo)
-    if(CAIRO_FOUND)
-      set(HAVE_RSVG 1)  # For the config.h file
-    endif(CAIRO_FOUND)
-  endif(RSVG_FOUND)
-endif(PKG_CONFIG_FOUND)
+message("RSVG: ${RSVG_CFLAGS}")
+message("CAIRO: ${CAIRO_CFLAGS}")
+
 
 # based on tuxmath's CMakeLists.txt
 if (APPLE)
-  set(TUX4KIDS-COMMON_MACOSX_BUNDLE_NAME tux4kids-common)
-  set(TUX4KIDS-COMMON_DATA_PREFIX
-      ${TUX4KIDS-COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
+  set(T4KCOMMON_MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
+  set(T4KCOMMON_DATA_PREFIX
+      ${T4KCOMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
 elseif (UNIX)
-  set (TUX4KIDS-COMMON_DATA_PREFIX
-      ${CMAKE_INSTALL_PREFIX}/share/tux4kids-common)
+  set (T4KCOMMON_DATA_PREFIX
+      ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
 endif (APPLE)
 
 
+#process subdirectories
 add_subdirectory(src)
 add_subdirectory(data)
 

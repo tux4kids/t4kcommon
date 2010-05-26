@@ -10,60 +10,46 @@ find_package(SDL_Pango)
 include_directories( ${SDL_INCLUDE_DIR} )
 
 set( T4KCOMMON_SOURCE_DIR . )
-set( TUXMATH_DESTINATION_DIR ${CMAKE_SOURCE_DIR}/../../tuxmath/trunk/ )
-set( TUXTYPE_DESTINATION_DIR ${CMAKE_SOURCE_DIR}/../../tuxtype/trunk/ )
+set( TUXMATH_DESTINATION_DIR 
+	${CMAKE_SOURCE_DIR}/../tuxmath/
+	CACHE STRING "Working copy of TuxMath"
+)
+set( TUXTYPE_DESTINATION_DIR 
+	${CMAKE_SOURCE_DIR}/../tuxtype/ 
+	CACHE STRING "Working copy of TuxType"
+)
 
 
 file(GLOB_RECURSE T4KCOMMON_SOURCES ${T4KCOMMON_SOURCE_DIR}/*.c)
 file(GLOB_RECURSE T4KCOMMON_HEADERS ${T4KCOMMON_SOURCE_DIR}/*.h)
 
-add_library( t4kcommon SHARED
+add_library( ${LIB_NAME} SHARED
 	${T4KCOMMON_SOURCES} ${T4KCOMMON_HEADERS} )
-
-# getting rid of semicolons
-set(_rsvg_cflags "")
-foreach(f ${RSVG_CFLAGS})
-  set(_rsvg_cflags "${_rsvg_cflags} ${f}")
-endforeach(f)
-
-set(_cairo_cflags "")
-foreach(f ${CAIRO_CFLAGS})
-  set(_cairo_cflags "${_cairo_cflags} ${f}")
-endforeach(f)
-
-set(_rsvg_def "")
-if(HAVE_RSVG)
-  set(_rsvg_def "-DHAVE_RSVG=1")
-endif(HAVE_RSVG)
-
-set(_pango_def "")
-if (SDLPANGO_FOUND)
-  set(_pango_def "-DHAVE_LIBSDL_PANGO=1")
-endif (SDLPANGO_FOUND)
 
 
 set_target_properties (
-  t4kcommon
+  ${LIB_NAME}
+  PROPERTIES COMPILE_DEFINITIONS
+  COMMON_DATA_PREFIX="${TUX4KIDS-COMMON_DATA_PREFIX}" 
   PROPERTIES COMPILE_FLAGS
-  "-DCOMMON_DATA_PREFIX=\\\"${TUX4KIDS-COMMON_DATA_PREFIX}\\\" ${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
+  ${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
   )
 
-
-INSTALL( TARGETS t4kcommon
+install( TARGETS ${LIB_NAME}
 	ARCHIVE DESTINATION lib 
 	LIBRARY DESTINATION lib )
-INSTALL( TARGETS t4kcommon
-	DESTINATION ${TUXMATH_DESTINATION_DIR}/t4kcommon )
-INSTALL( TARGETS t4kcommon
-	DESTINATION ${TUXTYPE_DESTINATION_DIR}/t4kcommon )
+install( TARGETS ${LIB_NAME}
+	DESTINATION ${TUXMATH_DESTINATION_DIR}/${LIB_NAME} )
+install( TARGETS ${LIB_NAME}
+	DESTINATION ${TUXTYPE_DESTINATION_DIR}/${LIB_NAME} )
 
-INSTALL(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
+install(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
 	RENAME t4k-common.h
-	DESTINATION include/t4kcommon)
-INSTALL(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
+	DESTINATION include/${LIB_NAME})
+install(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
 	RENAME t4k-common.h
-	DESTINATION ${TUXMATH_DESTINATION_DIR}/t4kcommon )
-INSTALL(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
+	DESTINATION ${TUXMATH_DESTINATION_DIR}/${LIB_NAME} )
+install(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.test.h 
 	RENAME t4k-common.h
-	DESTINATION ${TUXTYPE_DESTINATION_DIR}/t4kcommon )
+	DESTINATION ${TUXTYPE_DESTINATION_DIR}/${LIB_NAME} )
 
