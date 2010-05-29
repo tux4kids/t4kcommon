@@ -29,7 +29,7 @@ static Mix_Music *default_music = NULL;
 // play sound once and exit
 void PlaySound(Mix_Chunk* sound)
 {
-   PlaySoundLoop(sound, 0);
+    PlaySoundLoop(sound, 0);
 }
 
 // play sound "loops" times, -1 for infinite
@@ -39,7 +39,7 @@ void PlaySoundLoop(Mix_Chunk* sound, int loops)
     Mix_PlayChannel(-1, sound, loops);
 }
 
-void audioHaltChannel( int channel )
+void AudioHaltChannel( int channel )
 {
       Mix_HaltChannel(channel);
 }
@@ -49,7 +49,7 @@ void audioHaltChannel( int channel )
  */
 void AudioMusicLoad(char* music_path, int loops)
 {
-  AudioMusicUnload(); // make sure defaultMusic is clear
+    AudioMusicUnload(); // make sure defaultMusic is clear
   default_music = LoadMusic(music_path);
   Mix_PlayMusic(default_music, loops);
 }

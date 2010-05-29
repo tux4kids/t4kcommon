@@ -103,7 +103,7 @@ SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
   positioning constants
 */
 
-/* NOTE: maybe it is better to move these constants into a config file ? */
+/* TODO: maybe it is better to move these constants into a config file ? */
 /* X Y W H */
 const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
@@ -700,7 +700,7 @@ int RunMenu(int index, bool return_choice, void (*draw_background)(), int (*hand
                 }
                 else if(music_path)
                 {
-                  AudioMusicLoad(music_path, -1);
+                  AudioMusicUnload(music_path, -1);
                 }
                 break;
               }

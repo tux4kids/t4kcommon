@@ -34,6 +34,10 @@
 */
 
 #ifdef WIN32
+
+/* Try to avoid including too much Windows cruft */
+#define WIN32_LEAN_AND_MEAN
+
 /* Horrible, dangerous macros. */
 /*
   The SDL stderr redirection trick doesn't seem to work for perror().

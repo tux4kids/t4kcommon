@@ -27,7 +27,7 @@ int fs_res_y = 0;
 
 char* font_name;
 
-void SetFontName(char* fname)
+void set_font_name(char* fname)
 {
   font_name = fname;
 }
