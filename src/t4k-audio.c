@@ -27,19 +27,19 @@
 static Mix_Music *default_music = NULL;
 
 // play sound once and exit
-void PlaySound(Mix_Chunk* sound)
+void T4K_PlaySound(Mix_Chunk* sound)
 {
-    PlaySoundLoop(sound, 0);
+    T4K_PlaySoundLoop(sound, 0);
 }
 
 // play sound "loops" times, -1 for infinite
-void PlaySoundLoop(Mix_Chunk* sound, int loops)
+void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops)
 {
    if(sound)
     Mix_PlayChannel(-1, sound, loops);
 }
 
-void AudioHaltChannel( int channel )
+void T4K_AudioHaltChannel( int channel )
 {
       Mix_HaltChannel(channel);
 }
@@ -47,24 +47,24 @@ void AudioHaltChannel( int channel )
 /* audioMusicLoad attempts to load and play the music file
  * Note: loops == -1 means forever
  */
-void AudioMusicLoad(char* music_path, int loops)
+void T4K_AudioMusicLoad(char* music_path, int loops)
 {
-    AudioMusicUnload(); // make sure defaultMusic is clear
-  default_music = LoadMusic(music_path);
+    T4K_AudioMusicUnload(); // make sure defaultMusic is clear
+  default_music = T4K_LoadMusic(music_path);
   Mix_PlayMusic(default_music, loops);
 }
 
 /* audioMusicUnload attempts to unload any music data that was
  * loaded using the audioMusicLoad function
  */
-void AudioMusicUnload()
+void T4K_AudioMusicUnload()
 {
   if(default_music)
     Mix_FreeMusic(default_music);
   default_music = NULL;
 }
 
-bool IsPlayingMusic()
+bool T4K_IsPlayingMusic()
 {
   return (default_music != NULL);
 }
@@ -74,9 +74,9 @@ bool IsPlayingMusic()
  * it will be stopped and unloaded
  * Note: loops == -1 means forever
  */
-void AudioMusicPlay(Mix_Music *musicData, int loops)
+void T4K_AudioMusicPlay(Mix_Music *musicData, int loops)
 {
-  AudioMusicUnload();
+  T4K_AudioMusicUnload();
   Mix_PlayMusic(musicData, loops);
 }
 

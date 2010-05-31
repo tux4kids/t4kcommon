@@ -48,31 +48,31 @@ char*           find_file(const char* base_name);
 //directories to search in for loaded files, in addition to common data dir (just one for now)
 static char app_prefix_path[1][PATH_MAX];
 
-int CheckFile(const char* file)
+int T4K_CheckFile(const char* file)
 {
   FILE* fp = NULL;
                                                        
   if (!file)
   {                                                 
-    DEBUGMSG(debug_loaders, "CheckFile(): invalid char* argument!\n");
+    DEBUGMSG(debug_loaders, "T4K_CheckFile(): invalid char* argument!\n");
     return 0;
   }
 
-  DEBUGMSG(debug_loaders, "CheckFile(): checking: %s\n", file);
+  DEBUGMSG(debug_loaders, "T4K_CheckFile(): checking: %s\n", file);
 
   fp = fopen(file, "r");
   if (fp)
   {
-    DEBUGMSG(debug_loaders, "CheckFile(): Opened successfully as FILE\n");
+    DEBUGMSG(debug_loaders, "T4K_CheckFile(): Opened successfully as FILE\n");
     fclose(fp);
     return 1;
   }
 
-  DEBUGMSG(debug_loaders, "CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
+  DEBUGMSG(debug_loaders, "T4K_CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
   return 0;
 }
                             
-void AddDataPrefix(const char* path)
+void T4K_AddDataPrefix(const char* path)
 {
   strncpy(app_prefix_path, path, PATH_MAX);
 }
@@ -82,13 +82,13 @@ void AddDataPrefix(const char* path)
 char* find_file(const char* base_name)
 {
   static char tmp_path[PATH_MAX];
-  if (CheckFile(base_name))
+  if (T4K_CheckFile(base_name))
     return base_name;
   snprintf(tmp_path, PATH_MAX, "%s%s", app_prefix_path[0], base_name); 
-  if (CheckFile(tmp_path))
+  if (T4K_CheckFile(tmp_path))
     return tmp_path;
   snprintf(tmp_path, PATH_MAX, "%s%s", COMMON_DATA_PREFIX, base_name); 
-  if (CheckFile(tmp_path))
+  if (T4K_CheckFile(tmp_path))
     return tmp_path;
   return "";
 }
@@ -191,20 +191,20 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
   }
 
   /* set color masks */
-  Rmask = GetScreen()->format->Rmask;
-  Gmask = GetScreen()->format->Gmask;
-  Bmask = GetScreen()->format->Bmask;
-  if(GetScreen()->format->Amask == 0)
+  Rmask = T4K_GetScreen()->format->Rmask;
+  Gmask = T4K_GetScreen()->format->Gmask;
+  Bmask = T4K_GetScreen()->format->Bmask;
+  if(T4K_GetScreen()->format->Amask == 0)
     /* find a free byte to use for Amask */
     Amask = ~(Rmask | Gmask | Bmask);
   else
-    Amask = GetScreen()->format->Amask;
+    Amask = T4K_GetScreen()->format->Amask;
 
   DEBUGMSG(debug_loaders, "render_svg_from_handle(): color masks: R=%u, G=%u, B=%u, A=%u\n",
         Rmask, Gmask, Bmask, Amask);
 
   dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-        width, height, GetScreen()->format->BitsPerPixel, Rmask, Gmask, Bmask, Amask);
+        width, height, T4K_GetScreen()->format->BitsPerPixel, Rmask, Gmask, Bmask, Amask);
 
   SDL_LockSurface(dest);
   temp_surf = cairo_image_surface_create_for_data(dest->pixels,
@@ -257,9 +257,9 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
 #endif /* HAVE_RSVG */
 
 /* Load an image without resizing it */
-SDL_Surface* LoadImage(const char* file_name, int mode)
+SDL_Surface* T4K_LoadImage(const char* file_name, int mode)
 {
-  return LoadScaledImage(file_name, mode, -1, -1);
+  return T4K_LoadScaledImage(file_name, mode, -1, -1);
 }
 
 /* LoadScaledImage : Load an image and resize it to given dimensions.
@@ -267,7 +267,7 @@ SDL_Surface* LoadImage(const char* file_name, int mode)
    The loader (load_svg() or IMG_Load()) is chosen depending on file extension,
    If an SVG file is not found try to load its PNG equivalent
    (unless IMG_NO_PNG_FALLBACK is set) */
-SDL_Surface* LoadScaledImage(const char* file_name, int mode, int width, int height)
+SDL_Surface* T4K_LoadScaledImage(const char* file_name, int mode, int width, int height)
 {
   return load_image(file_name, mode, width, height, false);
 }
@@ -275,7 +275,7 @@ SDL_Surface* LoadScaledImage(const char* file_name, int mode, int width, int hei
 /* LoadImageOfBoundingBox : Same as LoadScaledImage but preserve image proportions
    and fit it into max_width x max_height rectangle.
    Returned surface is not necessarily max_width x max_height ! */
-SDL_Surface* LoadImageOfBoundingBox(const char* file_name, int mode, int max_width, int max_height)
+SDL_Surface* T4K_LoadImageOfBoundingBox(const char* file_name, int mode, int max_width, int max_height)
 {
   return load_image(file_name, mode, max_width, max_height, true);
 }
@@ -384,7 +384,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
       width = w;
       height = h;
     }
-    final_pic = zoom(loaded_pic, width, height);
+    final_pic = T4K_zoom(loaded_pic, width, height);
     SDL_FreeSurface(loaded_pic);
     loaded_pic = final_pic;
     final_pic = NULL;
@@ -447,18 +447,18 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 }
 
 
-/* LoadBkgd() : a wrapper for LoadImage() that optimizes
+/* T4K_LoadBkgd() : a wrapper for T4K_LoadImage() that optimizes
    the format of background image */
-SDL_Surface* LoadBkgd(const char* file_name, int width, int height)
+SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height)
 {
   SDL_Surface* orig = NULL;
   SDL_Surface* final_pic = NULL;
 
-  orig = LoadScaledImage(file_name, IMG_REGULAR, width, height);
+  orig = T4K_LoadScaledImage(file_name, IMG_REGULAR, width, height);
 
   if (!orig)
   {
-    DEBUGMSG(debug_loaders, "In LoadBkgd(), LoadImage() returned NULL on %s\n",
+    DEBUGMSG(debug_loaders, "In T4K_LoadBkgd(), T4K_LoadImage() returned NULL on %s\n",
              file_name);
     return NULL;
   }
@@ -472,17 +472,17 @@ SDL_Surface* LoadBkgd(const char* file_name, int width, int height)
 }
 
 
-sprite* LoadSprite(const char* name, int mode)
+sprite* T4K_LoadSprite(const char* name, int mode)
 {
-  return LoadScaledSprite(name, mode, -1, -1);
+  return T4K_LoadScaledSprite(name, mode, -1, -1);
 }
 
-sprite* LoadScaledSprite(const char* name, int mode, int width, int height)
+sprite* T4K_LoadScaledSprite(const char* name, int mode, int width, int height)
 {
   return load_sprite(name, mode, width, height, false);
 }
 
-sprite* LoadSpriteOfBoundingBox(const char* name, int mode, int max_width, int max_height)
+sprite* T4K_LoadSpriteOfBoundingBox(const char* name, int mode, int max_width, int max_height)
 {
   return load_sprite(name, mode, max_width, max_height, true);
 }
@@ -496,7 +496,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 #ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
   sprintf(fn, "%s.svg", name);
-  if(1 == CheckFile(fn))
+  if(1 == T4K_CheckFile(fn))
   {
     if(proportional)
     {
@@ -529,9 +529,9 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
     sprintf(fn, "%sd.png", name);  // The 'd' means the default image
     if(proportional)
-      new_sprite->default_img = LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
     else
-      new_sprite->default_img = LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
 
     if(!new_sprite->default_img)
       DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
@@ -542,9 +542,9 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
     {
       sprintf(fn, "%s%d.png", name, i);
       if(proportional)
-        new_sprite->frame[i] = LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
+        new_sprite->frame[i] = T4K_LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
       else
-        new_sprite->frame[i] = LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
+        new_sprite->frame[i] = T4K_LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
 
       if(new_sprite->frame[i] == NULL)
         break;
@@ -566,22 +566,22 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
   return new_sprite;
 }
 
-sprite* FlipSprite(sprite* in, int X, int Y)
+sprite* T4K_FlipSprite(sprite* in, int X, int Y)
 {
   sprite *out;
 
   out = malloc(sizeof(sprite));
   if (in->default_img != NULL)
-    out->default_img = Flip( in->default_img, X, Y );
+    out->default_img = T4K_Flip( in->default_img, X, Y );
   else
     out->default_img = NULL;
   for( out->num_frames=0; out->num_frames<in->num_frames; out->num_frames++ )
-    out->frame[out->num_frames] = Flip( in->frame[out->num_frames], X, Y );
+    out->frame[out->num_frames] = T4K_Flip( in->frame[out->num_frames], X, Y );
   out->cur = 0;
   return out;
 }
 
-void FreeSprite(sprite* gfx)
+void T4K_FreeSprite(sprite* gfx)
 {
   int x;
   if (!gfx)
@@ -604,11 +604,11 @@ void FreeSprite(sprite* gfx)
     gfx->default_img = NULL;
   }
 
-  DEBUGMSG(debug_loaders, "FreeSprite() - done\n");
+  DEBUGMSG(debug_loaders, "T4K_FreeSprite() - done\n");
   free(gfx);
 }
 
-void NextFrame(sprite* s)
+void T4K_NextFrame(sprite* s)
 {
   if (s && s->num_frames)
     s->cur = (s->cur + 1) % s->num_frames;
@@ -617,7 +617,7 @@ void NextFrame(sprite* s)
 
 
 /* LoadSound : Load a sound/music patch from a file. */
-Mix_Chunk* LoadSound( char *datafile )
+Mix_Chunk* T4K_LoadSound( char *datafile )
 {
   Mix_Chunk* tempChunk = NULL;
   char fn[PATH_MAX];
@@ -626,21 +626,21 @@ Mix_Chunk* LoadSound( char *datafile )
   tempChunk = Mix_LoadWAV(fn);
   if (!tempChunk)
   {
-    fprintf(stderr, "LoadSound(): %s not found\n\n", fn);
+    fprintf(stderr, "T4K_LoadSound(): %s not found\n\n", fn);
   }
   return tempChunk;
 }
 
 /* LoadMusic : Load music from a datafile */
-Mix_Music* LoadMusic(char *datafile )
+Mix_Music* T4K_LoadMusic(char *datafile )
 {
   char fn[PATH_MAX];
   Mix_Music* tempMusic = NULL;
 
   sprintf(fn, "%s", datafile);
-  if (1 != CheckFile(fn))
+  if (1 != T4K_CheckFile(fn))
   {
-    fprintf(stderr, "LoadMusic(): %s not found\n\n", fn);
+    fprintf(stderr, "T4K_LoadMusic(): %s not found\n\n", fn);
     return NULL;
   }
 
@@ -648,7 +648,7 @@ Mix_Music* LoadMusic(char *datafile )
 
   if (!tempMusic)
   {
-    fprintf(stderr, "LoadMusic(): %s not loaded successfully\n", fn);
+    fprintf(stderr, "T4K_LoadMusic(): %s not loaded successfully\n", fn);
     printf("Error was: %s\n\n", Mix_GetError());
   }
   return tempMusic;

@@ -24,7 +24,8 @@ foreach $file (@files) {
 	print "Processing $file...";
 	while (my $line = <INFILE>) {
 		foreach $regex (@regexes) {
-			if ($line =~ m#\s($regex)\(#) {
+			if ($line =~ m#[^\w]($regex)\(#) {
+				#print ":$line\n";
 				if ($line =~ s#$regex\(#T4K_$regex\(#g ) {
 					$matches++;
 				}

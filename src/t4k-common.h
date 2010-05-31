@@ -84,22 +84,26 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 //TODO most of these functions are documented...somewhere. That should end up
 //in this header eventually
 
-#ifdef USE_T4K_PREFIX
+
+#ifdef USE_T4K_PREFIX //Use T4K_FuncName() convention
 # define PREFIXIFY(base_name) \
          T4K_ ## base_name
-#else
+//#elif 0
+//# define PREFIXIFY(ret, base_name, ...) \
+//  ret T4K_ ## base_name
+#else //Use FuncName() convention with no prefix
 # define PREFIXIFY(base_name) base_name
 #endif
 
-void            PREFIXIFY( SetActivitiesList  ) (int num, char** acts);
-void            PREFIXIFY( SetMenuSounds      ) (char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
-void            PREFIXIFY( SetImagePathPrefix ) (char* pref);
-void            PREFIXIFY( CreateOneLevelMenu ) (int index, int items, char** item_names, char** sprite_names, char* title, char* trailer);
-int             PREFIXIFY( RunMenu            ) (int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
-void            PREFIXIFY( PrerenderMenu      ) (int index);
-void            PREFIXIFY( PrerenderAll       ) ();
-void            PREFIXIFY( LoadMenu           ) (int index, const char* file_name);
-void            PREFIXIFY( UnloadMenus        ) (void);
+void            PREFIXIFY( SetActivitiesList       ) (int num, char** acts);
+void            PREFIXIFY( SetMenuSounds           ) (char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
+void            PREFIXIFY( SetImagePathPrefix      ) (char* pref);
+void            PREFIXIFY( CreateOneLevelMenu      ) (int index, int items, char** item_names, char** sprite_names, char* title, char* trailer);
+int             PREFIXIFY( RunMenu                 ) (int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
+void            PREFIXIFY( PrerenderMenu           ) (int index);
+void            PREFIXIFY( PrerenderAll            ) ();
+void            PREFIXIFY( LoadMenu                ) (int index, const char* file_name);
+void            PREFIXIFY( UnloadMenus             ) (void);
 
 /* from tk4-sdl.c */
 
@@ -113,38 +117,38 @@ enum
   NUM_WIPES
 };
 	 
-SDL_Surface*    PREFIXIFY( GetScreen        ) ();
-void            PREFIXIFY( DrawButton       ) (SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-void            PREFIXIFY( DrawButtonOn     ) (SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-SDL_Surface*    PREFIXIFY( CreateButton     ) (int w, int h, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
-void            PREFIXIFY( RoundCorners     ) (SDL_Surface* s, Uint16 radius);
-SDL_Surface*    PREFIXIFY( Flip             ) (SDL_Surface *in, int x, int y);
-SDL_Surface*    PREFIXIFY( Blend            ) (SDL_Surface *S1, SDL_Surface *S2, float gamma);
-void            PREFIXIFY( FreeSurfaceArray ) (SDL_Surface** surfs, int length);
-int             PREFIXIFY( inRect           ) (SDL_Rect r, int x, int y);
-void            PREFIXIFY( SetRect          ) (SDL_Rect* rect, const float* pos);
-void            PREFIXIFY( UpdateRect       ) (SDL_Surface* surf, SDL_Rect* rect);
-void            PREFIXIFY( DarkenScreen     ) (Uint8 bits);
-void            PREFIXIFY( ChangeWindowSize ) (int new_res_x, int new_res_y);
-void            PREFIXIFY( SwitchScreenMode ) (void);
-SDL_EventType   PREFIXIFY( WaitForEvent     ) (SDL_EventMask events);
-SDL_Surface*    PREFIXIFY( zoom             ) (SDL_Surface* src, int new_w, int new_h);
-int             PREFIXIFY( TransWipe        ) (const SDL_Surface* newbkg, int type, int segments, int duration);
-void            PREFIXIFY( InitBlitQueue    ) (void);
-void            PREFIXIFY( ResetBlitQueue   ) (void);
-int             PREFIXIFY( AddRect          ) (SDL_Rect* src, SDL_Rect* dst);
-int             PREFIXIFY( DrawSprite       ) (sprite* gfx, int x, int y);
-int             PREFIXIFY( DrawObject       ) (SDL_Surface* surf, int x, int y);
-void            PREFIXIFY( UpdateScreen     ) (int* frame);
-int             PREFIXIFY( EraseSprite      ) (sprite* img, SDL_Surface* curr_bkgd, int x, int y);
-int             PREFIXIFY( EraseObject      ) (SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
+SDL_Surface*    PREFIXIFY( GetScreen               ) ();
+void            PREFIXIFY( DrawButton              ) (SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+void            PREFIXIFY( DrawButtonOn            ) (SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+SDL_Surface*    PREFIXIFY( CreateButton            ) (int w, int h, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+void            PREFIXIFY( RoundCorners            ) (SDL_Surface* s, Uint16 radius);
+SDL_Surface*    PREFIXIFY( Flip                    ) (SDL_Surface *in, int x, int y);
+SDL_Surface*    PREFIXIFY( Blend                   ) (SDL_Surface *S1, SDL_Surface *S2, float gamma);
+void            PREFIXIFY( FreeSurfaceArray        ) (SDL_Surface** surfs, int length);
+int             PREFIXIFY( inRect                  ) (SDL_Rect r, int x, int y);
+void            PREFIXIFY( SetRect                 ) (SDL_Rect* rect, const float* pos);
+void            PREFIXIFY( UpdateRect              ) (SDL_Surface* surf, SDL_Rect* rect);
+void            PREFIXIFY( DarkenScreen            ) (Uint8 bits);
+void            PREFIXIFY( ChangeWindowSize        ) (int new_res_x, int new_res_y);
+void            PREFIXIFY( SwitchScreenMode        ) (void);
+SDL_EventType   PREFIXIFY( WaitForEvent            ) (SDL_EventMask events);
+SDL_Surface*    PREFIXIFY( zoom                    ) (SDL_Surface* src, int new_w, int new_h);
+int             PREFIXIFY( TransWipe               ) (const SDL_Surface* newbkg, int type, int segments, int duration);
+void            PREFIXIFY( InitBlitQueue           ) (void);
+void            PREFIXIFY( ResetBlitQueue          ) (void);
+int             PREFIXIFY( AddRect                 ) (SDL_Rect* src, SDL_Rect* dst);
+int             PREFIXIFY( DrawSprite              ) (sprite* gfx, int x, int y);
+int             PREFIXIFY( DrawObject              ) (SDL_Surface* surf, int x, int y);
+void            PREFIXIFY( UpdateScreen            ) (int* frame);
+int             PREFIXIFY( EraseSprite             ) (sprite* img, SDL_Surface* curr_bkgd, int x, int y);
+int             PREFIXIFY( EraseObject             ) (SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
 /* Prototypes for t4k-sdl.c text functions */
-int             PREFIXIFY( Setup_SDL_Text       ) (void);
-void            PREFIXIFY( Cleanup_SDL_Text     ) (void);
-SDL_Surface*    PREFIXIFY( BlackOutline         ) (const char* t, int size, SDL_Color* c);
-SDL_Surface*    PREFIXIFY( SimpleText           ) (const char *t, int size, SDL_Color* col);
-SDL_Surface*    PREFIXIFY( SimpleTextWithOffset ) (const char *t, int size, SDL_Color* col, int *glyph_offset);
+int             PREFIXIFY( Setup_SDL_Text          ) (void);
+void            PREFIXIFY( Cleanup_SDL_Text        ) (void);
+SDL_Surface*    PREFIXIFY( BlackOutline            ) (const char* t, int size, SDL_Color* c);
+SDL_Surface*    PREFIXIFY( SimpleText              ) (const char *t, int size, SDL_Color* col);
+SDL_Surface*    PREFIXIFY( SimpleTextWithOffset    ) (const char *t, int size, SDL_Color* col, int *glyph_offset);
 
 /* from tk4-loaders.c */
 #define IMG_REGULAR         0x01
@@ -162,7 +166,7 @@ SDL_Surface*    PREFIXIFY( SimpleTextWithOffset ) (const char *t, int size, SDL_
  * find files.
  */
 void            PREFIXIFY( AddDataPrefix           ) (const char* path);
-int             PREFIXIFY( T4K_CheckFile           ) (const char* file);
+int             PREFIXIFY( CheckFile           ) (const char* file);
 SDL_Surface*    PREFIXIFY( LoadImage               ) (const char* file_name, int mode);
 SDL_Surface*    PREFIXIFY( LoadScaledImage         ) (const char* file_name, int mode, int width, int height);
 SDL_Surface*    PREFIXIFY( LoadImageOfBoundingBox  ) (const char* file_name, int mode, int max_width, int max_height);
@@ -178,12 +182,12 @@ Mix_Music*      PREFIXIFY( LoadMusic               ) (char *datafile);
 
 /* from tk4-loaders.c */
 
-void            PREFIXIFY( PlaySound        ) (Mix_Chunk* sound);
-void            PREFIXIFY( PlaySoundLoop    ) (Mix_Chunk* sound, int loops);
-void            PREFIXIFY( AudioHaltChannel ) ( int channel );
-void            PREFIXIFY( AudioMusicLoad   ) (char* music_path, int loops);
-void            PREFIXIFY( AudioMusicUnload ) ();
-bool            PREFIXIFY( IsPlayingMusic   ) ();
-void            PREFIXIFY( AudioMusicPlay   ) (Mix_Music *musicData, int loops);
+void            PREFIXIFY( PlaySound               ) (Mix_Chunk* sound);
+void            PREFIXIFY( PlaySoundLoop           ) (Mix_Chunk* sound, int loops);
+void            PREFIXIFY( AudioHaltChannel        ) ( int channel );
+void            PREFIXIFY( AudioMusicLoad          ) (char* music_path, int loops);
+void            PREFIXIFY( AudioMusicUnload        ) ();
+bool            PREFIXIFY( IsPlayingMusic          ) ();
+void            PREFIXIFY( AudioMusicPlay          ) (Mix_Music *musicData, int loops);
 
 #endif
