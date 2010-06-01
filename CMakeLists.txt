@@ -12,8 +12,11 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
-find_package(SDL_ttf REQUIRED)
 find_package(SDL_mixer REQUIRED)
+find_package(SDL_Pango)
+if (NOT SDLPANGO_FOUND)
+  find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
+endif (NOT SDLPANGO_FOUND)
 
 find_package(RSVG)
 #include(FindPkgConfig)
@@ -24,9 +27,7 @@ find_package(RSVG)
 #    set(have_rsvg 1)  # for the config.h file
 #  endif(cairo_found)
 #endif(rsvg_found)
-
-message("RSVG: ${RSVG_CFLAGS}")
-message("CAIRO: ${CAIRO_CFLAGS}")
+message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
 
 # based on tuxmath's CMakeLists.txt
