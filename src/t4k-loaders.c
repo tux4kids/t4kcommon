@@ -43,7 +43,7 @@ SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool p
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
-char*           find_file(const char* base_name);
+const char*     find_file(const char* base_name);
 
 //directories to search in for loaded files, in addition to common data dir (just one for now)
 static char app_prefix_path[1][PATH_MAX];
@@ -74,12 +74,12 @@ int T4K_CheckFile(const char* file)
                             
 void T4K_AddDataPrefix(const char* path)
 {
-  strncpy(app_prefix_path, path, PATH_MAX);
+  strncpy(app_prefix_path[0], path, PATH_MAX);
 }
 
 /* Look for a file as an absolute path, then in 
    potential install directories */
-char* find_file(const char* base_name)
+const char* find_file(const char* base_name)
 {
   static char tmp_path[PATH_MAX];
   if (T4K_CheckFile(base_name))

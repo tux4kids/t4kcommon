@@ -88,9 +88,6 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 #ifdef USE_T4K_PREFIX //Use T4K_FuncName() convention
 # define PREFIXIFY(base_name) \
          T4K_ ## base_name
-//#elif 0
-//# define PREFIXIFY(ret, base_name, ...) \
-//  ret T4K_ ## base_name
 #else //Use FuncName() convention with no prefix
 # define PREFIXIFY(base_name) base_name
 #endif
@@ -166,7 +163,7 @@ SDL_Surface*    PREFIXIFY( SimpleTextWithOffset    ) (const char *t, int size, S
  * find files.
  */
 void            PREFIXIFY( AddDataPrefix           ) (const char* path);
-int             PREFIXIFY( CheckFile           ) (const char* file);
+int             PREFIXIFY( CheckFile               ) (const char* file);
 SDL_Surface*    PREFIXIFY( LoadImage               ) (const char* file_name, int mode);
 SDL_Surface*    PREFIXIFY( LoadScaledImage         ) (const char* file_name, int mode, int width, int height);
 SDL_Surface*    PREFIXIFY( LoadImageOfBoundingBox  ) (const char* file_name, int mode, int max_width, int max_height);
