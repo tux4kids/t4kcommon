@@ -1,9 +1,10 @@
 if (UNIX)
-  set (DESTDIR "${TUX4KIDS-COMMON_DATA_PREFIX}")
+  set (DESTDIR "${T4KCOMMON_DATA_PREFIX}")
 elseif(WIN32)
   set (DESTDIR "$ENV{APPDATA}/${PACKAGE_NAME}")
 endif (UNIX)
-  install (DIRECTORY images
+
+install (DIRECTORY images
     DESTINATION ${DESTDIR}
     PATTERN Makefile* EXCLUDE
     PATTERN .svn EXCLUDE

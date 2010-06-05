@@ -14,9 +14,11 @@ find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_Pango)
-if (NOT SDLPANGO_FOUND)
+if (SDLPANGO_FOUND)
+  set(HAVE_LIBSDL_PANGO 1)
+else (SDLPANGO_FOUND)
   find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
-endif (NOT SDLPANGO_FOUND)
+endif (SDLPANGO_FOUND)
 
 find_package(RSVG)
 #include(FindPkgConfig)

@@ -3,6 +3,7 @@
 #Please hack responsibly.
 
 cmake_minimum_required(VERSION 2.6)
+include(T4K_Sugar)
 
 #Look here for SDL headers
 include_directories( ${SDL_INCLUDE_DIR} )
@@ -26,7 +27,7 @@ target_link_libraries(${LIB_NAME}
 	${SDLTTF_LIBRARY}
 )
 
-
+t4k_include_definition(HAVE_LIBSDL_PANGO)
 set_target_properties (${LIB_NAME} PROPERTIES 
     COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
 	COMPILE_DEFINITIONS "COMMON_DATA_PREFIX=\"${TUX4KIDS-COMMON_DATA_PREFIX}\";USE_T4K_PREFIX=true"
