@@ -12,13 +12,13 @@ endif
 lib_LTLIBRARIES = libt4kcommon.la
 
 libt4kcommon_la_SOURCES = \
-	t4k-audio.c	\
-	t4k-compiler.h	\
-	t4k-globals.h	\
-	t4k-loaders.c	\
-	t4k-main.c	\
-	t4k-menu.c	\
-	t4k-pixels.c	\
-	t4k-sdl.c
+	t4k_audio.c	\
+	t4k_compiler.h	\
+	t4k_globals.h	\
+	t4k_loaders.c	\
+	t4k_main.c	\
+	t4k_menu.c	\
+	t4k_pixels.c	\
+	t4k_sdl.c
 
-include_HEADERS = t4k-common.h
+include_HEADERS = t4k_common.h

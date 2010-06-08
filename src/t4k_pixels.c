@@ -27,9 +27,9 @@
   $Id: pixels.c,v 1.3 2006/08/27 21:00:55 wkendrick Exp $
 */
 
-#include "t4k-common.h"
-#include "t4k-globals.h"
-#include "t4k-compiler.h"
+#include "t4k_common.h"
+#include "t4k_globals.h"
+#include "t4k_compiler.h"
 
 /* Draw a single pixel into the surface: */
 void putpixel8(SDL_Surface * surface, int x, int y, Uint32 pixel)
