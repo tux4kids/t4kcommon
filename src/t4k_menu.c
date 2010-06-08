@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "t4k-globals.h"
-#include "t4k-common.h"
+#include "t4k_globals.h"
+#include "t4k_common.h"
 
 /* TODO do we want t4k-common to use gettext directly, or should we     */
 /* rely on the game programs to pass t4k-common the translated strings? */
