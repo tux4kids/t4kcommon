@@ -92,6 +92,7 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 # define PREFIXIFY(base_name) base_name
 #endif
 
+/* from t4k-menu.c */
 void            PREFIXIFY( SetActivitiesList       ) (int num, char** acts);
 void            PREFIXIFY( SetMenuSounds           ) (char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
 void            PREFIXIFY( SetImagePathPrefix      ) (char* pref);
