@@ -38,7 +38,6 @@ install( TARGETS ${LIB_NAME}
 	ARCHIVE DESTINATION lib 
 	LIBRARY DESTINATION lib )
 
-install(FILES ${T4KCOMMON_SOURCE_DIR}/t4k-common.h
-	RENAME t4kcommon.h
+install(FILES ${T4KCOMMON_SOURCE_DIR}/t4k_common.h
 	DESTINATION include/${LIB_NAME})
 
