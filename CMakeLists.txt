@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(PACKAGE_NAME Tux4Kids-common)
-set(LIB_NAME t4kcommon)
+set(LIB_NAME t4k_common)
 project(${PACKAGE_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
