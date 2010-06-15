@@ -85,7 +85,10 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 //in this header eventually
 
 
-#ifdef USE_T4K_PREFIX //Use T4K_FuncName() convention
+#ifndef USE_T4K_PREFIX //Use T4K_FuncName() convention
+# define USE_T4K_PREFIX 1
+#endif
+#if USE_T4K_PREFIX
 # define PREFIXIFY(base_name) \
          T4K_ ## base_name
 #else //Use FuncName() convention with no prefix
