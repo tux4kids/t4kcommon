@@ -9,9 +9,9 @@ else
   COMMON_DATA_PREFIX=${pkgdatadir}
 endif
 
-lib_LTLIBRARIES = libt4kcommon.la
+lib_LTLIBRARIES = libt4k_common.la
 
-libt4kcommon_la_SOURCES = \
+libt4k_common_la_SOURCES = \
 	t4k_audio.c	\
 	t4k_compiler.h	\
 	t4k_globals.h	\

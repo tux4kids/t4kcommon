@@ -38,7 +38,7 @@ set_target_properties (${LIB_NAME} PROPERTIES
 install( TARGETS ${LIB_NAME}
 	LIBRARY DESTINATION lib )
 
+<<<<<<< HEAD:src/CMakeLists.txt
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
-	RENAME t4k_common.h
 	DESTINATION include/${LIB_NAME})
 
