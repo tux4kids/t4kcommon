@@ -1,8 +1,6 @@
-if (UNIX)
-  set (DESTDIR "${T4KCOMMON_DATA_PREFIX}")
-elseif(WIN32)
-  set (DESTDIR "$ENV{APPDATA}/${PACKAGE_NAME}")
-endif (UNIX)
+include (T4K_Sugar)
+
+t4k_gentle_set(DESTDIR "${T4K_COMMON_DATA_PREFIX}")
 
 install (DIRECTORY images
     DESTINATION ${DESTDIR}

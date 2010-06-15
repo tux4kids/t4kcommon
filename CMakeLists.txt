@@ -4,8 +4,8 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(PACKAGE_NAME Tux4Kids-common)
-set(LIB_NAME t4kcommon)
+set(PACKAGE_NAME Tux4Kids_common)
+set(LIB_NAME t4k_common)
 project(${PACKAGE_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
@@ -21,26 +21,22 @@ else (SDLPANGO_FOUND)
 endif (SDLPANGO_FOUND)
 
 find_package(RSVG)
-#include(FindPkgConfig)
-#pkg_check_modules(rsvg librsvg-2.0)
-#if(rsvg_found)
-#  pkg_check_modules(cairo cairo)
-#  if(cairo_found)
-#    set(have_rsvg 1)  # for the config.h file
-#  endif(cairo_found)
-#endif(rsvg_found)
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
 
 # based on tuxmath's CMakeLists.txt
 if (APPLE)
-  set(T4KCOMMON_MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
-  set(T4KCOMMON_DATA_PREFIX
-      ${T4KCOMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
+  set(T4K_COMMON_MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
+  set(T4K_COMMON_DATA_PREFIX
+      ${T4K_COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
 elseif (UNIX)
-  set (T4KCOMMON_DATA_PREFIX
+  set (T4K_COMMON_DATA_PREFIX
       ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
-endif (APPLE)
+elseif(WIN32)
+  set (T4K_COMMON_DATA_PREFIX "$ENV{APPDATA}/${PACKAGE_NAME}")
+else()
+  message(SEND_ERROR "What OS are you on?")
+endif()
 
 
 #process subdirectories

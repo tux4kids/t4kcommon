@@ -5,9 +5,11 @@
 # Set a variable only if it has not already been set
 # Example: gentle_set(CMAKE_BUILD_TYPE DEBUG)
 macro(t4k_gentle_set var val)
-  if (NOT DEFINED var)
-    set(var val)
-  endif (NOT DEFINED var)
+  if (NOT DEFINED ${var})
+    set(${var} ${val})
+  else (NOT DEFINED ${var})
+    message(STATUS "${var} was previously set to ${${var}}")
+  endif (NOT DEFINED ${var})
 endmacro(t4k_gentle_set)
 
 # Propagate a CMake variable to the C preprocessor
