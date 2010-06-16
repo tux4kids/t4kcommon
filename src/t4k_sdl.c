@@ -1191,7 +1191,7 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
 
 
 /*-- file-scope variables and local file prototypes for SDL_Pango-based code: */
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
 #include "SDL_Pango.h"
 SDLPango_Context* context = NULL;
 static SDLPango_Matrix* SDL_Colour_to_SDLPango_Matrix(const SDL_Color* cl);
@@ -1216,7 +1216,7 @@ static TTF_Font* load_font(const char* font_name, int font_size);
 /* or we initialize SDL_ttf:                                      */
 int T4K_Setup_SDL_Text(void)
 {
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
 
   DEBUGMSG(debug_sdl, "T4K_Setup_SDL_Text() - using SDL_Pango\n");
 
@@ -1245,7 +1245,7 @@ int T4K_Setup_SDL_Text(void)
 
 void T4K_Cleanup_SDL_Text(void)
 {
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   if(context != NULL)
     SDLPango_FreeContext(context);
   context = NULL;
@@ -1272,7 +1272,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
   Uint32 color_key;
 
 /* Make sure everything is sane before we proceed: */
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   if (!context)
   {
     fprintf(stderr, "T4K_BlackOutline(): invalid SDL_Pango context - returning.");
@@ -1302,7 +1302,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
   DEBUGMSG(debug_sdl, "Entering T4K_BlackOutline():\n");
   DEBUGMSG(debug_sdl, "BlackOutline of \"%s\"\n", t );
 
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   Set_SDL_Pango_Font_Size(size);
   SDLPango_SetDefaultColor(context, MATRIX_TRANSPARENT_BACK_BLACK_LETTER);
   SDLPango_SetText(context, t, -1);
@@ -1339,7 +1339,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
   SDL_FreeSurface(black_letters);
 
   /* --- Put the color version of the text on top! --- */
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   /* convert color arg: */
   SDLPango_Matrix* color_matrix = SDL_Colour_to_SDLPango_Matrix(c);
 
@@ -1388,7 +1388,7 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
   if (!t||!col)
     return NULL;
 
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   if (!context)
   {
     fprintf(stderr, "T4K_SimpleText() - context not valid!\n");
@@ -1430,7 +1430,7 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, SDL_Color* col, i
   if (!t||!col)
     return NULL;
 
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
   if (!context)
   {
     fprintf(stderr, "T4K_SimpleText() - context not valid!\n");
@@ -1486,7 +1486,7 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, SDL_Color* col, i
 
 
 
-#ifdef HAVE_LIBSDL_PANGO
+#if HAVE_LIBSDL_PANGO
 /* Local functions when using SDL_Pango:   */
 
 

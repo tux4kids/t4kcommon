@@ -9,6 +9,7 @@ set(LIB_NAME t4k_common)
 project(${PACKAGE_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+include(T4K_Sugar)
 
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
@@ -33,7 +34,7 @@ elseif (UNIX)
   set (T4K_COMMON_DATA_PREFIX
       ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
 elseif(WIN32)
-  set (T4K_COMMON_DATA_PREFIX "$ENV{APPDATA}/${PACKAGE_NAME}")
+  t4k_to_unix_path(T4K_COMMON_DATA_PREFIX "\$ENV{APPDATA}/${PACKAGE_NAME}")
 else()
   message(SEND_ERROR "What OS are you on?")
 endif()
@@ -43,3 +44,4 @@ endif()
 add_subdirectory(src)
 add_subdirectory(data)
 
+include(CPack)
