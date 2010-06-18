@@ -25,11 +25,17 @@ int win_res_y = 480;
 int fs_res_x = 0;
 int fs_res_y = 0;
 
-char* font_name;
+char* _font_name = NULL;
 
-void set_font_name(char* fname)
+void T4K_SetFontName(const char* name)
 {
-  font_name = fname;
+  DEBUGMSG(debug_sdl, "Switching font to %s\n", name);
+  _font_name = name;
+}
+
+const char* T4K_AskFontName()
+{
+  return _font_name;
 }
 
 /*

@@ -145,6 +145,8 @@ int             PREFIXIFY( EraseSprite             ) (sprite* img, SDL_Surface* 
 int             PREFIXIFY( EraseObject             ) (SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 
 /* Prototypes for t4k-sdl.c text functions */
+void            PREFIXIFY( SetFontName             ) (const char* name);
+const char*     PREFIXIFY( AskFontName             ) (void);
 int             PREFIXIFY( Setup_SDL_Text          ) (void);
 void            PREFIXIFY( Cleanup_SDL_Text        ) (void);
 SDL_Surface*    PREFIXIFY( BlackOutline            ) (const char* t, int size, SDL_Color* c);
