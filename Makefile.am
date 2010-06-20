@@ -8,3 +8,6 @@ SUBDIRS = data \
 EXTRA_DIST = CMakeLists.txt
 
 ACLOCAL_AMFLAGS = -I m4
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = t4k_common.pc
