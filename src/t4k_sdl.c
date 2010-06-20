@@ -1507,7 +1507,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   /* Do nothing unless we need to change size or font: */
   if ((size == prev_pango_font_size)
       &&
-      (0 == strncmp(prev_font_name, font_name, sizeof(prev_font_name))))
+      (0 == strncmp(prev_font_name, _font_name, sizeof(prev_font_name))))
     return 1;
   else
   {
@@ -1518,7 +1518,7 @@ static int Set_SDL_Pango_Font_Size(int size)
     if(context != NULL)
       SDLPango_FreeContext(context);
     context = NULL;
-    snprintf(buf, sizeof(buf), "%s %d", font_name, (int)((size * 3)/4));
+    snprintf(buf, sizeof(buf), "%s %d", _font_name, (int)((size * 3)/4));
     context =  SDLPango_CreateContext_GivenFontDesc(buf);
   }
 
@@ -1527,7 +1527,7 @@ static int Set_SDL_Pango_Font_Size(int size)
   else
   {
     prev_pango_font_size = size;
-    strncpy(prev_font_name, font_name, sizeof(prev_font_name));
+    strncpy(prev_font_name, _font_name, sizeof(prev_font_name));
     return 1;
   }
 }
@@ -1598,10 +1598,10 @@ static TTF_Font* get_font(int size)
   }
 
   /* If the font has changed, we need to wipe out the old ones: */
-  if (0 != strncmp(prev_font_name, font_name, sizeof(prev_font_name)))
+  if (0 != strncmp(prev_font_name, _font_name, sizeof(prev_font_name)))
   {
     free_font_list();
-    strncpy(prev_font_name, font_name, sizeof(prev_font_name));
+    strncpy(prev_font_name, _font_name, sizeof(prev_font_name));
   }
 
   if(font_list[size] == NULL)
