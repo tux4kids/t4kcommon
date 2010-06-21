@@ -2,8 +2,12 @@
 # This module defines
 # RSVG_FOUND if false, don't use RSVG
 # CAIRO_FOUND if libcairo was found
+# RSVG_LIBRARIES
 
 
+set(RSVG_FOUND false)
+
+# first try using pkg-config
 if (UNIX)
   include(FindPkgConfig)
   pkg_check_modules(RSVG librsvg-2.0)
@@ -13,9 +17,19 @@ if (UNIX)
       set(HAVE_RSVG 1)  # For the config.h file
     endif(CAIRO_FOUND)
   endif(RSVG_FOUND)
-elseif(WIN32)
-  
 endif(UNIX)
+
+if (NOT RSVG_FOUND)
+  find_path(RSVG_INCLUDE_DIR rsvg.h
+    /usr/include
+    /usr/include/librsvg-2
+    /usr/include/librsvg-2/librsvg
+    /usr/local/include
+    /usr/local/include/librsvg-2
+    /usr/local/include/librsvg-2/librsvg
+  )
+endif(NOT RSVG_FOUND)
+
 
 # getting rid of semicolons
 set(_rsvg_cflags "")
