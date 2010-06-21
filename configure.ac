@@ -197,5 +197,6 @@ AC_CONFIG_FILES([Makefile
                  data/images/Makefile
                  data/images/menu/Makefile
                  po/Makefile.in
-                 src/Makefile])
+                 src/Makefile
+                 t4k_common.pc])
 AC_OUTPUT

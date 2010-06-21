@@ -29,6 +29,8 @@ SDL_Color red, yellow, white, black;
 /* set global variables */
 void InitT4KCommon(int debug_flags)
 {
+  printf("Initializing " PACKAGE_STRING "\n");
+
   debug_status = debug_flags;
 
   black.r       = 0x00; black.g       = 0x00; black.b       = 0x00;
