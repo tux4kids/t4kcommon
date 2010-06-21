@@ -25,12 +25,12 @@ int win_res_y = 480;
 int fs_res_x = 0;
 int fs_res_y = 0;
 
-char _font_name[PATH_MAX];
+const char* _font_name = DEFAULT_FONT_NAME;
 
 void T4K_SetFontName(const char* name)
 {
   DEBUGMSG(debug_sdl, "Switching font to %s\n", name);
-  strncpy(_font_name, name, PATH_MAX);
+  _font_name = name;
 }
 
 const char* T4K_AskFontName()
