@@ -3,6 +3,9 @@
 # RSVG_FOUND if false, don't use RSVG
 # CAIRO_FOUND if libcairo was found
 # RSVG_LIBRARIES
+# RSVG_CFLAGS
+# CAIRO_CFLAGS
+
 
 
 set(RSVG_FOUND false)
