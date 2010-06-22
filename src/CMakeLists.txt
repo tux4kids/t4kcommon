@@ -29,9 +29,9 @@ target_link_libraries(${LIB_NAME}
 
 t4k_include_definition(HAVE_LIBSDL_PANGO)
 set_target_properties (${LIB_NAME} PROPERTIES 
-    COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
+	COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
 	COMPILE_DEFINITIONS
-	"COMMON_DATA_PREFIX=\"${T4K_COMMON_DATA_PREFIX}\";USE_T4K_PREFIX=1"
+	"COMMON_DATA_PREFIX=\"${T4K_COMMON_DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_STRING}\""
 	LINK_INTERFACE_LIBRARIES ""
 )
 

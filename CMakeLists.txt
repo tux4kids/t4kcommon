@@ -11,6 +11,8 @@ project(${PACKAGE_NAME})
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 include(T4K_Sugar)
 
+set(SDL_BUILDING_LIBRARY 1) #indicate we don't need to link SDLmain
+
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
