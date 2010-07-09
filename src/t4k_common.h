@@ -17,15 +17,15 @@
 #include "SDL_mixer.h"
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define rmask 0xff000000
-#define gmask 0x00ff0000
-#define bmask 0x0000ff00
-#define amask 0x000000ff
+# define rmask 0xff000000
+# define gmask 0x00ff0000
+# define bmask 0x0000ff00
+# define amask 0x000000ff
 #else
-#define rmask 0x000000ff
-#define gmask 0x0000ff00
-#define bmask 0x00ff0000
-#define amask 0xff000000
+# define rmask 0x000000ff
+# define gmask 0x0000ff00
+# define bmask 0x00ff0000
+# define amask 0xff000000
 #endif
 
 //Hold off on gettext until we decide if we are really going to
@@ -44,6 +44,9 @@ extern const int debug_all;
 /* FIXME: global vars such as screen should be hidden when all games
    are using only getters (such as GetScreen() ) */
 extern SDL_Surface* screen;
+extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
+extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
+
 
 #define MAX_SPRITE_FRAMES 15
 
@@ -54,35 +57,44 @@ typedef struct {
   int cur;
 } sprite;
 
-/* from t4k-main.c */
-void            InitT4KCommon(int debug_flags);
+/**
+ * \enum WipeStyle
+ * \brief Different transition effects used by TransWipe()
+ */
+typedef enum
+{
+  WIPE_BLINDS_VERT,
+  WIPE_BLINDS_HORIZ,
+  WIPE_BLINDS_BOX,
+  RANDOM_WIPE,
+  NUM_WIPES
+} WipeStyle;
+
+/**
+ * special values used by RunMenu. RUN_MAIN_MENU is a special
+ * activity that can be used in .xml menu structures but should not
+ * be declared in activities' lists.
+ * RunMenu returning QUIT indicates that user decided to quit application while
+ * running the menu. Returning STOP indicates that user pressed stop button. 
+ */
+enum { 
+	RUN_MAIN_MENU = -3, 
+	QUIT = -2, 
+	STOP = -1 
+};
+
+
 
 /* from tk4-menu.c */
 
-/* special values used by RunMenu. RUN_MAIN_MENU is a special
-   activity that can be used in .xml menu structures but should not
-   be declared in activities' lists.
-   RunMenu returning QUIT indicates that user decided to quit application while
-   running the menu. Returning STOP indicates that user pressed stop button. */
-enum { RUN_MAIN_MENU = -3, QUIT = -2, STOP = -1 };
+/* from tk4-loaders.c */
+#define IMG_REGULAR         0x01
+#define IMG_COLORKEY        0x02
+#define IMG_ALPHA           0x04
+#define IMG_MODES           0x07
 
-
-/* Windows is silly and defines some things to win32 calls. Perhaps we should
-** adopt some sort of prefix to get around this --BML
-*/
-#ifdef WIN32
-#undef LoadMenu
-#undef PlaySound
-#undef SetRect
-#undef LoadImage
-#endif
-
-/* Evil, ugly externs */
-extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
-extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
-
-//TODO most of these functions are documented...somewhere. That should end up
-//in this header eventually
+#define IMG_NOT_REQUIRED    0x10
+#define IMG_NO_PNG_FALLBACK 0x20
 
 
 #ifndef USE_T4K_PREFIX //Use T4K_FuncName() convention
@@ -94,6 +106,12 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 #else //Use FuncName() convention with no prefix
 # define PREFIXIFY(base_name) base_name
 #endif
+
+//TODO most of these functions are documented...somewhere. That should end up
+//in this header eventually
+
+/* from t4k-main.c */
+void            InitT4KCommon(int debug_flags);
 
 /* from t4k-menu.c */
 void            PREFIXIFY( SetActivitiesList       ) (int num, char** acts);
@@ -108,16 +126,6 @@ void            PREFIXIFY( UnloadMenus             ) (void);
 
 /* from tk4-sdl.c */
 
-/* For TransWipe(): */
-enum
-{
-  WIPE_BLINDS_VERT,
-  WIPE_BLINDS_HORIZ,
-  WIPE_BLINDS_BOX,
-  RANDOM_WIPE,
-  NUM_WIPES
-};
-	 
 SDL_Surface*    PREFIXIFY( GetScreen               ) ();
 void            PREFIXIFY( DrawButton              ) (SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 void            PREFIXIFY( DrawButtonOn            ) (SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
@@ -152,16 +160,6 @@ void            PREFIXIFY( Cleanup_SDL_Text        ) (void);
 SDL_Surface*    PREFIXIFY( BlackOutline            ) (const char* t, int size, SDL_Color* c);
 SDL_Surface*    PREFIXIFY( SimpleText              ) (const char *t, int size, SDL_Color* col);
 SDL_Surface*    PREFIXIFY( SimpleTextWithOffset    ) (const char *t, int size, SDL_Color* col, int *glyph_offset);
-
-/* from tk4-loaders.c */
-#define IMG_REGULAR         0x01
-#define IMG_COLORKEY        0x02
-#define IMG_ALPHA           0x04
-#define IMG_MODES           0x07
-
-#define IMG_NOT_REQUIRED    0x10
-#define IMG_NO_PNG_FALLBACK 0x20
-
 
 /**
  * Add a path to search for data (in addition to t4kcommon's install path and 
