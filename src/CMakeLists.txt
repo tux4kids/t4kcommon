@@ -41,3 +41,5 @@ install( TARGETS ${LIB_NAME}
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
 	DESTINATION include)
 
+include(UseDoxygen OPTIONAL)
+

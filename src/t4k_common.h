@@ -1,4 +1,4 @@
-/*
+/**
   tux4kids-common
 
   Library of common functions used in Tux4Kids games.
@@ -7,6 +7,7 @@
   http://www.tux4kids.com/
 
   Copyright: See COPYING file that comes with this distribution.
+  \file t4k_common.h
 */
 
 #ifndef TUX4KIDS_COMMON_H
@@ -288,7 +289,6 @@ void            T4K_SwitchScreenMode        (void);
  * \brief Block application until SDL receives an appropriate event. 
  * Use sparingly.
  * \param events a single or OR'd combination of event masks. 
- * \example e = T4K_WaitForEvent(SDL_KEYDOWNMASK | SDL_QUITMASK)
  * \return the event type received
  */
 SDL_EventType   T4K_WaitForEvent            (SDL_EventMask events);
