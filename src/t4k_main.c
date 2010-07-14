@@ -27,6 +27,9 @@ SDL_Color red, yellow, white, black;
 
 
 /* set global variables */
+/* TODO look into support for locale switching at runtime
+** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115 
+** */
 void InitT4KCommon(int debug_flags)
 {
   printf("Initializing " PACKAGE_STRING "\n");

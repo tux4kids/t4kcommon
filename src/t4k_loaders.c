@@ -30,6 +30,9 @@
 #include<librsvg/rsvg-cairo.h>
 #endif
 
+#define SOUNDS_DIR "sounds"
+#define IMAGE_DIR "images"
+
 /* local functions */
 
 #ifdef HAVE_RSVG
@@ -84,10 +87,10 @@ const char* find_file(const char* base_name)
   static char tmp_path[PATH_MAX];
   if (T4K_CheckFile(base_name))
     return base_name;
-  snprintf(tmp_path, PATH_MAX, "%s%s", app_prefix_path[0], base_name); 
+  snprintf(tmp_path, PATH_MAX, "%s/%s", app_prefix_path[0], base_name); 
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
-  snprintf(tmp_path, PATH_MAX, "%s%s", COMMON_DATA_PREFIX, base_name); 
+  snprintf(tmp_path, PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name); 
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
   return "";
@@ -300,7 +303,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   /* run loader depending on file extension */
 
   /* add path prefix */
-  snprintf(fn, PATH_MAX, "%s", file_name);
+  snprintf(fn, PATH_MAX, IMAGE_DIR "/%s", file_name);
   fn_len = strlen(fn);
 
   if(strcmp(fn + fn_len - 4, ".svg"))
@@ -622,7 +625,7 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
   Mix_Chunk* tempChunk = NULL;
   char fn[PATH_MAX];
 
-  sprintf(fn , "%s", datafile);
+  sprintf(fn, SOUNDS_DIR "/%s", datafile);
   tempChunk = Mix_LoadWAV(fn);
   if (!tempChunk)
   {
@@ -634,13 +637,17 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
 /* LoadMusic : Load music from a datafile */
 Mix_Music* T4K_LoadMusic(char *datafile )
 {
-  char fn[PATH_MAX];
+  char tempfn[PATH_MAX];
+  char* fn = NULL;
   Mix_Music* tempMusic = NULL;
 
-  sprintf(fn, "%s", datafile);
+  sprintf(tempfn, SOUNDS_DIR "/%s", datafile);
+
+  fn = find_file(tempfn);
+  
   if (1 != T4K_CheckFile(fn))
   {
-    fprintf(stderr, "T4K_LoadMusic(): %s not found\n\n", fn);
+    fprintf(stderr, "T4K_LoadMusic(): Music '%s' not found\n\n", fn);
     return NULL;
   }
 
