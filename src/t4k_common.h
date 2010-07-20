@@ -17,6 +17,10 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 
+#ifndef DEBUGVAR
+# define DEBUGVAR(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %s\n", (Expr)); fflush(stderr); }
+#endif
+
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 # define rmask 0xff000000
 # define gmask 0x00ff0000
@@ -131,7 +135,7 @@ void            T4K_SetMenuSounds           (char* mus_path, Mix_Chunk* click, M
  * \brief Set the prefix that is used whe loading menu sprites
  * \param pref the prefix that is used whe loading menu sprites
  */
-void            T4K_SetImagePathPrefix      (char* pref);
+void            T4K_SetMenuSpritePrefix      (char* pref);
 /**
  * \brief create a simple one-level menu. All given strings are copied
  * \param index
@@ -424,6 +428,14 @@ void            T4K_AddDataPrefix           (const char* path);
  * \return 1 if valid file, 0 if not:
  */
 int             T4K_CheckFile               (const char* file);
+
+/**
+ * \brief Remove a trailing slash from a file path
+ * \param path a path that may or may not end in a slash
+ * \return a path that does not end in a slash
+ */
+char*           T4K_RemoveSlash(char *path);
+
 /**
  * \brief Load an image without resizing it
  * \param file_name

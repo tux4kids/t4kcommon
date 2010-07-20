@@ -48,8 +48,23 @@ SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
 const char*     find_file(const char* base_name);
 
+
 //directories to search in for loaded files, in addition to common data dir (just one for now)
 static char app_prefix_path[1][PATH_MAX];
+
+/* Remove trailing slash--STOLEN from tuxpaint */
+char *T4K_RemoveSlash(char *path)
+{
+  int len = strlen(path);
+
+  if (!len)
+    return path;
+
+  if (path[len-1] == '/' || path[len-1] == '\\')
+    path[len-1] = '\0';
+
+  return path;
+}
 
 int T4K_CheckFile(const char* file)
 {
@@ -367,7 +382,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     }
     /* If image was required, exit from program: */
     fprintf(stderr, "load_image(): ERROR could not load required graphics file %s\n", file_name);
-    fprintf(stderr, "%s\n", SDL_GetError() );
+    fprintf(stderr, "SDL: %s\n", SDL_GetError() );
     //should do some cleanup first...
     exit(EXIT_FAILURE);
     return NULL;

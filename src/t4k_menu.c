@@ -18,6 +18,8 @@
 #include "t4k_globals.h"
 #include "t4k_common.h"
 
+#define MENU_DIR "menus"
+
 /* TODO do we want t4k-common to use gettext directly, or should we     */
 /* rely on the game programs to pass t4k-common the translated strings? */
 /* The latter would seem to make sense, but I don't quite see how we    */
@@ -157,7 +159,7 @@ void T4K_SetMenuSounds(char* mus_path, Mix_Chunk* click, Mix_Chunk* hover)
 }
 
 /* prefix that is used whe loading menu sprites */
-void T4K_SetImagePathPrefix(char* pref)
+void T4K_SetMenuSpritePrefix(char* pref)
 {
   data_prefix = pref;
 }
@@ -347,6 +349,8 @@ void T4K_CreateOneLevelMenu(int index, int items, char** item_names, char** spri
    in "menus" array */
 void T4K_LoadMenu(int index, const char* file_name)
 {
+  char* fn = NULL;
+  char temp[PATH_MAX];
   FILE* menu_file = NULL;
 
   if(menus[index])
@@ -354,8 +358,11 @@ void T4K_LoadMenu(int index, const char* file_name)
     free_menu(menus[index]);
     menus[index] = NULL;
   }
-
-  menu_file = fopen(file_name, "r");
+  
+  snprintf(temp, PATH_MAX, MENU_DIR "/%s", file_name);
+  fn = find_file(temp);
+  DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
+  menu_file = fopen(fn, "r");
   if(menu_file == NULL)
   {
     DEBUGMSG(debug_menu, "T4K_LoadMenu(): Could not load %s !\n", file_name);
@@ -991,11 +998,11 @@ void prerender_menu(MenuNode* menu)
 
     if(curr_node->icon_name)
     {
-      sprintf(filename, "%s/images/menu/%s", data_prefix, curr_node->icon_name);
+      sprintf(filename, "%s/%s", data_prefix, curr_node->icon_name);
       DEBUGMSG(debug_menu, "prerender_menu(): loading sprite %s for item #%d.\n", filename, i);
       curr_node->icon = T4K_LoadSpriteOfBoundingBox(filename, IMG_ALPHA, button_h, button_h);
     }
-    else
+    if (!curr_node->icon_name || !curr_node->icon) //if no sprite, or it failed to load
       DEBUGMSG(debug_menu, "prerender_menu(): no sprite for item #%d.\n", i);
 
     prerender_menu(menu->submenu[i]);
@@ -1111,32 +1118,27 @@ void T4K_PrerenderAll()
   T4K_SetRect(&stop_rect, stop_pos);
   if(stop_button)
     SDL_FreeSurface(stop_button);
-  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, stop_path);
-  stop_button = T4K_LoadImageOfBoundingBox(fn, IMG_ALPHA, stop_rect.w, stop_rect.h);
+  stop_button = T4K_LoadImageOfBoundingBox(stop_path, IMG_ALPHA, stop_rect.w, stop_rect.h);
   /* move button to the right */
   stop_rect.x = T4K_GetScreen()->w - stop_button->w;
 
   T4K_SetRect(&prev_rect, prev_pos);
   if(prev_arrow)
     SDL_FreeSurface(prev_arrow);
-  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, prev_path);
-  prev_arrow = T4K_LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
+  prev_arrow = T4K_LoadImageOfBoundingBox(prev_path, IMG_ALPHA, prev_rect.w, prev_rect.h);
   if(prev_gray)
     SDL_FreeSurface(prev_gray);
-  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, prev_gray_path);
-  prev_gray = T4K_LoadImageOfBoundingBox(fn, IMG_ALPHA, prev_rect.w, prev_rect.h);
+  prev_gray = T4K_LoadImageOfBoundingBox(prev_gray_path, IMG_ALPHA, prev_rect.w, prev_rect.h);
   /* move button to the right */
   prev_rect.x += prev_rect.w - prev_arrow->w;
 
   T4K_SetRect(&next_rect, next_pos);
   if(next_arrow)
     SDL_FreeSurface(next_arrow);
-  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, next_path);
-  next_arrow = T4K_LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
+  next_arrow = T4K_LoadImageOfBoundingBox(next_path, IMG_ALPHA, next_rect.w, next_rect.h);
   if(next_gray)
     SDL_FreeSurface(next_gray);
-  sprintf(fn, "%s%s", COMMON_DATA_PREFIX, next_gray_path);
-  next_gray = T4K_LoadImageOfBoundingBox(fn, IMG_ALPHA, next_rect.w, next_rect.h);
+  next_gray = T4K_LoadImageOfBoundingBox(next_gray_path, IMG_ALPHA, next_rect.w, next_rect.h);
 
   set_font_size();
 
