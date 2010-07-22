@@ -17,7 +17,14 @@ file(GLOB_RECURSE T4K_COMMON_HEADERS ${T4K_COMMON_SOURCE_DIR}/*.h)
 #Declare the library as a SO 
 add_library( ${LIB_NAME} SHARED
 	${T4K_COMMON_SOURCES} ${T4K_COMMON_HEADERS} )
-	
+
+#Avoid linking to both libraries
+if(SDLPANGO_FOUND)
+    set(SDLTTF_LIBRARY "")
+else()
+    set(SDLPANGO_LIBRARY "")
+endif()
+
 #Depend on these libraries. For Pango or TTF, whichever is found will be used
 target_link_libraries(${LIB_NAME}
 	${SDL_LIBRARY}
