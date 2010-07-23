@@ -22,10 +22,8 @@ AC_SUBST(NAME_VERSION)
 
 # Needed for gettext:
 AC_GNU_SOURCE
-AM_GNU_GETTEXT_VERSION([0.18])
+AM_GNU_GETTEXT_VERSION([0.18.1])
 AM_GNU_GETTEXT([external])
-#AM_GNU_GETTEXT
-#AM_GNU_GETTEXT_INTL_SUBDIR
 
 
 # ----------------------------------------------------------------------
