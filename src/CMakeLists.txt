@@ -9,6 +9,9 @@ include(T4K_Sugar)
 include_directories( ${SDL_INCLUDE_DIR} )
 
 set( T4K_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+if(T4K_DEVELOPER_WARNINGS)
+  list(APPEND CMAKE_C_FLAGS -Wall) 
+endif()
 
 #Find source files
 file(GLOB_RECURSE T4K_COMMON_SOURCES ${T4K_COMMON_SOURCE_DIR}/*.c)

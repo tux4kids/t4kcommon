@@ -13,6 +13,11 @@ include(T4K_Sugar)
 
 set(SDL_BUILDING_LIBRARY 1) #indicate we don't need to link SDLmain
 
+set(T4K_DEVELOPER_WARNINGS ON CACHE STRING "Change or override to disable warnings")
+if(CMAKE_BUILD_TYPE MATCHES Release)
+  set(T4K_DEVELOPER_WARNINGS OFF)
+endif()
+
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
@@ -32,7 +37,7 @@ if (APPLE)
   set(T4K_COMMON_MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
   set(T4K_COMMON_DATA_PREFIX
       ${T4K_COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
-elseif (UNIX)
+elseif(UNIX)
   set (T4K_COMMON_DATA_PREFIX
       ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
 elseif(WIN32)
