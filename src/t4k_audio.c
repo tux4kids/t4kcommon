@@ -9,6 +9,7 @@
     Modified for use in tuxmath by David Bruce - 2006.
     email                : <dbruce@tampabay.rr.com>
                            <tuxmath-devel@lists.sourceforge.net>
+    Modified further for use in libt4k_common - 2009
 ***************************************************************************/
 
 /***************************************************************************

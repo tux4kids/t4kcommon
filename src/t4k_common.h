@@ -1,7 +1,9 @@
 /**
   tux4kids-common
 
-  Library of common functions used in Tux4Kids games.
+  Library of common functions used in these Tux4Kids games
+  - Tux, of Math Command
+  - Tux Typin
 
   Part of "Tux4Kids" Project
   http://www.tux4kids.com/
@@ -40,11 +42,11 @@
 
 typedef enum { false, true } bool;
 
-extern const int debug_loaders;
-extern const int debug_menu;
-extern const int debug_menu_parser;
-extern const int debug_sdl;
-extern const int debug_all;
+extern const int debug_loaders; /**< Debug image loading code */
+extern const int debug_menu; /**< Debug menu code */
+extern const int debug_menu_parser; /**< Debug XML parsing for menus */
+extern const int debug_sdl; /**< Debug image txf and other support code */
+extern const int debug_all; /**< Enable all debugging output (messy!) */
 
 /* FIXME: global vars such as screen should be hidden when all games
    are using only getters (such as GetScreen() ) */
@@ -53,8 +55,12 @@ extern SDL_Rect menu_rect, stop_rect, prev_rect, next_rect;
 extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
 
 
-#define MAX_SPRITE_FRAMES 15
+#define MAX_SPRITE_FRAMES 15 /**< The max number of images a single sprite can use */
 
+/**
+ * \struct sprite
+ * \brief an animated sprite using a collection of SDL_Surface s
+ */
 typedef struct {
   SDL_Surface *frame[MAX_SPRITE_FRAMES];
   SDL_Surface *default_img;
@@ -76,16 +82,12 @@ typedef enum
 } WipeStyle;
 
 /**
- * special values used by RunMenu. RUN_MAIN_MENU is a special
- * activity that can be used in .xml menu structures but should not
- * be declared in activities' lists.
- * RunMenu returning QUIT indicates that user decided to quit application while
- * running the menu. Returning STOP indicates that user pressed stop button. 
+ * special values used by RunMenu.  
  */
 enum { 
-	RUN_MAIN_MENU = -3, 
-	QUIT = -2, 
-	STOP = -1 
+	RUN_MAIN_MENU = -3, /**< can be used in .xml menu structures but should not be declared in activities' lists. */
+	QUIT = -2, /**< user decided to quit application */
+	STOP = -1 /**< user pressed the stop button */
 };
 
 
@@ -101,34 +103,37 @@ enum {
 #define IMG_NOT_REQUIRED    0x10
 #define IMG_NO_PNG_FALLBACK 0x20
 
-//TODO most of these functions are documented...somewhere. That should end up
-//in this header eventually
+//TODO flesh out doc comments
+//TODO separate headers for different areas a la SDL?
 
 /* from t4k-main.c */
 /**
  * \brief Initialize Tux4Kids-Common
- * \param debug_flags The flags used for debugging output
+ * \param debug_flags The flags used for debugging output.
  * Games may define their own debug flags, but several are available by default:
- * debug_loaders      
- * debug_menu         
- * debug_menu_parser  
- * debug_sdl          
- * debug_all          
+ * - debug_loaders      
+ * - debug_menu         
+ * - debug_menu_parser  
+ * - debug_sdl          
+ * - debug_all          
  */
 void            InitT4KCommon(int debug_flags);
 
 /* from t4k-menu.c */
 /**
- * \brief 
- * \param num
- * \param acts
+ * \brief Specify the set of activities the menu system should handle
+ * \param num The number of activities. acts should have num elements.
+ * \param acts An array of strings, each an activity provided by the game
+ * \example 
+ *     char** activities = {"Game One", "Game Two", "Practice"};
+ *     T4K_SetActivitiesList(3, activities);
  */
 void            T4K_SetActivitiesList       (int num, char** acts);
 /**
- * \brief 
- * \param mus_path
- * \param click
- * \param hover
+ * \brief Set optional sound effects and music for menus
+ * \param mus_path The path to background music. 
+ * \param click The sound effect to play when an item is clicked
+ * \param hover The sound effect to play when an item is highlighted
  */
 void            T4K_SetMenuSounds           (char* mus_path, Mix_Chunk* click, Mix_Chunk* hover);
 /**
@@ -137,26 +142,30 @@ void            T4K_SetMenuSounds           (char* mus_path, Mix_Chunk* click, M
  */
 void            T4K_SetMenuSpritePrefix      (char* pref);
 /**
- * \brief create a simple one-level menu. All given strings are copied
- * \param index
- * \param items
+ * \brief Dynamically create a simple menu. All given strings are copied
+ * \param index The unique index of the menu
+ * \param items The number of items in the menu
  * \param item_names
  * \param sprite_names
- * \param title
- * \param trailer
+ * \param title The title of the menu
+ * \param trailer An optional item appended to the end of item_names
  */
 void            T4K_CreateOneLevelMenu      (int index, int items, char** item_names, char** sprite_names, char* title, char* trailer);
 /**
  * \brief RunMenu - main function to display the menu and run the event loop
  * this function is a modified copy of choose_menu_item()
- * \param index
+ * \param index The unique index of the menu
  * \param return_choice if true, then return chosen value instead of running handle_activity()
+ * \param draw_background A function that draws game-specific items, called once per frame
+ * \param handle_event A function to process game-specific events
+ * \param handle_animations A function to animate game-specific items
+ * \param handle_activity A function to start an activity when the user selects it
  * \return 
  */
 int             T4K_RunMenu                 (int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
 /**
- * \brief 
- * \param index
+ * \brief prerender a single menu based on the screen resolution
+ * \param index The unique index of the menu
  */
 void            T4K_PrerenderMenu           (int index);
 /**
@@ -166,7 +175,7 @@ void            T4K_PrerenderMenu           (int index);
 void            T4K_PrerenderAll            ();
 /**
  * \brief load menu from given XML file and store its tree under given index in "menus" array
- * \param index
+ * \param index The unique index of the menu
  * \param file_name
  */
 void            T4K_LoadMenu                (int index, const char* file_name);
@@ -534,12 +543,12 @@ Mix_Music*      T4K_LoadMusic               (char *datafile);
 
 /* from tk4-audio.c */
 /**
- * \brief 
+ * \brief play sound once and exit
  * \param sound
  */
 void            T4K_PlaySound               (Mix_Chunk* sound);
 /**
- * \brief 
+ * \brief play sound "loops" times, -1 for infinite
  * \param sound
  * \param loops
  */
@@ -550,13 +559,14 @@ void            T4K_PlaySoundLoop           (Mix_Chunk* sound, int loops);
  */
 void            T4K_AudioHaltChannel        ( int channel );
 /**
- * \brief 
+ * \brief attempts to load and play the music file
  * \param music_path
  * \param loops
  */
 void            T4K_AudioMusicLoad          (char* music_path, int loops);
 /**
- * \brief 
+ * \brief attempts to unload any music data that was
+ * loaded using the audioMusicLoad function
  */
 void            T4K_AudioMusicUnload        ();
 /**
@@ -565,9 +575,9 @@ void            T4K_AudioMusicUnload        ();
  */
 bool            T4K_IsPlayingMusic          ();
 /**
- * \brief 
+ * \brief attempts to play the passed music data, stopping current music if necessary
  * \param musicData
- * \param loops
+ * \param loops the number of times to loop, or -1 forever
  */
 void            T4K_AudioMusicPlay          (Mix_Music *musicData, int loops);
 
