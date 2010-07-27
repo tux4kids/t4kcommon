@@ -19,8 +19,26 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 
-#ifndef DEBUGVAR
+/* 
+ * Debugging macros
+ * 
+ * All macros take a debug mask as their first argument, which should roughly
+ * indicate what part of the program the debugging info is related to, and
+ * which can be one of the flags defined below, a program-specific flag, or
+ * an OR'd combination. 
+ *
+ * DEBUGVAR prints out the name and value of a string variable
+ * DEBUGVARX prints out the name and hex value of an integral variable
+ * DEBUGVARF prints out the name and decimal value of a floating point variable
+ * DEBUGCODE is a conditional and should be followed by a code block
+ * DEBUGMSG prints out a specific message, which can be formatted like printf
+ */
+#ifndef DEBUGMSG
 # define DEBUGVAR(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %s\n", (Expr)); fflush(stderr); }
+# define DEBUGVARX(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %x\n", (Expr)); fflush(stderr); }
+# define DEBUGVARF(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %f\n", (Expr)); fflush(stderr); }
+# define DEBUGCODE(mask) if((mask) & debug_status)
+# define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
 #endif
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -90,6 +108,15 @@ enum {
 	STOP = -1 /**< user pressed the stop button */
 };
 
+/**
+ * Strategies for determining menu font sizes
+ */
+typedef enum
+{
+  MF_UNIFORM, /**< All menus are searched and the largest size that will fit on all menus is used. */
+  MF_BESTFIT, /**< Menus are searched separately for the largest fonts they can accommodate */
+  MF_EXACTLY /**< The font size given is used directly; text may run off the screen. */
+} MFStrategy;
 
 
 /* from tk4-menu.c */
@@ -124,9 +151,6 @@ void            InitT4KCommon(int debug_flags);
  * \brief Specify the set of activities the menu system should handle
  * \param num The number of activities. acts should have num elements.
  * \param acts An array of strings, each an activity provided by the game
- * \example 
- *     char** activities = {"Game One", "Game Two", "Practice"};
- *     T4K_SetActivitiesList(3, activities);
  */
 void            T4K_SetActivitiesList       (int num, char** acts);
 /**
@@ -141,6 +165,12 @@ void            T4K_SetMenuSounds           (char* mus_path, Mix_Chunk* click, M
  * \param pref the prefix that is used whe loading menu sprites
  */
 void            T4K_SetMenuSpritePrefix      (char* pref);
+/**
+ * \brief Set the font size for managed menus. 
+ * \param strategy How to determine menus' font size
+ * \param size A literal size to use. This will be ignored unless strategy is MF_EXACTLY
+ */
+void            T4K_SetMenuFontSize          (MFStrategy strategy, int size);
 /**
  * \brief Dynamically create a simple menu. All given strings are copied
  * \param index The unique index of the menu

@@ -78,7 +78,10 @@ static Mix_Chunk* snd_hover;
 static char* music_path;
 
 /* font size used in current resolution */
-static int curr_font_size;
+//static int curr_font_size;
+
+/* how font size should be calculated */
+static MFStrategy font_strategy;
 
 /* buffer size used when reading attributes or names */
 static const int buf_size = 512;
@@ -111,13 +114,13 @@ const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
-const char* stop_path = "/images/menu/stop.svg";
-const char* prev_path = "/images/menu/left.svg";
-const char* next_path = "/images/menu/right.svg";
-const char* prev_gray_path = "/images/menu/left_gray.svg";
-const char* next_gray_path = "/images/menu/right_gray.svg";
+const char* stop_path = "menu/stop.svg";
+const char* prev_path = "menu/left.svg";
+const char* next_path = "menu/right.svg";
+const char* prev_gray_path = "menu/left_gray.svg";
+const char* next_gray_path = "menu/right_gray.svg";
 const float button_gap = 0.18, text_h_gap = 0.35, text_w_gap = 0.5, button_radius = 0.27;
-const int min_font_size = 8, default_font_size = 20, max_font_size = 40;
+const int min_font_size = 8, default_font_size = 20, max_font_size = 33;
 
 
 
@@ -133,12 +136,17 @@ MenuNode*       load_menu_from_file(FILE* xml_file, MenuNode* parent);
 void            free_menu(MenuNode* menu);
 
 SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
+char*           find_title_length(MenuNode* menu, int* length);
 char*           find_longest_text(MenuNode* menu, int* length);
 int             find_longest_menu_page(MenuNode* menu);
 void            set_font_size();
 void            prerender_menu(MenuNode* menu);
 int		min(int a, int b);
 int		max(int a, int b);
+
+void set_font_size_explicitly(MenuNode* menu, int size);
+void set_menu_font_size(MenuNode* menu);
+int binsearch(int min_f, int max_f, const char* text);
 
 /*
   functions initializing the menu module
@@ -484,7 +492,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
     {
       menu_title_rect = menu->submenu[0]->button_rect;
       menu_title_rect.y = menu_rect.y - menu_title_rect.h;
-      title_surf = T4K_BlackOutline(_(menu->title), curr_font_size, &red);
+      title_surf = T4K_BlackOutline(_(menu->title), menu->font_size, &red);
       SDL_BlitSurface(title_surf, NULL, T4K_GetScreen(), &menu_title_rect);
       SDL_FreeSurface(title_surf);
     }
@@ -921,7 +929,7 @@ SDL_Surface** render_buttons(MenuNode* menu, bool selected)
 
     /* text */
     tmp_surf = T4K_BlackOutline(_(menu->submenu[menu->first_entry + i]->title),
-                            curr_font_size, selected ? &yellow : &white);
+                            menu->font_size, selected ? &yellow : &white);
     SDL_BlitSurface(tmp_surf, NULL, menu_items[i], &menu->submenu[menu->first_entry + i]->text_rect);
     SDL_FreeSurface(tmp_surf);
   }
@@ -958,7 +966,7 @@ void prerender_menu(MenuNode* menu)
     if(menu->submenu[i]->icon_name)
       found_icons = true;
     temp_surf = NULL;
-    temp_surf = T4K_SimpleText(_(menu->submenu[i]->title), curr_font_size, &black);
+    temp_surf = T4K_SimpleText(_(menu->submenu[i]->title), menu->font_size, &black);
     if(temp_surf)
     {
       max_text_h = max(max_text_h, temp_surf->h);
@@ -1012,29 +1020,46 @@ void prerender_menu(MenuNode* menu)
 
 void T4K_PrerenderMenu(int index)
 {
+  if (font_strategy == MF_EXACTLY)
+    menus[index]->font_size = default_font_size;
+  else 
+    set_menu_font_size(menus[index]);
+
   prerender_menu(menus[index]);
 }
 
 /* recursively search for longest menu caption in currently
-   used menus and in current language */
+   used menus and in current language 
+   Note the dual return values--if a string longer than length
+   is found, length will be set to that value and the return value
+   will be the string found. O/W, length is untouched and the
+   function returns NULL.
+   */
 char* find_longest_text(MenuNode* menu, int* length)
 {
-  SDL_Surface* text = NULL;
   char *ret = NULL, *temp = NULL;
   int i;
+  int w = 0;
 
   DEBUGMSG(debug_menu, "Entering find_longest_text()\n");
-  if(menu->submenu_size == 0)
+  if(menu->submenu_size == 0) //"leaf" menu
   {
-    text = T4K_SimpleText(_(menu->title), curr_font_size, &black);
-    if(text->w > *length)
+    /*
+    Use a small size (8) here, since text should be proportional and we're only
+    interested in *which* text is longest, not its specific size
+    */
+    if (size_text(_(menu->title), 8, &w, NULL))
     {
-      *length = text->w;
+      fprintf(stderr, "Warning, couldn't render %s\n", menu->title);
+      w = 0;
+    }
+    if (w > *length)
+    {
+      *length = w;
       ret = menu->title;
     }
-    SDL_FreeSurface(text);
   }
-  else
+  else //nonleaf menu, recurse
   {
     for(i = 0; i < menu->submenu_size; i++)
     {
@@ -1064,54 +1089,107 @@ int find_longest_menu_page(MenuNode* menu)
 
 /* find the longest text in all existing menus and binary search
    for the best font size */
-void set_font_size()
+void set_font_size(bool uniform)
 {
-  char* longest = NULL;
-  char* temp;
-  SDL_Surface* surf;
-  int length = 0, i, min_f, max_f, mid_f, max_buttons = 0;
+  int i, j;
+  char* longest=NULL;
+  int w = 0;
+  
 
-  curr_font_size = default_font_size;
-
-  for(i = 0; i < N_OF_MENUS; i++)
+  if (!uniform)
   {
-    if(menus[i])
+    //if not uniform, do each submenu separately
+    for (i = 0; i < N_OF_MENUS; ++i)
+      if (menus[i])
+        set_menu_font_size(menus[i]);
+    return;   
+  }
+  
+  for (j = 0; j < N_OF_MENUS; ++j)
+  {
+    if (menus[j])
+      for (i = 0; i < N_OF_MENUS; ++i)
+        find_longest_text(menus[j]->submenu[i], &w);
+  }
+  
+  if(!longest) return;
+
+  for (i = 0; i < N_OF_MENUS; ++i)
+    if (menus[i])
+      set_font_size_explicitly(menus[i], binsearch(min_font_size, max_font_size, _(longest)) );
+}
+
+void set_menu_font_size(MenuNode* menu)
+{
+  int length = 0, i, min_f, max_f;
+  int w = 0, h = 0;
+  char* longest=NULL;
+
+  for(i = 0; i < menu->submenu_size; i++)
+  {
+    size_text(_(menu->submenu[i]->title), 8, &w, &h);
+    if(w > length)
     {
-      max_buttons = max(max_buttons, find_longest_menu_page(menus[i]));
-      temp = find_longest_text(menus[i], &length);
-      if(temp)
-        longest = temp;
+      length = w;
+      longest=menu->submenu[i]->title;
     }
+
+    set_menu_font_size(menu->submenu[i]);
   }
 
-  if(!longest)
-    return;
+  if(!longest) return;
 
   min_f = min_font_size;
   max_f = max_font_size;
 
-  /* run binary search */
+  menu->font_size=binsearch(min_f, max_f, _(longest));
+    
+}
+int binsearch(int min_f, int max_f, const char* text)
+{
+  int mid_f, w, h;
+  
   while(min_f < max_f)
   {
     mid_f = (min_f + max_f) / 2;
-    surf = T4K_SimpleText(_(longest), mid_f, &black);
-    if(surf->w + (1.0 + 2.0 * text_w_gap) * (1.0 + 2.0 * text_h_gap) * surf->h  <  menu_rect.w
-       && (1.0 + button_gap) * (max_buttons + 1) + (1.5 + 2.0 * text_h_gap) * surf->h * max_buttons  <  menu_rect.h)
+    if (size_text(text, mid_f, &w, &h) ) while(1);
+    if(w + (1.0 + 2.0 * text_w_gap) * (1.0 + 2.0 * text_h_gap) * h < menu_rect.w)
       min_f = mid_f + 1;
     else
       max_f = mid_f;
-    SDL_FreeSurface(surf);
   }
-
-  curr_font_size = min_f;
+  return min_f;
+}
+/* recursively set all submenus to a specific font size */
+void set_font_size_explicitly(MenuNode* menu, int size)
+{
+  int i;
+  if (menu == NULL) return;
+  
+  menu->font_size = size;
+  for (i = 0; i < menu->submenu_size; ++i)
+    set_font_size_explicitly(menu->submenu[i], size);
 }
 
+void T4K_SetMenuFontSize(MFStrategy strategy, int size)
+{
+  int i = 0;
+  font_strategy = strategy;
+
+  if (strategy != MF_EXACTLY && strategy != MF_UNIFORM && strategy != MF_BESTFIT)
+    DEBUGMSG(debug_menu, "Invalid font strategy: %d; using default font size %d\n", 
+      strategy, (size = default_font_size));
+
+  if (strategy == MF_EXACTLY)
+    for (i = 0; i < N_OF_MENUS; ++i)
+      set_font_size_explicitly(menus[i], size);
+  
+}
 /* prerender arrows, stop button and all non-NULL menus from menus[] array
    this function should be invoked after every resolution change */
 void T4K_PrerenderAll()
 {
   int i;
-  char fn[PATH_MAX];
 
   T4K_SetRect(&menu_rect, menu_pos);
 
@@ -1140,7 +1218,13 @@ void T4K_PrerenderAll()
     SDL_FreeSurface(next_gray);
   next_gray = T4K_LoadImageOfBoundingBox(next_gray_path, IMG_ALPHA, next_rect.w, next_rect.h);
 
-  set_font_size();
+  if (font_strategy == MF_EXACTLY)
+    ; //no fitting necessary
+  else if (font_strategy == MF_UNIFORM)
+    set_font_size(true);
+  else if (font_strategy == MF_BESTFIT)
+    set_font_size(false);
+
 
   for(i = 0; i < N_OF_MENUS; i++)
     if(menus[i])

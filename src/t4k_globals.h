@@ -48,5 +48,10 @@ Uint32 getpixel32(SDL_Surface * surface, int x, int y);
 
 extern Uint32(*getpixels[]) (SDL_Surface *, int, int);
 
+/* Non-API global functions */
+/* From t4k_menu.c */
+int         size_text(const char* text, int font_size, int* width, int* height);
+/* From t4k_loaders.c */
+const char* find_file(const char* base_name);
 
 #endif

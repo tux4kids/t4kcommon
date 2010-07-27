@@ -46,7 +46,6 @@ SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool p
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
-const char*     find_file(const char* base_name);
 
 
 //directories to search in for loaded files, in addition to common data dir (just one for now)
@@ -339,7 +338,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     DEBUGMSG(debug_loaders, "load_image(): trying to load %s as SVG.\n", fn);
     if(proportional)
     {
-      get_svg_dimensions(fn, &width, &height);
+      get_svg_dimensions(find_file(fn), &width, &height);
       if(width > 0 && height > 0)
         fit_in_rectangle(&width, &height, w, h);
     }

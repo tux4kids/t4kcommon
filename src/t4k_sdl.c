@@ -1391,9 +1391,11 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
 {
   SDL_Surface* surf = NULL;
 
-  if (!t||!col)
+  if (!t)
     return NULL;
-
+  if (!col)
+    col = &black;
+    
 #if HAVE_LIBSDL_PANGO
   if (!context)
   {
@@ -1427,6 +1429,21 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
   return surf;
 }
 
+int size_text(const char* text, int font_size, int* width, int* height)
+{
+#if HAVE_LIBSDL_PANGO
+  int ret = 0;
+  SDL_Surface* temptext = T4K_SimpleText(text, font_size, &black);
+  if (width)
+    *width = temptext->w;
+  if (height)
+    *height = temptext->h;
+  SDL_FreeSurface(temptext);
+  return ret;
+#else
+  return TTF_SizeUTF8(get_font(font_size), text, width, height);
+#endif
+}
 /* This (fast) function just returns a non-outlined surf */
 /* using SDL_Pango if available, SDL_ttf as fallback     */
 SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, SDL_Color* col, int *glyph_offset)
