@@ -31,6 +31,8 @@ endif (SDLPANGO_FOUND)
 # needed for SVG loading and caching
 find_package(RSVG)
 find_package(PNG)
+set(HAVE_LIBPNG PNG_FOUND)
+t4k_include_definition(HAVE_LIBPNG)
 
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 

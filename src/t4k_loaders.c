@@ -25,12 +25,12 @@
 #include "t4k_compiler.h"
 #include "t4k_common.h"
 
-
 #ifdef HAVE_LIBPNG
+#include <dirent.h>
+#include <sys/stat.h>
 #include <png.h>
-#include "t4k_pixels.h"
-int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
-void savePNG(SDL_Surface* surf,char* fn);
+static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
+static void savePNG(SDL_Surface* surf,char* fn);
 #endif
 
 #ifdef HAVE_RSVG
@@ -68,8 +68,8 @@ typedef struct
 } svginfo;
 
 #define SVGINFO_MAX 1000
-int saveSVGInfo(char* fn,int w,int h);
-int SVGInfoIndex(char* fn);
+int saveSVGInfo(const char* fn,int w,int h);
+int SVGInfoIndex(const char* fn);
 
 svginfo svg_info[SVGINFO_MAX]; 
 int numSVG=0;
@@ -294,9 +294,19 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
 
 void get_svg_dimensions(const char* file_name, int* width, int* height)
 {
+    
+  int index = SVGInfoIndex(file_name);
   RsvgHandle* file_handle;
   RsvgDimensionData dimensions;
 
+  if (index != -1) //look for cached dimensions
+  {
+    *width = svg_info[index].width;
+    *height = svg_info[index].height;
+    return; 
+  }
+  
+  //FIXME do we really need to initialize and terminate RSVG every time?
   rsvg_init();
 
   file_handle = rsvg_handle_new_from_file(file_name, NULL);
@@ -313,7 +323,11 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
   *height = dimensions.height;
 
   g_object_unref(file_handle);
+  
+  //FIXME see above
   rsvg_term();
+  
+  saveSVGInfo(file_name, *width, *height); //save dimensions for quick access
 }
 
 #endif /* HAVE_RSVG */
@@ -368,7 +382,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   if(strcmp(fn + fn_len - 4, ".svg"))
   {
     DEBUGMSG(debug_loaders, "load_image(): %s is not an SVG, loading using IMG_Load()\n", fn);
-    loaded_pic = IMG_Load(find_file(fn));
+    loaded_pic = IMG_Load_Cache(find_file(fn));
     is_svg = false;
     if (NULL == loaded_pic)
     {
@@ -411,7 +425,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
         DEBUGMSG(debug_loaders, "load_image(): Trying to load PNG equivalent of %s\n", fn);
         strcpy(fn + fn_len - 3, "png");
 
-        loaded_pic = IMG_Load(find_file(fn));
+        loaded_pic = IMG_Load_Cache(find_file(fn));
         is_svg = false;
       }
     }
@@ -678,18 +692,20 @@ void T4K_NextFrame(sprite* s)
 
 #if HAVE_RSVG && HAVE_LIBPNG
 /* save SVG info */
-int saveSVGInfo(char* fn,int w,int h)
+int saveSVGInfo(const char* fn,int w,int h)
 {
+  int ret = 0;
   strcpy(svg_info[numSVG].fn,fn);
   svg_info[numSVG].width=w;
   svg_info[numSVG].height=h;
 
-  numSVG++;
-
+  ret = numSVG++;
+  numSVG %= SVGINFO_MAX;
+  
   return numSVG-1;
 }
 /* get SVG info index */
-int SVGInfoIndex(char* fn)
+int SVGInfoIndex(const char* fn)
 {
   int i;
   for(i=0;i<numSVG;i++)
@@ -941,6 +957,11 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
   }
 
   return 0;
+}
+#else
+static void savePNG(SDL_Surface* surf, char* fn)
+{
+  DEBUGMSG(debug_loaders, "PNG caching unavailable in this version\n");
 }
 #endif //HAVE_LIBPNG
 
