@@ -28,7 +28,10 @@ else (SDLPANGO_FOUND)
   find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
 endif (SDLPANGO_FOUND)
 
+# needed for SVG loading and caching
 find_package(RSVG)
+find_package(PNG)
+
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
 

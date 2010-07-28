@@ -25,6 +25,14 @@
 #include "t4k_compiler.h"
 #include "t4k_common.h"
 
+
+#ifdef HAVE_LIBPNG
+#include <png.h>
+#include "t4k_pixels.h"
+int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
+void savePNG(SDL_Surface* surf,char* fn);
+#endif
+
 #ifdef HAVE_RSVG
 #include<librsvg/rsvg.h>
 #include<librsvg/rsvg-cairo.h>
@@ -46,6 +54,43 @@ SDL_Surface*    load_image(const char* file_name, int mode, int w, int h, bool p
 void            fit_in_rectangle(int* width, int* height, int max_width, int max_height);
 SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
+
+
+
+
+#if HAVE_RSVG && HAVE_LIBPNG
+/* structures related to svg info caching */
+typedef struct
+{
+   char fn[PATH_MAX];
+   int width;
+   int height;
+} svginfo;
+
+#define SVGINFO_MAX 1000
+int saveSVGInfo(char* fn,int w,int h);
+int SVGInfoIndex(char* fn);
+
+svginfo svg_info[SVGINFO_MAX]; 
+int numSVG=0;
+
+/* structures related to sdl surface caching */
+typedef struct
+{
+   char fn[PATH_MAX];
+   SDL_Surface* surf;
+} cachedSurface;
+
+#define CACHEDSURFACE_MAX 1000
+int cacheSurface(char* fn,SDL_Surface* surf);
+int getCachedSurface(char* fn);
+SDL_Surface *IMG_Load_Cache(char* fn);
+
+cachedSurface cached_surface[CACHEDSURFACE_MAX];
+int numSurfaces=0;
+
+#endif //HAVE_RSVG && HAVE_LIBPNG
+
 
 
 //directories to search in for loaded files, in addition to common data dir (just one for now)
@@ -631,6 +676,273 @@ void T4K_NextFrame(sprite* s)
     s->cur = (s->cur + 1) % s->num_frames;
 }
 
+#if HAVE_RSVG && HAVE_LIBPNG
+/* save SVG info */
+int saveSVGInfo(char* fn,int w,int h)
+{
+  strcpy(svg_info[numSVG].fn,fn);
+  svg_info[numSVG].width=w;
+  svg_info[numSVG].height=h;
+
+  numSVG++;
+
+  return numSVG-1;
+}
+/* get SVG info index */
+int SVGInfoIndex(char* fn)
+{
+  int i;
+  for(i=0;i<numSVG;i++)
+  {
+    if(!strcmp(fn,svg_info[i].fn))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+/* save sdl surface */
+int cacheSurface(char* fn,SDL_Surface* surf)
+{
+  strcpy(cached_surface[numSurfaces].fn,fn);
+  cached_surface[numSurfaces].surf=surf;
+  surf->refcount++;
+
+  numSurfaces++;
+  return numSurfaces-1;
+}
+/* get sdl surface index */
+int getCachedSurface(char* fn)
+{
+  int i;
+  for(i=0;i<numSurfaces;i++)
+  {
+    if(!strcmp(fn,cached_surface[i].fn))
+    {
+      return i;
+    }
+  }
+
+  return -1;
+}
+/* attempt to load cached sdl surface if possible, otherwise use IMG_Load and cache the returned surface */
+SDL_Surface *IMG_Load_Cache(char* fn)
+{
+  int index=getCachedSurface(fn);
+  if(index!=-1)
+  { 
+    cached_surface[index].surf->refcount++;
+    return cached_surface[index].surf;
+  }
+  else
+  {
+    SDL_Surface* temp=IMG_Load(fn);
+    if(temp==NULL) return NULL;
+    cacheSurface(fn,temp);
+    return temp;
+  }
+}
+#else
+//int saveSVGInfo(char* fn,int w,int h) { }
+//int SVGInfoIndex(char* fn) { }
+//int cacheSurface(char* fn,SDL_Surface* surf) { }
+//int getCachedSurface(char* fn) { }
+//SDL_Surface *IMG_Load_Cache(char* fn) { }
+
+#endif //HAVE_RSVG && HAVE_LIBPNG
+
+
+#if HAVE_LIBPNG
+static void savePNG(SDL_Surface* surf,char* fn)
+{
+  FILE* fi;
+  DIR* dir_ptr;
+  int i;
+  char tempc;
+
+  /* create all preceding directories for fn if necessary */
+  i=0;
+  while(fn[i])
+  {
+    if(fn[i]=='/')
+    {
+      tempc=fn[i+1];
+      fn[i+1]=0;
+
+      /* test if the directory already exists */
+      dir_ptr = opendir(fn);
+      if (dir_ptr)
+      {
+        closedir(dir_ptr);
+      }
+      else /* create new directory */
+      {
+        int status;
+
+#ifndef BUILD_MINGW32
+        status = mkdir(fn, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#else
+        status = mkdir(fn);
+#endif
+
+        /* mkdir () returns 0 if successful */
+        if (0 == status)
+        {
+          /* successful */
+          fprintf(stderr, "\nmkdir %s succeeded\n",fn);
+        }
+        else
+        {
+          fprintf(stderr, "\nmkdir %s failed\n",fn);
+          fn[i+1]=tempc;
+          return;
+        }
+        
+      } 
+      fn[i+1]=tempc;
+
+    } /* end of fn[i]=='/' */
+
+    i++;
+      
+  } /* end of while */
+
+  fi = fopen(fn, "wb");
+  if(fi==NULL)
+    fprintf(stderr, "\nError: Couldn't write to file %s!\n\n", fn);
+  else
+    do_png_save(fi,fn,surf);
+}
+
+/* The following functions are taken from Tuxpaint with minor changes */
+
+/* Actually save the PNG data to the file stream: */
+static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
+{
+  png_structp png_ptr;
+  png_infop info_ptr;
+  png_text text_ptr[4];
+  unsigned char **png_rows;
+  Uint8 r, g, b, a;
+  int x, y, count;
+  Uint32(*getpixel) (SDL_Surface *, int, int) =
+    getpixels[surf->format->BytesPerPixel];
+
+
+  png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  if (png_ptr == NULL)
+  {
+    fclose(fi);
+    png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+
+    fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
+    //draw_tux_text(TUX_OOPS, strerror(errno), 0);
+  }
+  else
+  {
+    info_ptr = png_create_info_struct(png_ptr);
+    if (info_ptr == NULL)
+    {
+      fclose(fi);
+      png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+
+      fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
+      //draw_tux_text(TUX_OOPS, strerror(errno), 0);
+    }
+    else
+    {
+      if (setjmp(png_jmpbuf(png_ptr)))
+      {
+	fclose(fi);
+	png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+
+	fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
+	//draw_tux_text(TUX_OOPS, strerror(errno), 0);
+
+	return 0;
+      }
+      else
+      {
+	png_init_io(png_ptr, fi);
+
+	info_ptr->width = surf->w;
+	info_ptr->height = surf->h;
+	info_ptr->bit_depth = 8;
+	info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+	info_ptr->interlace_type = 1;
+	info_ptr->valid = 0;	/* will be updated by various png_set_FOO() functions */
+
+	png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
+				   PNG_sRGB_INTENT_PERCEPTUAL);
+
+	/* Set headers */
+
+	count = 0;
+
+	/*
+	   if (title != NULL && strlen(title) > 0)
+	   {
+	   text_ptr[count].key = "Title";
+	   text_ptr[count].text = title;
+	   text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
+	   count++;
+	   }
+	 */
+
+	text_ptr[count].key = (png_charp) "Software";
+	text_ptr[count].text =
+	  (png_charp) "Tux Paint " /*VER_VERSION " (" VER_DATE ")"*/;
+	text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
+	count++;
+
+
+	png_set_text(png_ptr, info_ptr, text_ptr, count);
+
+	png_write_info(png_ptr, info_ptr);
+
+
+
+	/* Save the picture: */
+
+	png_rows = malloc(sizeof(char *) * surf->h);
+
+	for (y = 0; y < surf->h; y++)
+	{
+	  png_rows[y] = malloc(sizeof(char) * 4 * surf->w);
+
+	  for (x = 0; x < surf->w; x++)
+	  {
+	    SDL_GetRGBA(getpixel(surf, x, y), surf->format, &r, &g, &b, &a);
+
+	    png_rows[y][x * 4 + 0] = r;
+	    png_rows[y][x * 4 + 1] = g;
+	    png_rows[y][x * 4 + 2] = b;
+            png_rows[y][x * 4 + 3] = a;
+	  }
+	}
+
+	png_write_image(png_ptr, png_rows);
+
+	for (y = 0; y < surf->h; y++)
+	  free(png_rows[y]);
+
+	free(png_rows);
+
+
+	png_write_end(png_ptr, NULL);
+
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+	fclose(fi);
+
+	return 1;
+      }
+    }
+  }
+
+  return 0;
+}
+#endif //HAVE_LIBPNG
 
 
 /* LoadSound : Load a sound/music patch from a file. */
