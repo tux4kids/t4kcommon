@@ -689,6 +689,8 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
  * Given a wipe request type, and any variables
  * that wipe requires, will perform a wipe from
  * the current screen image to a new one.
+ * NOTE duration should be given in tenths-of-seconds
+ * NOTE this transition is uninterruptible!
  */
 int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration)
 {
@@ -698,6 +700,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
   SDL_Rect src;
   SDL_Rect dst;
 
+  T4K_ResetBlitQueue();
+  
   /* Input validation: ----------------------- */
   if (!newbkg)
   {
@@ -728,6 +732,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
   T4K_ResetBlitQueue();
   frame = 0;
 
+  DEBUGVARX(debug_sdl, type);
+  
   switch(type)
   {
     case WIPE_BLINDS_VERT:
@@ -756,7 +762,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           T4K_AddRect(&src, &src);
           T4K_AddRect(&dst, &dst);
         }
-        T4K_UpdateScreen(&frame);
+        SDL_Flip(screen);
+        SDL_Delay(10);
       }
 
       src.x = 0;
@@ -795,7 +802,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           T4K_AddRect(&src, &src);
           T4K_AddRect(&dst, &dst);
         }
-        T4K_UpdateScreen(&frame);
+        SDL_Flip(screen);
+        SDL_Delay(10);
       }
 
       src.x = 0;
@@ -847,7 +855,8 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           T4K_AddRect(&src, &src);
           T4K_AddRect(&dst, &dst);
         }
-        T4K_UpdateScreen(&frame);
+        SDL_Flip(screen);
+        SDL_Delay(10);
       }
 
       src.x = 0;

@@ -60,11 +60,25 @@
 
 typedef enum { false, true } bool;
 
-extern const int debug_loaders; /**< Debug image loading code */
-extern const int debug_menu; /**< Debug menu code */
-extern const int debug_menu_parser; /**< Debug XML parsing for menus */
-extern const int debug_sdl; /**< Debug image txf and other support code */
-extern const int debug_all; /**< Enable all debugging output (messy!) */
+/* these values have to match those used in games */
+static const int debug_loaders       = 1 << 0; /**< Debug image loading code */
+static const int debug_menu          = 1 << 1; /**< Debug menu code */
+static const int debug_menu_parser   = 1 << 2; /**< Debug XML parsing for menus */
+static const int debug_sdl           = 1 << 3; /**< Debug image txf and other support code */
+static const int debug_all           = ~0;     /**< Enable all debugging output (messy!) */
+
+extern int debug_status;
+
+/**
+ * Games defining custom debug flags should use this constant to ensure
+ * consistency with t4k_common values. 
+ * 
+ * For example: <code>
+ * const int debug_something_of_mine = 1 << START_CUSTOM_DEBUG;
+ * const int debug_something_else    = 2 << START_CUSTOM_DEBUG;
+ * const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG;
+ */
+#define START_CUSTOM_DEBUG 4
 
 /* FIXME: global vars such as screen should be hidden when all games
    are using only getters (such as GetScreen() ) */
