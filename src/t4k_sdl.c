@@ -736,6 +736,13 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
       step1 = screen->w/segments;
       step2 = step1/duration;
 
+      src.y = 0;
+      dst.y = 0;
+      src.h = screen->h;
+      dst.h = screen->h;
+      src.w = step2;
+      dst.w = step2;
+
       for(i = 0; i <= duration; i++)
       {
         for(j = 0; j <= segments; j++)
@@ -743,13 +750,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           x1 = step1 * (j - 0.5) - i * step2 + 1;
           x2 = step1 * (j - 0.5) + i * step2 + 1;
           src.x = x1;
-          src.y = 0;
-          src.w = step2;
-          src.h = screen->h;
           dst.x = x2;
-          dst.y = 0;
-          dst.w = step2;
-          dst.h = screen->h;
           SDL_BlitSurface((SDL_Surface*)newbkg, &src, screen, &src);
           SDL_BlitSurface((SDL_Surface*)newbkg, &dst, screen, &dst);
           T4K_AddRect(&src, &src);
@@ -774,20 +775,21 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
       step1 = screen->h / segments;
       step2 = step1 / duration;
 
+      src.x = 0;
+      dst.x = 0;
+      src.w = screen->w;
+      dst.w = screen->w;
+      src.h = step2;
+      dst.h = step2;
+
       for(i = 0; i <= duration; i++)
       {
         for(j = 0; j <= segments; j++)
         {
           y1 = step1 * (j - 0.5) - i * step2 + 1;
           y2 = step1 * (j - 0.5) + i * step2 + 1;
-          src.x = 0;
           src.y = y1;
-          src.w = screen->w;
-          src.h = step2;
-          dst.x = 0;
           dst.y = y2;
-          dst.w = screen->w;
-          dst.h = step2;
           SDL_BlitSurface((SDL_Surface*)newbkg, &src, screen, &src);
           SDL_BlitSurface((SDL_Surface*)newbkg, &dst, screen, &dst);
           T4K_AddRect(&src, &src);
@@ -821,9 +823,6 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           x1 = step1 * (j - 0.5) - i * step2 + 1;
           x2 = step1 * (j - 0.5) + i * step2 + 1;
           src.x = x1;
-          src.y = 0;
-          src.w = step2;
-          src.h = screen->h;
           dst.x = x2;
           dst.y = 0;
           dst.w = step2;
@@ -832,6 +831,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
           SDL_BlitSurface((SDL_Surface*)newbkg, &dst, screen, &dst);
           T4K_AddRect(&src, &src);
           T4K_AddRect(&dst, &dst);
+
           y1 = step3 * (j - 0.5) - i * step4 + 1;
           y2 = step3 * (j - 0.5) + i * step4 + 1;
           src.x = 0;
