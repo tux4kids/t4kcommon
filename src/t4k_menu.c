@@ -1108,7 +1108,7 @@ void set_font_size(bool uniform)
   for (j = 0; j < N_OF_MENUS; ++j)
   {
     if (menus[j])
-      for (i = 0; i < N_OF_MENUS; ++i)
+      for (i = 0; i < menus[j]->submenu_size; ++i)
         find_longest_text(menus[j]->submenu[i], &w);
   }
   
