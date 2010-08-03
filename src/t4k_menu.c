@@ -512,6 +512,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       action = NONE;
       while (!stop && SDL_PollEvent(&event))
       {
+        T4K_HandleStdEvents(&event);
         switch (event.type)
         {
           /* user decided to quit the application (for example by closing the window) */
@@ -698,27 +699,27 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 break;
               }
 
-              /* Toggle T4K_GetScreen() mode: */
-              case SDLK_F10:
-              {
-                T4K_SwitchScreenMode();
-                action = RESIZED;
-                break;
-              }
-
-              /* Toggle menu music: */
-              case SDLK_F11:
-              {
-                if(T4K_IsPlayingMusic())
-                {
-                  T4K_AudioMusicUnload();
-                }
-                else if(music_path)
-                {
-                  T4K_AudioMusicUnload(music_path, -1);
-                }
-                break;
-              }
+//              /* Toggle T4K_GetScreen() mode: */
+//              case SDLK_F10:
+//              {
+//                T4K_SwitchScreenMode();
+//                action = RESIZED;
+//                break;
+//              }
+//
+//              /* Toggle menu music: */
+//              case SDLK_F11:
+//              {
+//                if(T4K_IsPlayingMusic())
+//                {
+//                  T4K_AudioMusicUnload();
+//                }
+//                else if(music_path)
+//                {
+//                  T4K_AudioMusicUnload(music_path, -1);
+//                }
+//                break;
+//              }
 
               default:
               {

@@ -40,3 +40,28 @@ void InitT4KCommon(int debug_flags)
   T4K_InitBlitQueue();
 }
 
+int T4K_HandleStdEvents (const SDL_Event* event)
+{
+  if (event->type != SDL_KEYDOWN)
+    return 0;
+    
+  SDLKey key = event->key.keysym.sym;
+      
+  /* Toggle screen mode: */
+  if (key == SDLK_F10)
+  {
+//    Opts_SetGlobalOpt(FULLSCREEN, !Opts_GetGlobalOpt(FULLSCREEN) );
+    T4K_SwitchScreenMode();
+//    game_recalc_positions();
+  }
+
+  /* Toggle music: */
+#ifndef NOSOUND
+  else if (key == SDLK_F11)
+  {
+    T4K_AudioToggle();
+  }
+#endif
+  
+  return 1;
+}

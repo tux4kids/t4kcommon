@@ -76,7 +76,8 @@ extern int debug_status;
  * For example: <code>
  * const int debug_something_of_mine = 1 << START_CUSTOM_DEBUG;
  * const int debug_something_else    = 2 << START_CUSTOM_DEBUG;
- * const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG;
+ * const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG; 
+ * </code>
  */
 #define START_CUSTOM_DEBUG 4
 
@@ -160,6 +161,12 @@ typedef enum
  */
 void            InitT4KCommon(int debug_flags);
 
+/**
+ * \brief Handle events that should have consistent effects everywhere in the program
+ * \param event the event to check
+ */
+int             T4K_HandleStdEvents      (const SDL_Event* event);
+
 /* from t4k-menu.c */
 /**
  * \brief Specify the set of activities the menu system should handle
@@ -169,7 +176,7 @@ void            InitT4KCommon(int debug_flags);
 void            T4K_SetActivitiesList       (int num, char** acts);
 /**
  * \brief Set optional sound effects and music for menus
- * \param mus_path The path to background music. 
+ * \param mus_path The path to background music. *NOT* used!
  * \param click The sound effect to play when an item is clicked
  * \param hover The sound effect to play when an item is highlighted
  */
@@ -586,6 +593,9 @@ Mix_Chunk*      T4K_LoadSound               (char* datafile);
 Mix_Music*      T4K_LoadMusic               (char *datafile);
 
 /* from tk4-audio.c */
+const static int T4K_AUDIO_PLAY_ONCE    =  0;
+const static int T4K_AUDIO_LOOP_FOREVER = -1;
+
 /**
  * \brief play sound once and exit
  * \param sound
@@ -624,5 +634,13 @@ bool            T4K_IsPlayingMusic          ();
  * \param loops the number of times to loop, or -1 forever
  */
 void            T4K_AudioMusicPlay          (Mix_Music *musicData, int loops);
-
+/**
+ * \brief Enable/disable sound
+ * \param enabled
+ */
+void            T4K_AudioEnable             (bool enabled);
+/**
+ * \brief Toggle sound enablement
+ */
+void            T4K_AudioToggle             ();
 #endif
