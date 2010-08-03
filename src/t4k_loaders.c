@@ -332,6 +332,26 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
 
 #endif /* HAVE_RSVG */
 
+/* STOLEN from Tuxmath */
+void get_user_data_dir(char *opt_path, char* suffix)
+{
+  static char udd[PATH_MAX];
+  
+#ifdef BUILD_MINGW32
+  if (getenv_s(NULL, udd, 0, "APPDATA") )
+  {
+    perror("Error getting data dir");  
+    sprintf(udd, "userdata");
+  }
+#else
+  snprintf(udd, PATH_MAX, "%s", getenv("HOME"));
+#endif
+
+  strncpy(opt_path, udd, PATH_MAX);
+  
+  if (suffix && *suffix)
+    strncat(opt_path, suffix, PATH_MAX);
+}
 /* Load an image without resizing it */
 SDL_Surface* T4K_LoadImage(const char* file_name, int mode)
 {
@@ -568,7 +588,11 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
   sprite *new_sprite = NULL;
   char fn[PATH_MAX];
   int i, width, height;
-
+  
+  char cachepath[PATH_MAX];
+  char pngfn[PATH_MAX];
+  get_user_data_dir(cachepath, ".t4k_common/caches");
+  
 #ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
   sprintf(fn, "%s.svg", name);
@@ -586,7 +610,29 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       height = h;
     }
 
-    new_sprite = load_svg_sprite(fn, width, height);
+    //see if a cached PNG exists
+    sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
+    if(check_file(pngfn)==1)
+    {
+      new_sprite=(sprite*)malloc(sizeof(sprite));
+      new_sprite->default_img=IMG_Load(pngfn);
+      i=0;
+      while(1)
+      {
+        sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
+        if(check_file(pngfn)==1)
+        {
+          new_sprite->frame[i]=IMG_Load(pngfn);
+          i++;
+        }
+        else break;
+      }
+      new_sprite->num_frames=i;
+    }
+    else
+    {
+      new_sprite = load_svg_sprite(fn, width, height);
+    }
 
     if(new_sprite)
     {
@@ -594,6 +640,19 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       for(i = 0; i < new_sprite->num_frames; i++)
         set_format(new_sprite->frame[i], mode);
       new_sprite->cur = 0;
+
+      /* cache loaded sprites in PNG files */
+      sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
+      if(check_file(pngfn)!=1) 
+        savePNG(new_sprite->default_img,pngfn);
+      for(i=0; i<new_sprite->num_frames; i++)
+      {
+        sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
+        if(check_file(pngfn)!=1) 
+          savePNG(new_sprite->frame[i],pngfn);
+      }
+
+     
     }
   }
 #endif
@@ -770,14 +829,13 @@ SDL_Surface *IMG_Load_Cache(char* fn)
 
 
 #if HAVE_LIBPNG
+//save a surface to file as a PNG. 
 static void savePNG(SDL_Surface* surf,char* fn)
 {
   FILE* fi;
   DIR* dir_ptr;
   int i;
   char tempc;
-
-  /* create all preceding directories for fn if necessary */
   i=0;
   while(fn[i])
   {
@@ -806,11 +864,11 @@ static void savePNG(SDL_Surface* surf,char* fn)
         if (0 == status)
         {
           /* successful */
-          fprintf(stderr, "\nmkdir %s succeeded\n",fn);
+          DEBUGMSG(debug_loaders, "\nmkdir %s succeeded\n",fn);
         }
         else
         {
-          fprintf(stderr, "\nmkdir %s failed\n",fn);
+          DEBUGMSG(debug_loaders, "\nmkdir %s failed\n",fn);
           fn[i+1]=tempc;
           return;
         }

@@ -349,6 +349,13 @@ void            T4K_ChangeWindowSize        (int new_res_x, int new_res_y);
  * necessary
  */
 void            T4K_SwitchScreenMode        (void);
+typedef void (*ResSwitchCallback)(int resx, int resy);
+/**
+ * \brief Register a callback to reposition and redraw screen elements when
+ * the resolution is changed
+ * \param callback
+ */
+void            T4K_OnResolutionSwitch      (ResSwitchCallback callback);
 /**
  * \brief Block application until SDL receives an appropriate event. 
  * Use sparingly.

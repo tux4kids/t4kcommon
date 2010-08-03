@@ -357,7 +357,7 @@ void T4K_CreateOneLevelMenu(int index, int items, char** item_names, char** spri
    in "menus" array */
 void T4K_LoadMenu(int index, const char* file_name)
 {
-  char* fn = NULL;
+  const char* fn = NULL;
   char temp[PATH_MAX];
   FILE* menu_file = NULL;
 

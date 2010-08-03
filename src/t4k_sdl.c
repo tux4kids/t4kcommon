@@ -17,6 +17,8 @@
 
 SDL_Surface* screen = NULL;
 
+static ResSwitchCallback res_switch_callback = NULL;
+
 /* window size */
 int win_res_x = 640;
 int win_res_y = 480;
@@ -496,6 +498,8 @@ void T4K_ChangeWindowSize(int new_res_x, int new_res_y)
       oldscreen = NULL;
       win_res_x = screen->w;
       win_res_y = screen->h;
+      if (res_switch_callback)
+        res_switch_callback(win_res_x, win_res_y);
       SDL_UpdateRect(screen, 0, 0, 0, 0);
     }
   }
@@ -529,8 +533,15 @@ void T4K_SwitchScreenMode(void)
     //success, no need to free the old video surface
     DEBUGMSG(debug_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
     oldscreen = NULL;
+    if (res_switch_callback)
+      res_switch_callback(screen->w, screen->h);
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
+}
+
+void T4K_OnResolutionSwitch (ResSwitchCallback callback)
+{
+  res_switch_callback = callback;
 }
 
 /*
