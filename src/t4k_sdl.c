@@ -18,6 +18,7 @@
 SDL_Surface* screen = NULL;
 
 static ResSwitchCallback res_switch_callback = NULL;
+static ResSwitchCallback internal_res_switch_callback = NULL;
 
 /* window size */
 int win_res_x = 640;
@@ -535,8 +536,16 @@ void T4K_SwitchScreenMode(void)
     oldscreen = NULL;
     if (res_switch_callback)
       res_switch_callback(screen->w, screen->h);
+    if (internal_res_switch_callback)
+      internal_res_switch_callback(screen->w, screen->h);
+    
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
+}
+
+void internal_res_switch_handler(ResSwitchCallback callback)
+{
+  internal_res_switch_callback = callback;
 }
 
 void T4K_OnResolutionSwitch (ResSwitchCallback callback)

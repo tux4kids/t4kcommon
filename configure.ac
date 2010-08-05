@@ -142,6 +142,18 @@ if test "x$with_rsvg" = xyes; then
   AC_DEFINE([HAVE_RSVG],[1],[Define to 1 if you have the `libRSVG` library])
 fi
 
+if test "x$with_rsvg" = xyes; then
+  LIBPNG_CFLAGS=""
+  LIBPNG_LIBS=""
+  PKG_CHECK_MODULES([LIBPNG],
+                    [libpng >= 1.2.37],
+                    ,
+                    [AC_MSG_FAILURE([libpng test failed (--without-rsvg to disable svg support)])])
+  CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
+  LIBS="$LIBS $LIBPNG_LIBS"
+  AC_DEFINE([HAVE_LIBPNG],[1],[Define to 1 if you have the `libpng` library])
+fi
+
 
 
 # --------------------------------------------------------------------------------------

@@ -42,6 +42,8 @@ void InitT4KCommon(int debug_flags)
 
 int T4K_HandleStdEvents (const SDL_Event* event)
 {
+  int ret = 0;
+  
   if (event->type != SDL_KEYDOWN)
     return 0;
     
@@ -53,6 +55,7 @@ int T4K_HandleStdEvents (const SDL_Event* event)
 //    Opts_SetGlobalOpt(FULLSCREEN, !Opts_GetGlobalOpt(FULLSCREEN) );
     T4K_SwitchScreenMode();
 //    game_recalc_positions();
+    ret = 1;
   }
 
   /* Toggle music: */
@@ -63,5 +66,5 @@ int T4K_HandleStdEvents (const SDL_Event* event)
   }
 #endif
   
-  return 1;
+  return ret;
 }

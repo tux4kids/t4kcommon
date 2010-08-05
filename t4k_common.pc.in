@@ -3,9 +3,9 @@ exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
-Name: @PACKAGE_STRING@
+Name: @PACKAGE_NAME@
 Description: Tux4Kids common routines
 Version: @VERSION@
 Requires: 
-Libs: -L${libdir} 
+Libs: -l@PACKAGE_TARNAME@ -L${libdir} 
 Cflags: -I${includedir}

@@ -449,6 +449,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
   int old_loc = -1;
   int click_flag = 1;
 
+  internal_res_switch_handler(&T4K_PrerenderAll);
+  
   for(;;) /* one loop body execution for one menu page */
   {
     DEBUGMSG(debug_menu, "run_menu(): drawing whole new menu page\n");
@@ -512,7 +514,6 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       action = NONE;
       while (!stop && SDL_PollEvent(&event))
       {
-        T4K_HandleStdEvents(&event);
         switch (event.type)
         {
           /* user decided to quit the application (for example by closing the window) */
@@ -762,15 +763,17 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
            if handle_event() returns 1, menu should be redrawn */
         if(handle_event(&event))
           stop = true;
+        if (T4K_HandleStdEvents(&event) )
+          stop = true;
 
         /* handle special action that was caused by an event */
         switch(action)
         {
-          case RESIZED:
-            menu->first_entry = 0;
-            T4K_PrerenderAll();
-            stop = true;
-            break;
+//          case RESIZED:
+//            menu->first_entry = 0;
+//            T4K_PrerenderAll();
+//            stop = true;
+//            break;
 
           case CLICK:
             if(loc < 0 || loc >= items)
@@ -802,6 +805,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                        save current screen resolution in case it is changed while running a game */
                     old_w = T4K_GetScreen()->w;
                     old_h = T4K_GetScreen()->h;
+                    internal_res_switch_handler(NULL);
                     if(handle_activity(tmp_node->activity, tmp_node->param) == QUIT)
                     {
                       /* user decided to quit while playing a game */
@@ -1230,6 +1234,7 @@ void T4K_PrerenderAll()
   for(i = 0; i < N_OF_MENUS; i++)
     if(menus[i])
       T4K_PrerenderMenu(i);
+  SDL_UpdateRect(T4K_GetScreen(), 0, 0, 0, 0);
 }
 
 int min(int a, int b)

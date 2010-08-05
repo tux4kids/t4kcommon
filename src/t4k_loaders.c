@@ -612,7 +612,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
     //see if a cached PNG exists
     sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
-    if(check_file(pngfn)==1)
+    if(T4K_CheckFile(pngfn)==1)
     {
       new_sprite=(sprite*)malloc(sizeof(sprite));
       new_sprite->default_img=IMG_Load(pngfn);
@@ -620,7 +620,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       while(1)
       {
         sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
-        if(check_file(pngfn)==1)
+        if(T4K_CheckFile(pngfn)==1)
         {
           new_sprite->frame[i]=IMG_Load(pngfn);
           i++;
@@ -643,12 +643,12 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
       /* cache loaded sprites in PNG files */
       sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
-      if(check_file(pngfn)!=1) 
+      if(T4K_CheckFile(pngfn)!=1) 
         savePNG(new_sprite->default_img,pngfn);
       for(i=0; i<new_sprite->num_frames; i++)
       {
         sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
-        if(check_file(pngfn)!=1) 
+        if(T4K_CheckFile(pngfn)!=1) 
           savePNG(new_sprite->frame[i],pngfn);
       }
 

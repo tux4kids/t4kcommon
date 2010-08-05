@@ -164,6 +164,7 @@ void            InitT4KCommon(int debug_flags);
 /**
  * \brief Handle events that should have consistent effects everywhere in the program
  * \param event the event to check
+ * \return 0 if no action is necessary, 1 if the screen should be redrawn
  */
 int             T4K_HandleStdEvents      (const SDL_Event* event);
 
