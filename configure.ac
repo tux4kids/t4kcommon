@@ -40,119 +40,222 @@ AC_PROG_MKDIR_P
 AC_PROG_YACC
 AC_PROG_LIBTOOL
 
+
 # -----------------------------------------------------------------------
 # Checks for libraries.
 # -----------------------------------------------------------------------
 
-# Check for SDL 
-SDL_VERSION=1.2.0
 
-AM_PATH_SDL($SDL_VERSION, :,
-         AC_MSG_ERROR([SDL version $SDL_VERSION not found! http://www.libsdl.org]) 
-) 
+dnl ---------------------------------------------------------------------------
+dnl In the following checks we attempt to use pkg-config if available, falling
+dnl back to standard autoconf macro as needed:
+dnl ---------------------------------------------------------------------------
+
+
+
+dnl Check for SDL
+PKG_CHECK_MODULES([SDL],
+	[sdl >= 1.2.0],
+	[],
+	[SDL_VERSION=1.2.0
+	 AM_PATH_SDL($SDL_VERSION, :,
+		AC_MSG_ERROR([SDL version $SDL_VERSION not found! http://www.libsdl.org]))])
 
 CFLAGS="$CFLAGS $SDL_CFLAGS" 
-
-
-# Check platform - see if WinMain needed:
-AC_MSG_CHECKING([for native Win32])
-case "$host" in
-  *-*-mingw*)
-    native_win32=yes
-    ;;
-  *)
-    native_win32=no
-    ;;
-esac
-AC_MSG_RESULT([$native_win32])
-
-AM_CONDITIONAL(BUILD_MINGW32, test $native_win32 = yes)
-
-if test $native_win32 = yes; then
-  LIBS="$LIBS -lmingw32 -lSDLmain -lSDL"
-else
-  LIBS="$LIBS $SDL_LIBS"
-fi
+LIBS="$LIBS $SDL_LIBS"
 
 
 
-dnl Check for SDL_image: 
-AC_CHECK_LIB([SDL_image], 
-             [IMG_Load],
-             ,
-             [AC_MSG_ERROR([SDL_image not found! http://www.libsdl.org/projects/SDL_image])])
+dnl Check for SDL_image: ------------------------------------------------------
 
-dnl Check for SDL_mixer:. 
-AC_CHECK_LIB([SDL_mixer], 
-             [Mix_OpenAudio], 
-             ,
-             [AC_MSG_ERROR([SDL_mixer not found! http://www.libsdl.org/projects/SDL_mixer])])
+PKG_CHECK_MODULES([SDL_IMAGE],
+	[SDL_image],
+	[],
+	[AC_MSG_NOTICE([SDL_image not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([SDL_image],
+		[IMG_Load],
+		[],
+		[AC_MSG_ERROR([SDL_image not found! http://www.libsdl.org/projects/SDL_image])])])
+
+AC_DEFINE([HAVE_LIBSDL_IMAGE],[1],[Define to 1 if you have the 'SDL_image' library])
+CFLAGS="$CFLAGS $SDL_IMAGE"
+LIBS="$LIBS $SDL_IMAGE_LIBS"
+
+
+
+dnl Check for SDL_mixer: --------------------------------------------------------
+
+PKG_CHECK_MODULES([SDL_MIXER],
+	[SDL_mixer],
+	[],
+	[AC_MSG_NOTICE([SDL_mixer not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([SDL_mixer],
+		[Mix_OpenAudio],
+		[],
+		[AC_MSG_ERROR([SDL_mixer not found! http://www.libsdl.org/projects/SDL_mixer])])])
+
+AC_DEFINE([HAVE_LIBSDL_MIXER],[1],[Define to 1 if you have the 'SDL_mixer' library])
+CFLAGS="$CFLAGS $SDL_MIXER_CFLAGS"
+LIBS="$LIBS $SDL_MIXER_LIBS"
+
+
+
+dnl Check for SDL_Pango: --------------------------------------------------------
 
 dnl SDL_Pango is enabled by default.
 dnl If SDL_Pango disabled at configure time, or if we can't find it,
 dnl we look for SDL_ttf:
 
 AC_ARG_WITH([sdlpango],
-            [AS_HELP_STRING([--without-sdlpango],[don't use SDL_Pango even if available])],
-            [with_sdlpango=no],
-            [with_sdlpango=yes])
+	[AS_HELP_STRING([--without-sdlpango],
+	[Do not use SDL_Pango even if available])],
+	[],
+	[with_sdlpango=yes])
+
 
 if test "x$with_sdlpango" != xno; then
-AC_CHECK_LIB([SDL_Pango],
-             [SDLPango_Init],
-             ,
-             [with_sdlpango=no;
-              AC_MSG_FAILURE([SDL_Pango test failed (--without-sdlpango to disable)])])
+
+PKG_CHECK_MODULES([SDL_PANGO],
+	[SDL_Pango],
+	[],
+	[AC_MSG_NOTICE([SDL_Pango not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([SDL_Pango],
+		[SDLPango_Init],
+		[],
+		[AC_MSG_FAILURE([SDL_Pango test failed (--without-sdlpango to disable)])])])
+
+AC_DEFINE([HAVE_LIBSDL_PANGO],[1],[Define to 1 if you have the `SDL_Pango` library])
+CFLAGS="$CFLAGS $SDL_PANGO_CFLAGS"
+LIBS="$LIBS $SDL_PANGO_LIBS"
+
 fi
+
+
+
+dnl We only use SDL_ttf if SDL_Pango disabled: --------------------------------------
 
 if [test "x$with_sdlpango" = xno]; then
-AC_CHECK_LIB([SDL_ttf],
-             [TTF_Init],
-             ,
-             [AC_MSG_ERROR([SDL_ttf not found! http://www.libsdl.org/projects/SDL_ttf])])
+dnl Add freetype link "by hand" until mingw-cross-env takes care
+dnl of this automatically
+LIBS="-lfreetype $LIBS"
+
+PKG_CHECK_MODULES([SDL_ttf],
+	[SDL_ttf],
+	[],
+	[AC_MSG_NOTICE([SDL_ttf not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([SDL_ttf],
+		[TTF_Init],
+		[],
+		[AC_MSG_ERROR([SDL_ttf not found! http://www.libsdl.org/projects/SDL_ttf])])])
+
+AC_DEFINE([HAVE_LIBSDL_TTF],[1],[Define to 1 if you have the `SDL_ttf` library])
+CFLAGS="$CFLAGS $SDL_TTF_CFLAGS"
+LIBS="$LIBS $SDL_TTF_LIBS"
 fi
 
-dnl Check for libRSVG and cairo. SVG support is enabled by default
+
+
+dnl Check for SDL_net: --------------------------------------------------------
+
+dnl SDL_net is enabled by default.
+
+AC_ARG_WITH([sdlnet],
+	[AS_HELP_STRING([--without-sdlnet],
+	[Do not use SDL_net even if available])],
+	[],
+	[with_sdlnet=yes]
+)
+
+if test "x$with_sdlnet" != xno; then
+dnl We will need this for socket programming on Win32
+AC_CHECK_LIB([ws2_32],
+             [WSAStartup],
+	     []  ,
+	     [AC_MSG_NOTICE([Windows socket library ws2_32 not found - (only needed on win32)])])
+
+
+PKG_CHECK_MODULES([SDL_NET],
+	[SDL_net],
+	[],
+	[AC_MSG_NOTICE([SDL_net not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([SDL_net],
+		[SDLNet_Init],
+		[],
+		[AC_MSG_FAILURE([SDL_net test failed (--without-sdlnet to disable)])])])
+
+AC_DEFINE([HAVE_LIBSDL_NET],[1],[Define to 1 if you have the 'SDL_net' library])
+CFLAGS="$CFLAGS $SDL_NET_CFLAGS"
+LIBS="$LIBS $SDL_NET_LIBS"
+fi
+
+
+
+dnl Check for libRSVG and cairo. SVG support is enabled by default ----------------------
 
 AC_ARG_WITH([rsvg],
-            [AS_HELP_STRING([--without-rsvg],[don't use libRSVG even if available])],
-            [with_rsvg=no],
-            [with_rsvg=yes])
+	[AS_HELP_STRING([--without-rsvg],[do not use libRSVG even if available])],
+	[with_rsvg=no],
+	[with_rsvg=yes])
 
 if test "x$with_rsvg" = xyes; then
-  RSVG_CFLAGS=""
-  RSVG_LIBS=""
-  PKG_CHECK_MODULES([RSVG],
-                    [librsvg-2.0 >= 2.18],
-                    ,
-                    [AC_MSG_FAILURE([libRSVG test failed (--without-rsvg to disable svg support)])])
-  CFLAGS="$CFLAGS $RSVG_CFLAGS"
-  LIBS="$LIBS $RSVG_LIBS"
+PKG_CHECK_MODULES([RSVG],
+	[librsvg-2.0 >= 2.18],
+	[],
+	[AC_MSG_FAILURE([libRSVG test failed (--without-rsvg to disable svg support)])])
+
+CFLAGS="$CFLAGS $RSVG_CFLAGS"
+LIBS="$LIBS $RSVG_LIBS"
 fi
 
 if test "x$with_rsvg" = xyes; then
-  CAIRO_CFLAGS=""
-  CAIRO_LIBS=""
-  PKG_CHECK_MODULES([CAIRO],
-                    [cairo >= 1.4.10],
-                    ,
-                    [AC_MSG_FAILURE([cairo test failed (--without-rsvg to disable svg support)])])
-  CFLAGS="$CFLAGS $CAIRO_CFLAGS"
-  LIBS="$LIBS $CAIRO_LIBS"
-  AC_DEFINE([HAVE_RSVG],[1],[Define to 1 if you have the `libRSVG` library])
+PKG_CHECK_MODULES([CAIRO],
+	[cairo >= 1.4.10],
+	[],
+	[AC_MSG_FAILURE([cairo test failed (--without-rsvg to disable svg support)])])
+
+CFLAGS="$CFLAGS $CAIRO_CFLAGS"
+LIBS="$LIBS $CAIRO_LIBS"
+AC_DEFINE([HAVE_RSVG],[1],[Define to 1 if you have the `libRSVG` library])
 fi
 
+
+
 if test "x$with_rsvg" = xyes; then
-  LIBPNG_CFLAGS=""
-  LIBPNG_LIBS=""
-  PKG_CHECK_MODULES([LIBPNG],
-                    [libpng >= 1.2.37],
-                    ,
-                    [AC_MSG_FAILURE([libpng test failed (--without-rsvg to disable svg support)])])
-  CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
-  LIBS="$LIBS $LIBPNG_LIBS"
-  AC_DEFINE([HAVE_LIBPNG],[1],[Define to 1 if you have the `libpng` library])
+PKG_CHECK_MODULES([LIBPNG],
+	[libpng >= 1.2.37],
+	[],
+	[AC_MSG_FAILURE([libpng test failed (--without-rsvg to disable svg support)])])
+CFLAGS="$CFLAGS $LIBPNG_CFLAGS"
+LIBS="$LIBS $LIBPNG_LIBS"
+AC_DEFINE([HAVE_LIBPNG],[1],[Define to 1 if you have the `libpng` library])
 fi
+
+
+
+dnl Check for libxml2: --------------------------------------------------------
+
+PKG_CHECK_MODULES([XML2],
+	[libxml-2.0],
+	[],
+	[AC_MSG_NOTICE([libxml2 not located by pkg-config, checking with AC CHECK LIB:])
+	 AC_CHECK_LIB([xml2],
+		[xmlParseFile],
+		[],
+		[AC_MSG_ERROR([libxml-2.0 not found: http://www.xmlsoft.org])])])
+
+AC_DEFINE([HAVE_LIBXML2],[1],[Define to 1 if you have the `libxml-2.0` library])
+CFLAGS="$CFLAGS $XML2_CFLAGS"
+LIBS="$LIBS $XML2_LIBS"
+
+
+
+dnl Check for math functions - needed for SDL_extras: --------------------------------------------
+
+AC_CHECK_LIB([m],
+	[csin],
+	[],
+	[AC_MSG_ERROR([Math library not found - functions in <math.h> may not be available.])])
+
 
 
 
@@ -199,6 +302,38 @@ AC_FUNC_STRCOLL
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify atexit basename bcopy floor getcwd localeconv localtime_r memmove mempcpy memset mkdir munmap nl_langinfo scandir setlocale sqrt stpcpy strcasecmp strchr strcspn strdup strncasecmp strndup strrchr strstr strtoul])
+
+
+dnl FIXME - get rid of remaining win32 conditional code
+
+# Check platform - see if WinMain needed:
+AC_MSG_CHECKING([for native Win32])
+case "$host" in
+  *-*-mingw*)
+    native_win32=yes
+    ;;
+  *)
+    native_win32=no
+    ;;
+esac
+AC_MSG_RESULT([$native_win32])
+
+AM_CONDITIONAL(BUILD_MINGW32, test $native_win32 = yes)
+
+# Set the 
+MINGW32_PACKAGE_DATA_DIR="data"
+AC_SUBST(MINGW32_PACKAGE_DATA_DIR)
+
+
+if test $native_win32 = yes; then
+   AC_DEFINE([BUILD_MINGW32], 1,[Native MinGW32 build])
+   CFLAGS="$CFLAGS -D__GW32__"
+   LIBS="$LIBS -luuid -lole32 -lwsock32 -mwindows"
+   CPPFLAGS="$CPPFLAGS -idirafter $prefix/include/glibc"
+   AC_PATH_PROG(WINDRES, "$target_alias-windres", no, [$PATH])
+fi
+
+dnl ----------------------------------------------------------
 
 
 
