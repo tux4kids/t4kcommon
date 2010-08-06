@@ -333,24 +333,33 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
 #endif /* HAVE_RSVG */
 
 /* STOLEN from Tuxmath */
-void get_user_data_dir(char *opt_path, char* suffix)
+void T4K_GetUserDataDir(char *opt_path, char* suffix)
 {
   static char udd[PATH_MAX];
+  static bool have_env = false;
   
+  if (!have_env)
+    {
 #ifdef BUILD_MINGW32
-  if (getenv_s(NULL, udd, 0, "APPDATA") )
-  {
-    perror("Error getting data dir");  
-    sprintf(udd, "userdata");
-  }
+    if (getenv_s(NULL, udd, 0, "APPDATA") )
+    {
+      perror("Error getting data dir");  
+      sprintf(udd, "userdata");
+    }
 #else
-  snprintf(udd, PATH_MAX, "%s", getenv("HOME"));
+    snprintf(udd, PATH_MAX, "%s", getenv("HOME"));
 #endif
-
+    T4K_RemoveSlash(udd);
+    have_env = true;
+  }
+  
   strncpy(opt_path, udd, PATH_MAX);
   
   if (suffix && *suffix)
+  {
+    strncat(opt_path, "/", PATH_MAX);
     strncat(opt_path, suffix, PATH_MAX);
+  }
 }
 /* Load an image without resizing it */
 SDL_Surface* T4K_LoadImage(const char* file_name, int mode)
@@ -586,21 +595,23 @@ sprite* T4K_LoadSpriteOfBoundingBox(const char* name, int mode, int max_width, i
 sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 {
   sprite *new_sprite = NULL;
-  char fn[PATH_MAX];
   int i, width, height;
+  bool shouldcache = false;
   
-  char cachepath[PATH_MAX];
-  char pngfn[PATH_MAX];
-  get_user_data_dir(cachepath, ".t4k_common/caches");
+  char fn[PATH_MAX]; //the qualified filename relative to the data prefix
+  char* imgfn = NULL; //absolute filename of an image
+  char cachepath[PATH_MAX]; //path to the cache directory
+  char pngfn[PATH_MAX]; //absolute filename to a cached PNG
   
+  T4K_GetUserDataDir(cachepath, ".t4k_common/caches");
 #ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
-  sprintf(fn, "%s.svg", name);
-  if(1 == T4K_CheckFile(fn))
+  sprintf(fn, IMAGE_DIR "/%s.svg", name);
+  if(imgfn = find_file(fn))
   {
     if(proportional)
     {
-      get_svg_dimensions(fn, &width, &height);
+      get_svg_dimensions(imgfn, &width, &height);
       if(width > 0 && height > 0)
         fit_in_rectangle(&width, &height, w, h);
     }
@@ -611,7 +622,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
     }
 
     //see if a cached PNG exists
-    sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
+    sprintf(pngfn, "%s/" IMAGE_DIR "/%sd-%d-%d.png", cachepath, name, width, height);
     if(T4K_CheckFile(pngfn)==1)
     {
       new_sprite=(sprite*)malloc(sizeof(sprite));
@@ -619,7 +630,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       i=0;
       while(1)
       {
-        sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
+        sprintf(pngfn, "%s/" IMAGE_DIR "/%s%d-%d-%d.png", cachepath, name, i, width, height);
         if(T4K_CheckFile(pngfn)==1)
         {
           new_sprite->frame[i]=IMG_Load(pngfn);
@@ -631,7 +642,8 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
     }
     else
     {
-      new_sprite = load_svg_sprite(fn, width, height);
+      new_sprite = load_svg_sprite(find_file(fn), width, height);
+      shouldcache = true;
     }
 
     if(new_sprite)
@@ -641,18 +653,22 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
         set_format(new_sprite->frame[i], mode);
       new_sprite->cur = 0;
 
-      /* cache loaded sprites in PNG files */
-      sprintf(pngfn, "%s/images/%sd-%d-%d.png", cachepath, name, width, height);
-      if(T4K_CheckFile(pngfn)!=1) 
-        savePNG(new_sprite->default_img,pngfn);
-      for(i=0; i<new_sprite->num_frames; i++)
+      width  = new_sprite->default_img->w;
+      height = new_sprite->default_img->h;
+      
+      if (shouldcache)
       {
-        sprintf(pngfn, "%s/images/%s%d-%d-%d.png", cachepath, name, i, width, height);
+        /* cache loaded sprites in PNG files */
+        sprintf(pngfn, "%s/" IMAGE_DIR "/%sd-%d-%d.png", cachepath, name, width, height);
         if(T4K_CheckFile(pngfn)!=1) 
-          savePNG(new_sprite->frame[i],pngfn);
+          savePNG(new_sprite->default_img,pngfn);
+        for(i=0; i<new_sprite->num_frames; i++)
+        {
+          sprintf(pngfn, "%s/" IMAGE_DIR "/%s%d-%d-%d.png", cachepath, name, i, width, height);
+          if(T4K_CheckFile(pngfn)!=1) 
+            savePNG(new_sprite->frame[i],pngfn);
+        }
       }
-
-     
     }
   }
 #endif
@@ -664,9 +680,9 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
     sprintf(fn, "%sd.png", name);  // The 'd' means the default image
     if(proportional)
-      new_sprite->default_img = T4K_LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadImageOfBoundingBox(name, mode | IMG_NOT_REQUIRED, w, h);
     else
-      new_sprite->default_img = T4K_LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadScaledImage(name, mode | IMG_NOT_REQUIRED, w, h);
 
     if(!new_sprite->default_img)
       DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
@@ -884,9 +900,19 @@ static void savePNG(SDL_Surface* surf,char* fn)
 
   fi = fopen(fn, "wb");
   if(fi==NULL)
+  {
     fprintf(stderr, "\nError: Couldn't write to file %s!\n\n", fn);
-  else
-    do_png_save(fi,fn,surf);
+    return;
+  }
+  
+  if (!do_png_save(fi,fn,surf) )
+  {
+    fprintf(stderr, "PNG Not saved!\n");
+    if (T4K_CheckFile(fn))
+    {
+      remove(fn);  
+    }
+  }
 }
 
 /* The following functions are taken from Tuxpaint with minor changes */
@@ -911,7 +937,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
     png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
 
     fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
-    //draw_tux_text(TUX_OOPS, strerror(errno), 0);
+    return 0;
   }
   else
   {
@@ -928,88 +954,85 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
     {
       if (setjmp(png_jmpbuf(png_ptr)))
       {
-	fclose(fi);
-	png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
+        fclose(fi);
+        png_destroy_write_struct(&png_ptr, (png_infopp) NULL);
 
-	fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
-	//draw_tux_text(TUX_OOPS, strerror(errno), 0);
-
-	return 0;
+        fprintf(stderr, "\nError: Couldn't save the image!\n%s\n\n", fname);
+        //draw_tux_text(TUX_OOPS, strerror(errno), 0);
       }
       else
       {
-	png_init_io(png_ptr, fi);
+        png_init_io(png_ptr, fi);
 
-	info_ptr->width = surf->w;
-	info_ptr->height = surf->h;
-	info_ptr->bit_depth = 8;
-	info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-	info_ptr->interlace_type = 1;
-	info_ptr->valid = 0;	/* will be updated by various png_set_FOO() functions */
+        info_ptr->width = surf->w;
+        info_ptr->height = surf->h;
+        info_ptr->bit_depth = 8;
+        info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
+        info_ptr->interlace_type = 1;
+        info_ptr->valid = 0;	/* will be updated by various png_set_FOO() functions */
 
-	png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
-				   PNG_sRGB_INTENT_PERCEPTUAL);
+        png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
+                       PNG_sRGB_INTENT_PERCEPTUAL);
 
-	/* Set headers */
+        /* Set headers */
 
-	count = 0;
+        count = 0;
 
-	/*
-	   if (title != NULL && strlen(title) > 0)
-	   {
-	   text_ptr[count].key = "Title";
-	   text_ptr[count].text = title;
-	   text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
-	   count++;
-	   }
-	 */
+        /*
+           if (title != NULL && strlen(title) > 0)
+           {
+           text_ptr[count].key = "Title";
+           text_ptr[count].text = title;
+           text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
+           count++;
+           }
+         */
 
-	text_ptr[count].key = (png_charp) "Software";
-	text_ptr[count].text =
-	  (png_charp) "Tux Paint " /*VER_VERSION " (" VER_DATE ")"*/;
-	text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
-	count++;
+        text_ptr[count].key = (png_charp) "Software";
+        text_ptr[count].text =
+          (png_charp) PACKAGE_STRING /*VER_VERSION " (" VER_DATE ")"*/;
+        text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
+        count++;
 
+        png_set_text(png_ptr, info_ptr, text_ptr, count);
 
-	png_set_text(png_ptr, info_ptr, text_ptr, count);
-
-	png_write_info(png_ptr, info_ptr);
-
+        png_write_info(png_ptr, info_ptr);
 
 
-	/* Save the picture: */
 
-	png_rows = malloc(sizeof(char *) * surf->h);
+        /* Save the picture: */
 
-	for (y = 0; y < surf->h; y++)
-	{
-	  png_rows[y] = malloc(sizeof(char) * 4 * surf->w);
+        png_rows = malloc(sizeof(char *) * surf->h);
 
-	  for (x = 0; x < surf->w; x++)
-	  {
-	    SDL_GetRGBA(getpixel(surf, x, y), surf->format, &r, &g, &b, &a);
+        for (y = 0; y < surf->h; y++)
+        {
+          png_rows[y] = malloc(sizeof(char) * 4 * surf->w);
 
-	    png_rows[y][x * 4 + 0] = r;
-	    png_rows[y][x * 4 + 1] = g;
-	    png_rows[y][x * 4 + 2] = b;
-            png_rows[y][x * 4 + 3] = a;
-	  }
-	}
+          for (x = 0; x < surf->w; x++)
+          {
+            SDL_GetRGBA(getpixel(surf, x, y), surf->format, &r, &g, &b, &a);
 
-	png_write_image(png_ptr, png_rows);
+            png_rows[y][x * 4 + 0] = r;
+            png_rows[y][x * 4 + 1] = g;
+            png_rows[y][x * 4 + 2] = b;
+                png_rows[y][x * 4 + 3] = a;
+          }
+        }
 
-	for (y = 0; y < surf->h; y++)
-	  free(png_rows[y]);
+        png_write_image(png_ptr, png_rows);
 
-	free(png_rows);
+        for (y = 0; y < surf->h; y++)
+          free(png_rows[y]);
+
+        free(png_rows);
 
 
-	png_write_end(png_ptr, NULL);
+        png_write_end(png_ptr, NULL);
 
-	png_destroy_write_struct(&png_ptr, &info_ptr);
-	fclose(fi);
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        fclose(fi);
 
-	return 1;
+        return 1;
       }
     }
   }

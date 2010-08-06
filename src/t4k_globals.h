@@ -55,7 +55,7 @@ extern Uint32(*getpixels[]) (SDL_Surface *, int, int);
 int         size_text(const char* text, int font_size, int* width, int* height);
 /* From t4k_loaders.c */
 const char* find_file(const char* base_name);
-void get_user_data_dir(char *opt_path, char* suffix);
+void T4K_GetUserDataDir(char *opt_path, char* suffix); //TODO make t4k_fileops.c
 /* From t4k_sdl.c */
 void internal_res_switch_handler(ResSwitchCallback callback);
 
