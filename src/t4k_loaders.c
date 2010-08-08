@@ -680,9 +680,9 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
     sprintf(fn, "%sd.png", name);  // The 'd' means the default image
     if(proportional)
-      new_sprite->default_img = T4K_LoadImageOfBoundingBox(name, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadImageOfBoundingBox(fn, mode | IMG_NOT_REQUIRED, w, h);
     else
-      new_sprite->default_img = T4K_LoadScaledImage(name, mode | IMG_NOT_REQUIRED, w, h);
+      new_sprite->default_img = T4K_LoadScaledImage(fn, mode | IMG_NOT_REQUIRED, w, h);
 
     if(!new_sprite->default_img)
       DEBUGMSG(debug_loaders, "load_sprite(): failed to load default image for %s\n", name);
