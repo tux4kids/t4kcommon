@@ -5,8 +5,20 @@
 cmake_minimum_required(VERSION 2.6)
 include(T4K_Sugar)
 
-#Look here for SDL headers
-include_directories( ${SDL_INCLUDE_DIR} )
+#Look here for headers
+include_directories(
+  ${SDL_INCLUDE_DIR}
+  ${SDLIMAGE_INCLUDE_DIR}
+  ${SDLMIXER_INCLUDE_DIR}
+)
+
+#Look here for optional headers
+t4k_include_directory(SDLPANGO)
+t4k_include_directory(SDLTTF)
+t4k_include_directory(PNG)
+t4k_include_directory(RSVG)
+
+#include_directories( ${T4KCOMMON_INCLUDE_DIRS} )
 
 set( T4K_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 if(T4K_DEVELOPER_WARNINGS)
@@ -38,6 +50,7 @@ target_link_libraries(${LIB_NAME}
 )
 
 t4k_include_definition(HAVE_LIBSDL_PANGO)
+t4k_include_definition(HAVE_LIBPNG)
 set_target_properties (${LIB_NAME} PROPERTIES 
 	COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
 	COMPILE_DEFINITIONS

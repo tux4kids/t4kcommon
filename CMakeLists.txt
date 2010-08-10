@@ -5,17 +5,19 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(PACKAGE_NAME Tux4Kids_common)
+set(PACKAGE_VERSION 1.0.0)
+set(PACKAGE_STRING "${PACKAGE_NAME}-${PACKAGE_VERSION}" )
 set(LIB_NAME t4k_common)
 project(${PACKAGE_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 include(T4K_Sugar)
 
-set(SDL_BUILDING_LIBRARY 1) #indicate we don't need to link SDLmain
+set(SDL_BUILDING_LIBRARY 1) #indicate we don't need to (and shouldn't) link SDLmain
 
-set(T4K_DEVELOPER_WARNINGS ON CACHE STRING "Change or override to disable warnings")
+set(T4K_DEVELOPER_WARNINGS OFF CACHE STRING "Change or override to enable warnings")
 if(CMAKE_BUILD_TYPE MATCHES Release)
-  set(T4K_DEVELOPER_WARNINGS OFF)
+  set(T4K_DEVELOPER_WARNINGS ON)
 endif()
 
 find_package(SDL REQUIRED)
@@ -32,9 +34,10 @@ endif (SDLPANGO_FOUND)
 find_package(RSVG)
 find_package(PNG)
 set(HAVE_LIBPNG PNG_FOUND)
-t4k_include_definition(HAVE_LIBPNG)
+set(HAVE_LIBRSVG RSVG_FOUND)
 
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
+
 
 
 # based on tuxmath's CMakeLists.txt

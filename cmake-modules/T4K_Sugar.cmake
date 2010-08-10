@@ -16,6 +16,12 @@ macro(t4k_to_unix_path newpath winpath)
   string(REPLACE "\\" "/" ${newpath} ${winpath})
 endmacro(t4k_to_unix_path)
 
+macro(t4k_include_directory package)
+  if (${package}_FOUND)
+    include_directories(${${package}_INCLUDE_DIR})
+  endif(${package}_FOUND)
+endmacro(t4k_include_directory)
+
 # Propagate a CMake variable to the C preprocessor
 # Example: include_definition(HAVE_ICONV)
 function(t4k_include_definition name)
