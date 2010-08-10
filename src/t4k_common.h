@@ -48,15 +48,15 @@
 #endif
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-# define rmask 0xff000000
-# define gmask 0x00ff0000
-# define bmask 0x0000ff00
-# define amask 0x000000ff
+# define rmask 0xff000000 /**< SDL red mask */
+# define gmask 0x00ff0000 /**< SDL green mask */
+# define bmask 0x0000ff00 /**< SDL blue mask */
+# define amask 0x000000ff /**< SDL alpha mask */
 #else
-# define rmask 0x000000ff
-# define gmask 0x0000ff00
-# define bmask 0x00ff0000
-# define amask 0xff000000
+# define rmask 0x000000ff /**< SDL red mask */
+# define gmask 0x0000ff00 /**< SDL green mask */
+# define bmask 0x00ff0000 /**< SDL blue mask */
+# define amask 0xff000000 /**< SDL alpha mask */
 #endif
 
 //Hold off on gettext until we decide if we are really going to
@@ -64,7 +64,9 @@
 #define _(String) String
 //#define _(String) gettext (String)
 
+#ifndef bool
 typedef enum { false, true } bool;
+#endif
 
 /* these values have to match those used in games */
 static const int debug_loaders       = 1 << 0; /**< Debug image loading code */
@@ -356,6 +358,8 @@ void            T4K_ChangeWindowSize        (int new_res_x, int new_res_y);
  * necessary
  */
 void            T4K_SwitchScreenMode        (void);
+
+/** A function to handle a resolution switch, which should take parameters for the new horizontal and vertical screen dimensions */
 typedef void (*ResSwitchCallback)(int resx, int resy);
 /**
  * \brief Register a callback to reposition and redraw screen elements when
@@ -379,16 +383,16 @@ SDL_EventType   T4K_WaitForEvent            (SDL_EventMask events);
  */
 SDL_Surface*    T4K_zoom                    (SDL_Surface* src, int new_w, int new_h);
 /**
- * \brief a single or OR'd combination of event masks.
- * \param newbkg
- * \param type
+ * \brief perform a wipe from the current screen image to a new one.
+ * \param newbkg The image to wipe to
+ * \param type The WipeStyle to use
  * \param segments
- * \param duration
+ * \param duration the length of the animation in milliseconds
  * \return
  */
-int             T4K_TransWipe               (const SDL_Surface* newbkg, int type, int segments, int duration);
+int             T4K_TransWipe               (const SDL_Surface* newbkg, WipeStyle type, int segments, int duration);
 /**
- * \brief
+ * \brief Initialize the blit queue system. This must be called before T4K_ResetBlitQueue, T4K_AddRect, T4K_DrawSprite, T4K_DrawObject, T4K_EraseObject, T4K_EraseSprite or T4K_UpdateScreen
  */
 void            T4K_InitBlitQueue           (void);
 /**
@@ -453,11 +457,11 @@ void            T4K_SetFontName             (const char* name);
 const char*     T4K_AskFontName             (void);
 /**
  * \brief Initialize the backend (Pango or TTF) used for text-drawing functions
- * \return
+ * \return 1 on success, 0 on failure
  */
 int             T4K_Setup_SDL_Text          (void);
 /**
- * \brief
+ * \brief Shut down the backend used for text-drawing functions
  */
 void            T4K_Cleanup_SDL_Text        (void);
 /**
@@ -520,9 +524,10 @@ SDL_Surface*    T4K_LoadImage               (const char* file_name, int mode);
 /**
  * \brief Load an image and resize it to given dimensions.
    If width or height is negative no resizing is applied.
-   The loader (load_svg() or IMG_Load()) is chosen depending on file extension,
-   If an SVG file is not found try to load its PNG equivalent
-   (unless IMG_NO_PNG_FALLBACK is set)
+
+   The loader backend is chosen depending on file extension,
+   If an SVG file is not found, try to load its PNG equivalent
+   (unless IMG_NO_PNG_FALLBACK is set in mode)
  * \param file_name
  * \param mode
  * \param width
@@ -532,8 +537,9 @@ SDL_Surface*    T4K_LoadImage               (const char* file_name, int mode);
 SDL_Surface*    T4K_LoadScaledImage         (const char* file_name, int mode, int width, int height);
 /**
  * \brief Same as LoadScaledImage but preserve image proportions
-   and fit it into max_width x max_height rectangle.
-   Returned surface is not necessarily max_width x max_height !
+ *  and fit it into max_width x max_height rectangle.
+ *
+ * NOTE: Returned surface is not necessarily max_width x max_height !
  * \param file_name
  * \param mode
  * \param max_width
@@ -551,46 +557,50 @@ SDL_Surface*    T4K_LoadImageOfBoundingBox  (const char* file_name, int mode, in
  */
 SDL_Surface*    T4K_LoadBkgd                (const char* file_name, int width, int height);
 /**
- * \brief
- * \param name
- * \param mode
- * \return
+ * \brief Load a multiple-frame sprite from disk. This function loads an SVG sprite or multiple PNGs as needed
+ * \param name The filename of the sprite to load, <em>without</em> an extension
+ * \param mode loader flags to use, semantics the same as LoadImage
+ * \return The loaded sprite
  */
 sprite*         T4K_LoadSprite              (const char* name, int mode);
 /**
- * \brief
- * \param name
- * \param mode
+ * \brief Load a multiple-frame sprite from disk and scale it to the given dimensions. This function loads an SVG sprite or multiple PNGs as needed
+ * \param name The filename of the sprite to load, <em>without</em> an extension
+ * \param mode loader flags to use, semantics the same as LoadImage
  * \param width
  * \param height
- * \return
+ * \return The loaded sprite
  */
 sprite*         T4K_LoadScaledSprite        (const char* name, int mode, int width, int height);
 /**
- * \brief
- * \param name
- * \param mode
+ * \brief Same as LoadScaledSprite but preserve image proportions
+ *  and fit it into max_width x max_height rectangle.
+ * NOTE: Returned surface is not necessarily max_width x max_height !
+ *
+ * \param name The filename of the sprite to load, <em>without</em> an extension
+ * \param mode loader flags to use, semantics the same as LoadImage
  * \param max_width
  * \param max_height
- * \return
+ * \return The loaded sprite
  */
 sprite*         T4K_LoadSpriteOfBoundingBox (const char* name, int mode, int max_width, int max_height);
 /**
- * \brief
- * \param in
- * \param X
- * \param Y
- * \return
+ * \brief Flip (reflect) a sprite over one or both axes
+ * \param in The original image
+ * \param X if nonzero, the image is flipped horizontally
+ * \param Y if nonzero, the image is flipped vertically
+ * \return A newly allocated transformed sprite
+ * \see T4K_Flip
  */
 sprite*         T4K_FlipSprite              (sprite* in, int X, int Y);
 /**
- * \brief
- * \param gfx
+ * \brief Free memory allocated for a loaded sprite
+ * \param gfx The sprite to free
  */
 void            T4K_FreeSprite              (sprite* gfx);
 /**
- * \brief
- * \param s
+ * \brief Advance a sprite's frame
+ * \param s The sprite to advance
  */
 void            T4K_NextFrame               (sprite* s);
 /**
