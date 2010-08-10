@@ -30,7 +30,7 @@
 #include <sys/stat.h>
 #include <png.h>
 static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
-static void savePNG(SDL_Surface* surf,char* fn);
+static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of the API
 #endif
 
 #ifdef HAVE_RSVG
@@ -58,7 +58,7 @@ sprite*         load_sprite(const char* name, int mode, int w, int h, bool propo
 
 
 
-#if HAVE_RSVG && HAVE_LIBPNG
+#if HAVE_RSVG
 /* structures related to svg info caching */
 typedef struct
 {
@@ -71,8 +71,9 @@ typedef struct
 int saveSVGInfo(const char* fn,int w,int h);
 int SVGInfoIndex(const char* fn);
 
-svginfo svg_info[SVGINFO_MAX]; 
+svginfo svg_info[SVGINFO_MAX];
 int numSVG=0;
+#endif //HAVE_RSVG
 
 /* structures related to sdl surface caching */
 typedef struct
@@ -82,14 +83,12 @@ typedef struct
 } cachedSurface;
 
 #define CACHEDSURFACE_MAX 1000
-int cacheSurface(char* fn,SDL_Surface* surf);
-int getCachedSurface(char* fn);
-SDL_Surface *IMG_Load_Cache(char* fn);
+int cacheSurface(const char* fn,SDL_Surface* surf);
+int getCachedSurface(const char* fn);
+SDL_Surface *IMG_Load_Cache(const char* fn);
 
 cachedSurface cached_surface[CACHEDSURFACE_MAX];
 int numSurfaces=0;
-
-#endif //HAVE_RSVG && HAVE_LIBPNG
 
 
 
@@ -113,9 +112,9 @@ char *T4K_RemoveSlash(char *path)
 int T4K_CheckFile(const char* file)
 {
   FILE* fp = NULL;
-                                                       
+
   if (!file)
-  {                                                 
+  {
     DEBUGMSG(debug_loaders, "T4K_CheckFile(): invalid char* argument!\n");
     return 0;
   }
@@ -133,23 +132,23 @@ int T4K_CheckFile(const char* file)
   DEBUGMSG(debug_loaders, "T4K_CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
   return 0;
 }
-                            
+
 void T4K_AddDataPrefix(const char* path)
 {
   strncpy(app_prefix_path[0], path, PATH_MAX);
 }
 
-/* Look for a file as an absolute path, then in 
+/* Look for a file as an absolute path, then in
    potential install directories */
 const char* find_file(const char* base_name)
 {
   static char tmp_path[PATH_MAX];
   if (T4K_CheckFile(base_name))
     return base_name;
-  snprintf(tmp_path, PATH_MAX, "%s/%s", app_prefix_path[0], base_name); 
+  snprintf(tmp_path, PATH_MAX, "%s/%s", app_prefix_path[0], base_name);
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
-  snprintf(tmp_path, PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name); 
+  snprintf(tmp_path, PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name);
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
   return "";
@@ -294,7 +293,7 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
 
 void get_svg_dimensions(const char* file_name, int* width, int* height)
 {
-    
+
   int index = SVGInfoIndex(file_name);
   RsvgHandle* file_handle;
   RsvgDimensionData dimensions;
@@ -303,9 +302,9 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
   {
     *width = svg_info[index].width;
     *height = svg_info[index].height;
-    return; 
+    return;
   }
-  
+
   //FIXME do we really need to initialize and terminate RSVG every time?
   rsvg_init();
 
@@ -323,10 +322,10 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
   *height = dimensions.height;
 
   g_object_unref(file_handle);
-  
+
   //FIXME see above
   rsvg_term();
-  
+
   saveSVGInfo(file_name, *width, *height); //save dimensions for quick access
 }
 
@@ -337,13 +336,13 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
 {
   static char udd[PATH_MAX];
   static bool have_env = false;
-  
+
   if (!have_env)
     {
 #ifdef BUILD_MINGW32
     if (getenv_s(NULL, udd, 0, "APPDATA") )
     {
-      perror("Error getting data dir");  
+      perror("Error getting data dir");
       sprintf(udd, "userdata");
     }
 #else
@@ -352,9 +351,9 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
     T4K_RemoveSlash(udd);
     have_env = true;
   }
-  
+
   strncpy(opt_path, udd, PATH_MAX);
-  
+
   if (suffix && *suffix)
   {
     strncat(opt_path, "/", PATH_MAX);
@@ -399,7 +398,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   if(NULL == file_name)
   {
     DEBUGMSG(debug_loaders, "load_image(): file_name is NULL, exiting.\n");
-    return NULL;                    
+    return NULL;
   }
 
   /* run loader depending on file extension */
@@ -474,7 +473,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
     exit(EXIT_FAILURE);
     return NULL;
   }
-  
+
   //if we need to resize a loaded raster image
   if(!is_svg && w > 0 && h > 0)
   {
@@ -595,22 +594,26 @@ sprite* T4K_LoadSpriteOfBoundingBox(const char* name, int mode, int max_width, i
 sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 {
   sprite *new_sprite = NULL;
-  int i, width, height;
-  bool shouldcache = false;
-  
+  int i;
   char fn[PATH_MAX]; //the qualified filename relative to the data prefix
+
+#ifdef HAVE_RSVG
   char* imgfn = NULL; //absolute filename of an image
   char cachepath[PATH_MAX]; //path to the cache directory
   char pngfn[PATH_MAX]; //absolute filename to a cached PNG
-  
+  int width, height;
+  bool shouldcache = false;
+
+
   T4K_GetUserDataDir(cachepath, ".t4k_common/caches");
-#ifdef HAVE_RSVG
   /* check if SVG sprite file is present */
   sprintf(fn, IMAGE_DIR "/%s.svg", name);
   if(imgfn = find_file(fn))
   {
+    //check image dimensions
     if(proportional)
     {
+      //scale the image to fit inside the dimensions, but preserve the aspect
       get_svg_dimensions(imgfn, &width, &height);
       if(width > 0 && height > 0)
         fit_in_rectangle(&width, &height, w, h);
@@ -640,7 +643,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
       }
       new_sprite->num_frames=i;
     }
-    else
+    else //couldn't find a cached version, so load it from the original and cache the result
     {
       new_sprite = load_svg_sprite(find_file(fn), width, height);
       shouldcache = true;
@@ -655,17 +658,17 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 
       width  = new_sprite->default_img->w;
       height = new_sprite->default_img->h;
-      
+
       if (shouldcache)
       {
         /* cache loaded sprites in PNG files */
         sprintf(pngfn, "%s/" IMAGE_DIR "/%sd-%d-%d.png", cachepath, name, width, height);
-        if(T4K_CheckFile(pngfn)!=1) 
+        if(T4K_CheckFile(pngfn)!=1)
           savePNG(new_sprite->default_img,pngfn);
         for(i=0; i<new_sprite->num_frames; i++)
         {
           sprintf(pngfn, "%s/" IMAGE_DIR "/%s%d-%d-%d.png", cachepath, name, i, width, height);
-          if(T4K_CheckFile(pngfn)!=1) 
+          if(T4K_CheckFile(pngfn)!=1)
             savePNG(new_sprite->frame[i],pngfn);
         }
       }
@@ -765,7 +768,7 @@ void T4K_NextFrame(sprite* s)
     s->cur = (s->cur + 1) % s->num_frames;
 }
 
-#if HAVE_RSVG && HAVE_LIBPNG
+#if HAVE_RSVG
 /* save SVG info */
 int saveSVGInfo(const char* fn,int w,int h)
 {
@@ -776,7 +779,7 @@ int saveSVGInfo(const char* fn,int w,int h)
 
   ret = numSVG++;
   numSVG %= SVGINFO_MAX;
-  
+
   return numSVG-1;
 }
 /* get SVG info index */
@@ -793,8 +796,11 @@ int SVGInfoIndex(const char* fn)
 
   return -1;
 }
+
+#endif //HAVE_RSVG
+
 /* save sdl surface */
-int cacheSurface(char* fn,SDL_Surface* surf)
+int cacheSurface(const char* fn,SDL_Surface* surf)
 {
   strcpy(cached_surface[numSurfaces].fn,fn);
   cached_surface[numSurfaces].surf=surf;
@@ -804,7 +810,7 @@ int cacheSurface(char* fn,SDL_Surface* surf)
   return numSurfaces-1;
 }
 /* get sdl surface index */
-int getCachedSurface(char* fn)
+int getCachedSurface(const char* fn)
 {
   int i;
   for(i=0;i<numSurfaces;i++)
@@ -818,11 +824,11 @@ int getCachedSurface(char* fn)
   return -1;
 }
 /* attempt to load cached sdl surface if possible, otherwise use IMG_Load and cache the returned surface */
-SDL_Surface *IMG_Load_Cache(char* fn)
+SDL_Surface *IMG_Load_Cache(const char* fn)
 {
   int index=getCachedSurface(fn);
   if(index!=-1)
-  { 
+  {
     cached_surface[index].surf->refcount++;
     return cached_surface[index].surf;
   }
@@ -834,18 +840,10 @@ SDL_Surface *IMG_Load_Cache(char* fn)
     return temp;
   }
 }
-#else
-//int saveSVGInfo(char* fn,int w,int h) { }
-//int SVGInfoIndex(char* fn) { }
-//int cacheSurface(char* fn,SDL_Surface* surf) { }
-//int getCachedSurface(char* fn) { }
-//SDL_Surface *IMG_Load_Cache(char* fn) { }
-
-#endif //HAVE_RSVG && HAVE_LIBPNG
 
 
 #if HAVE_LIBPNG
-//save a surface to file as a PNG. 
+//save a surface to file as a PNG.
 static void savePNG(SDL_Surface* surf,char* fn)
 {
   FILE* fi;
@@ -888,14 +886,14 @@ static void savePNG(SDL_Surface* surf,char* fn)
           fn[i+1]=tempc;
           return;
         }
-        
-      } 
+
+      }
       fn[i+1]=tempc;
 
     } /* end of fn[i]=='/' */
 
     i++;
-      
+
   } /* end of while */
 
   fi = fopen(fn, "wb");
@@ -904,13 +902,13 @@ static void savePNG(SDL_Surface* surf,char* fn)
     fprintf(stderr, "\nError: Couldn't write to file %s!\n\n", fn);
     return;
   }
-  
+
   if (!do_png_save(fi,fn,surf) )
   {
     fprintf(stderr, "PNG Not saved!\n");
     if (T4K_CheckFile(fn))
     {
-      remove(fn);  
+      remove(fn);
     }
   }
 }
@@ -1066,13 +1064,13 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
 Mix_Music* T4K_LoadMusic(char *datafile )
 {
   char tempfn[PATH_MAX];
-  char* fn = NULL;
+  const char* fn = NULL;
   Mix_Music* tempMusic = NULL;
 
   sprintf(tempfn, SOUNDS_DIR "/%s", datafile);
 
   fn = find_file(tempfn);
-  
+
   if (1 != T4K_CheckFile(fn))
   {
     fprintf(stderr, "T4K_LoadMusic(): Music '%s' not found\n\n", fn);

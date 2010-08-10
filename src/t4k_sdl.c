@@ -351,12 +351,12 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
   if (tmpS == NULL)
   {
     perror("SDL_ConvertSurface() failed");
-    return S1; 
+    return S1;
   }
   if (-1 == SDL_LockSurface(tmpS))
   {
     perror("SDL_LockSurface() failed");
-    return S1; 
+    return S1;
   }
 
   // We're going to go through the pixels in reverse order, to start
@@ -538,7 +538,7 @@ void T4K_SwitchScreenMode(void)
       res_switch_callback(screen->w, screen->h);
     if (internal_res_switch_callback)
       internal_res_switch_callback(screen->w, screen->h);
-    
+
     SDL_UpdateRect(screen, 0, 0, 0, 0);
   }
 }
@@ -555,7 +555,7 @@ void T4K_OnResolutionSwitch (ResSwitchCallback callback)
 
 /*
 Block application until SDL receives an appropriate event. Events can be
-a single or OR'd combination of event masks. 
+a single or OR'd combination of event masks.
 e.g. e = T4K_WaitForEvent(SDL_KEYDOWNMASK | SDL_QUITMASK)
 */
 SDL_EventType T4K_WaitForEvent(SDL_EventMask events)
@@ -567,7 +567,7 @@ SDL_EventType T4K_WaitForEvent(SDL_EventMask events)
     {
       if (SDL_EVENTMASK(evt.type) & events)
         return evt.type;
-      else 
+      else
         SDL_Delay(50);
     }
   }
@@ -712,7 +712,7 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
  * NOTE duration should be given in tenths-of-seconds
  * NOTE this transition is uninterruptible!
  */
-int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duration)
+int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int duration)
 {
   int i, j, x1, x2, y1, y2;
   int step1, step2, step3, step4;
@@ -721,7 +721,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
   SDL_Rect dst;
 
   T4K_ResetBlitQueue();
-  
+
   /* Input validation: ----------------------- */
   if (!newbkg)
   {
@@ -738,7 +738,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
 
   /* segments is num of divisions */
   /* duration is how many frames animation should take */
-      
+
   if(segments < 1)
     segments = 1;
   if(duration < 1)
@@ -753,7 +753,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
   frame = 0;
 
   DEBUGVARX(debug_sdl, type);
-  
+
   switch(type)
   {
     case WIPE_BLINDS_VERT:
@@ -794,7 +794,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, int type, int segments, int duratio
       SDL_Flip(screen);
 
       break;
-    } 
+    }
 
     case WIPE_BLINDS_HORIZ:
     {
@@ -1070,7 +1070,7 @@ void T4K_UpdateScreen(int* frame)
   /* -- First erase everything we need to -- */
   for (i = 0; i < numupdates; i++)
   {
-    if (blits[i].type == 'E') 
+    if (blits[i].type == 'E')
     {
 //       DEBUGCODE(debug_sdl)
 //       {
@@ -1087,10 +1087,10 @@ void T4K_UpdateScreen(int* frame)
 
 //  SNOW_erase();
 
-  /* -- then draw -- */ 
+  /* -- then draw -- */
   for (i = 0; i < numupdates; i++)
   {
-    if (blits[i].type == 'D') 
+    if (blits[i].type == 'D')
     {
 //       DEBUGCODE(debug_sdl)
 //       {
@@ -1099,18 +1099,18 @@ void T4K_UpdateScreen(int* frame)
 //               blits[i].srcrect->x, blits[i].srcrect->y, blits[i].srcrect->w, blits[i].srcrect->h);
 //         fprintf(stderr, "dstrect->x = %d\t dstrect->y = %d\t dstrect->w = %d\t dstrect->h = %d\n",
 //               blits[i].dstrect->x, blits[i].dstrect->y, blits[i].dstrect->w, blits[i].dstrect->h);
-//       } 
+//       }
 
       SDL_BlitSurface(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
-    } 
+    }
   }
 
 //  SNOW_draw();
 
   /* -- update the screen only where we need to! -- */
-//  if (SNOW_on) 
+//  if (SNOW_on)
 //    SDL_UpdateRects(screen, SNOW_add( (SDL_Rect*)&dstupdate, numupdates ), SNOW_rects);
-//  else 
+//  else
     SDL_UpdateRects(screen, numupdates, dstupdate);
 
   numupdates = 0;
@@ -1122,7 +1122,7 @@ void T4K_UpdateScreen(int* frame)
 /* rect of bkgd img                                                 */
 int T4K_EraseSprite(sprite* img, SDL_Surface* curr_bkgd, int x, int y)
 {
-  if( !img 
+  if( !img
    || img->cur < 0
    || img->cur > MAX_SPRITE_FRAMES
    || !img->frame[img->cur])
@@ -1201,7 +1201,7 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
   update->dstrect->x = update->srcrect->x;
   update->dstrect->y = update->srcrect->y;
   update->dstrect->w = update->srcrect->w;
-  update->dstrect->h = update->srcrect->h; 
+  update->dstrect->h = update->srcrect->h;
   update->type = 'E';
 
   return 1;
@@ -1424,7 +1424,7 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
     return NULL;
   if (!col)
     col = &black;
-    
+
 #if HAVE_LIBSDL_PANGO
   if (!context)
   {
@@ -1670,7 +1670,7 @@ static TTF_Font* load_font(const char* font_name, int font_size)
   /* This should mean that font wasn't bundled into data path, which for  */
   /* now means we are using Debian, so grab from Debian installation loc: */
   if (!f)
-  { 
+  {
     sprintf(fontfile, "/usr/share/fonts/truetype/ttf-sil-andika/AndikaDesRevG.ttf");
     f = TTF_OpenFont(fontfile, font_size);
   }
