@@ -1,15 +1,20 @@
 /**
-  tux4kids-common
+  \file t4k_common.h
+  \mainpage Tux4Kids_common
 
-  Library of common functions used in these Tux4Kids games
+  \section intro_sec Description
+  A library of common functions used in these Tux4Kids games
   - Tux, of Math Command
   - Tux Typin
 
   Part of "Tux4Kids" Project
+
   http://www.tux4kids.com/
 
-  Copyright: See COPYING file that comes with this distribution.
-  \file t4k_common.h
+  Please look through t4k_common.h for detailed documentation.
+
+  \section copyright_sec Copyright
+  See COPYING file that comes with this distribution.
 */
 
 #ifndef TUX4KIDS_COMMON_H
@@ -19,25 +24,26 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 
-/* 
+/*
  * Debugging macros
- * 
+ *
  * All macros take a debug mask as their first argument, which should roughly
  * indicate what part of the program the debugging info is related to, and
  * which can be one of the flags defined below, a program-specific flag, or
- * an OR'd combination. 
+ * an OR'd combination.
  *
  * DEBUGVAR prints out the name and value of a string variable
- * DEBUGVARX prints out the name and hex value of an integral variable
- * DEBUGVARF prints out the name and decimal value of a floating point variable
- * DEBUGCODE is a conditional and should be followed by a code block
- * DEBUGMSG prints out a specific message, which can be formatted like printf
  */
 #ifndef DEBUGMSG
+/** DEBUGVAR prints out the name and value of a string variable */
 # define DEBUGVAR(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %s\n", (Expr)); fflush(stderr); }
+/** DEBUGVARX prints out the name and hex value of an integral variable */
 # define DEBUGVARX(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %x\n", (Expr)); fflush(stderr); }
+/** DEBUGVARF prints out the name and decimal value of a floating point variable */
 # define DEBUGVARF(mask, Expr) if((mask) & (debug_status)) { fprintf(stderr, #Expr ": %f\n", (Expr)); fflush(stderr); }
+/** DEBUGCODE is a conditional and should be followed by a code block */
 # define DEBUGCODE(mask) if((mask) & debug_status)
+/** DEBUGMSG prints out a specific message, which can be formatted like printf */
 # define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
 #endif
 
@@ -71,13 +77,13 @@ extern int debug_status;
 
 /**
  * Games defining custom debug flags should use this constant to ensure
- * consistency with t4k_common values. 
- * 
- * For example: <code>
+ * consistency with t4k_common values.
+ *
+ * For example: <code><pre>
  * const int debug_something_of_mine = 1 << START_CUSTOM_DEBUG;
  * const int debug_something_else    = 2 << START_CUSTOM_DEBUG;
- * const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG; 
- * </code>
+ * const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG;
+ *  </pre></code>
  */
 #define START_CUSTOM_DEBUG 4
 
@@ -92,7 +98,7 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 
 /**
  * \struct sprite
- * \brief an animated sprite using a collection of SDL_Surface s
+ * \brief an animated sprite using a collection of SDL_Surfaces
  */
 typedef struct {
   SDL_Surface *frame[MAX_SPRITE_FRAMES];
@@ -115,9 +121,9 @@ typedef enum
 } WipeStyle;
 
 /**
- * special values used by RunMenu.  
+ * Special values used by RunMenu.
  */
-enum { 
+enum {
 	RUN_MAIN_MENU = -3, /**< can be used in .xml menu structures but should not be declared in activities' lists. */
 	QUIT = -2, /**< user decided to quit application */
 	STOP = -1 /**< user pressed the stop button */
@@ -153,11 +159,11 @@ typedef enum
  * \brief Initialize Tux4Kids-Common
  * \param debug_flags The flags used for debugging output.
  * Games may define their own debug flags, but several are available by default:
- * - debug_loaders      
- * - debug_menu         
- * - debug_menu_parser  
- * - debug_sdl          
- * - debug_all          
+ * - debug_loaders
+ * - debug_menu
+ * - debug_menu_parser
+ * - debug_sdl
+ * - debug_all
  */
 void            InitT4KCommon(int debug_flags);
 
@@ -188,7 +194,7 @@ void            T4K_SetMenuSounds           (char* mus_path, Mix_Chunk* click, M
  */
 void            T4K_SetMenuSpritePrefix      (char* pref);
 /**
- * \brief Set the font size for managed menus. 
+ * \brief Set the font size for managed menus.
  * \param strategy How to determine menus' font size
  * \param size A literal size to use. This will be ignored unless strategy is MF_EXACTLY
  */
@@ -212,7 +218,7 @@ void            T4K_CreateOneLevelMenu      (int index, int items, char** item_n
  * \param handle_event A function to process game-specific events
  * \param handle_animations A function to animate game-specific items
  * \param handle_activity A function to start an activity when the user selects it
- * \return 
+ * \return
  */
 int             T4K_RunMenu                 (int index, bool return_choice, void (*draw_background)(), int (*handle_event)(SDL_Event*), void (*handle_animations)(), int (*handle_activity)(int, int));
 /**
@@ -239,7 +245,7 @@ void            T4K_UnloadMenus             (void);
 /* from tk4-sdl.c */
 /**
  * \brief Return a pointer to the screen we're using, as an alternative to making screen a global variable
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_GetScreen               ();
 /**
@@ -275,11 +281,11 @@ void            T4K_DrawButtonOn            (SDL_Surface* target, SDL_Rect* targ
  * \param g
  * \param b
  * \param a
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_CreateButton            (int w, int h, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 /**
- * \brief 
+ * \brief
  * \param s
  * \param radius
  */
@@ -289,7 +295,7 @@ void            T4K_RoundCorners            (SDL_Surface* s, Uint16 radius);
  * \param in The source surface
  * \param x if nonzero, the image will be flipped horizontally
  * \param y if nonzero, the image will be flipped vertically
- * \return a newly created SDL_Surface* 
+ * \return a newly created SDL_Surface*
  */
 SDL_Surface*    T4K_Flip                    (SDL_Surface *in, int x, int y);
 /**
@@ -303,7 +309,7 @@ SDL_Surface*    T4K_Flip                    (SDL_Surface *in, int x, int y);
  * \param S1
  * \param S2
  * \param gamma
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_Blend                   (SDL_Surface *S1, SDL_Surface *S2, float gamma);
 /**
@@ -323,7 +329,7 @@ int             T4K_inRect                  (SDL_Rect r, int x, int y);
 /**
  * \brief Fill in an SDL_Rect with absolute values based on screen dimensions
  * \param rect
- * \param pos four floats between 0.0 and 1.0 which specify the desired x, y, w 
+ * \param pos four floats between 0.0 and 1.0 which specify the desired x, y, w
  * and h as a percentage of screen dimensions
  */
 void            T4K_SetRect                 (SDL_Rect* rect, const float* pos);
@@ -358,9 +364,9 @@ typedef void (*ResSwitchCallback)(int resx, int resy);
  */
 void            T4K_OnResolutionSwitch      (ResSwitchCallback callback);
 /**
- * \brief Block application until SDL receives an appropriate event. 
+ * \brief Block application until SDL receives an appropriate event.
  * Use sparingly.
- * \param events a single or OR'd combination of event masks. 
+ * \param events a single or OR'd combination of event masks.
  * \return the event type received
  */
 SDL_EventType   T4K_WaitForEvent            (SDL_EventMask events);
@@ -369,20 +375,20 @@ SDL_EventType   T4K_WaitForEvent            (SDL_EventMask events);
  * \param src
  * \param new_w
  * \param new_h
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_zoom                    (SDL_Surface* src, int new_w, int new_h);
 /**
- * \brief a single or OR'd combination of event masks. 
+ * \brief a single or OR'd combination of event masks.
  * \param newbkg
  * \param type
  * \param segments
  * \param duration
- * \return 
+ * \return
  */
 int             T4K_TransWipe               (const SDL_Surface* newbkg, int type, int segments, int duration);
 /**
- * \brief 
+ * \brief
  */
 void            T4K_InitBlitQueue           (void);
 /**
@@ -393,15 +399,15 @@ void            T4K_ResetBlitQueue          (void);
  * \brief Don't actually blit a surface,    but add a rect to be updated next    update
  * \param src
  * \param dst
- * \return 
+ * \return
  */
 int             T4K_AddRect                 (SDL_Rect* src, SDL_Rect* dst);
 /**
- * \brief 
+ * \brief
  * \param gfx
  * \param x
  * \param y
- * \return 
+ * \return
  */
 int             T4K_DrawSprite              (sprite* gfx, int x, int y);
 /**
@@ -409,7 +415,7 @@ int             T4K_DrawSprite              (sprite* gfx, int x, int y);
  * \param surf
  * \param x
  * \param y
- * \return 
+ * \return
  */
 int             T4K_DrawObject              (SDL_Surface* surf, int x, int y);
 /**
@@ -418,12 +424,12 @@ int             T4K_DrawObject              (SDL_Surface* surf, int x, int y);
  */
 void            T4K_UpdateScreen            (int* frame);
 /**
- * \brief basically puts in an order to overdraw sprite with corresponding rect of bkgd img                                                
+ * \brief basically puts in an order to overdraw sprite with corresponding rect of bkgd img
  * \param img
  * \param curr_bkgd
  * \param x
  * \param y
- * \return 
+ * \return
  */
 int             T4K_EraseSprite             (sprite* img, SDL_Surface* curr_bkgd, int x, int y);
 /**
@@ -432,7 +438,7 @@ int             T4K_EraseSprite             (sprite* img, SDL_Surface* curr_bkgd
  * \param curr_bkgd
  * \param x
  * \param y
- * \return 
+ * \return
  */
 int             T4K_EraseObject             (SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y);
 /**
@@ -447,11 +453,11 @@ void            T4K_SetFontName             (const char* name);
 const char*     T4K_AskFontName             (void);
 /**
  * \brief Initialize the backend (Pango or TTF) used for text-drawing functions
- * \return 
+ * \return
  */
 int             T4K_Setup_SDL_Text          (void);
 /**
- * \brief 
+ * \brief
  */
 void            T4K_Cleanup_SDL_Text        (void);
 /**
@@ -459,11 +465,11 @@ void            T4K_Cleanup_SDL_Text        (void);
  * foreground color, surrounded by a black shadow, on a transparent
  * background.  The appearance can be tuned by adjusting the number of
  * background copies and the offset where the foreground text is
- * finally written (see below).                                        
+ * finally written (see below).
  * \param t The text to draw
  * \param size the font size to use
  * \param c the fill color to use
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_BlackOutline            (const char* t, int size, SDL_Color* c);
 /**
@@ -480,13 +486,13 @@ SDL_Surface*    T4K_SimpleText              (const char *t, int size, SDL_Color*
  * \param size
  * \param col
  * \param glyph_offset the var in which to store the offset
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_SimpleTextWithOffset    (const char *t, int size, SDL_Color* col, int *glyph_offset);
 
 /* from tk4-loaders.c */
 /**
- * \brief Add a directory that should be searched when loading assets 
+ * \brief Add a directory that should be searched when loading assets
  * \param path
  */
 void            T4K_AddDataPrefix           (const char* path);
@@ -508,7 +514,7 @@ char*           T4K_RemoveSlash(char *path);
  * \brief Load an image without resizing it
  * \param file_name
  * \param mode
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_LoadImage               (const char* file_name, int mode);
 /**
@@ -521,7 +527,7 @@ SDL_Surface*    T4K_LoadImage               (const char* file_name, int mode);
  * \param mode
  * \param width
  * \param height
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_LoadScaledImage         (const char* file_name, int mode, int width, int height);
 /**
@@ -532,7 +538,7 @@ SDL_Surface*    T4K_LoadScaledImage         (const char* file_name, int mode, in
  * \param mode
  * \param max_width
  * \param max_height
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_LoadImageOfBoundingBox  (const char* file_name, int mode, int max_width, int max_height);
 /**
@@ -541,62 +547,62 @@ SDL_Surface*    T4K_LoadImageOfBoundingBox  (const char* file_name, int mode, in
  * \param file_name
  * \param width
  * \param height
- * \return 
+ * \return
  */
 SDL_Surface*    T4K_LoadBkgd                (const char* file_name, int width, int height);
 /**
- * \brief 
+ * \brief
  * \param name
  * \param mode
- * \return 
+ * \return
  */
 sprite*         T4K_LoadSprite              (const char* name, int mode);
 /**
- * \brief 
+ * \brief
  * \param name
  * \param mode
  * \param width
  * \param height
- * \return 
+ * \return
  */
 sprite*         T4K_LoadScaledSprite        (const char* name, int mode, int width, int height);
 /**
- * \brief 
+ * \brief
  * \param name
  * \param mode
  * \param max_width
  * \param max_height
- * \return 
+ * \return
  */
 sprite*         T4K_LoadSpriteOfBoundingBox (const char* name, int mode, int max_width, int max_height);
 /**
- * \brief 
+ * \brief
  * \param in
  * \param X
  * \param Y
- * \return 
+ * \return
  */
 sprite*         T4K_FlipSprite              (sprite* in, int X, int Y);
 /**
- * \brief 
+ * \brief
  * \param gfx
  */
 void            T4K_FreeSprite              (sprite* gfx);
 /**
- * \brief 
+ * \brief
  * \param s
  */
 void            T4K_NextFrame               (sprite* s);
 /**
  * \brief Load a sound/music patch from a file.
  * \param datafile
- * \return 
+ * \return
  */
 Mix_Chunk*      T4K_LoadSound               (char* datafile);
 /**
  * \brief Load music from a datafile
  * \param datafile
- * \return 
+ * \return
  */
 Mix_Music*      T4K_LoadMusic               (char *datafile);
 
@@ -616,7 +622,7 @@ void            T4K_PlaySound               (Mix_Chunk* sound);
  */
 void            T4K_PlaySoundLoop           (Mix_Chunk* sound, int loops);
 /**
- * \brief 
+ * \brief
  * \param channel
  */
 void            T4K_AudioHaltChannel        ( int channel );
@@ -632,8 +638,8 @@ void            T4K_AudioMusicLoad          (char* music_path, int loops);
  */
 void            T4K_AudioMusicUnload        ();
 /**
- * \brief 
- * \return 
+ * \brief
+ * \return
  */
 bool            T4K_IsPlayingMusic          ();
 /**
