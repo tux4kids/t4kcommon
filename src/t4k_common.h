@@ -229,7 +229,7 @@ int             T4K_RunMenu                 (int index, bool return_choice, void
  */
 void            T4K_PrerenderMenu           (int index);
 /**
- * \brief prerender arrows, stop button and all non-NULL menus from menus[] array
+ * \brief prerender all menus, arrows and stop button
    this function should be invoked after every resolution change
  */
 void            T4K_PrerenderAll            ();
@@ -252,44 +252,48 @@ void            T4K_UnloadMenus             (void);
 SDL_Surface*    T4K_GetScreen               ();
 /**
  * \brief creates a translucent button with rounded ends and draws it on the screen.
-   All colors and alpha values are supported.
- * \param target_rect
- * \param radius
- * \param r
- * \param g
- * \param b
- * \param a
+   All colors and alpha values are supported. This is equivalent to <code>T4K_DrawButtonOn(T4K_GetScreen());</code>
+ * \param target_rect the bounding rectangle for the button
+ * \param radius The radius of the arcs on each corner. A smaller radius results in sharper edges.
+ * \param r R component of the button's color
+ * \param g G component of the button's color
+ * \param b B component of the button's color
+ * \param a The opacity of the button
  */
 void            T4K_DrawButton              (SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 /**
  * \brief creates a translucent button with rounded ends and draws it on the given surface.
-   All colors and alpha values are supported.
- * \param target
- * \param target_rect
- * \param radius
- * \param r
- * \param g
- * \param b
- * \param a
+ *  All colors and alpha values are supported.
+ *
+ *  This function creates a temporary surface to blit onto target.
+ *  If performance is an issue, consider using T4K_CreateButton to save the surface.
+ *
+ * \param target The SDL_Surface to draw on
+ * \param target_rect the bounding rectangle for the button
+ * \param radius The radius of the arcs on each corner. A smaller radius results in sharper edges.
+ * \param r R component of the button's color
+ * \param g G component of the button's color
+ * \param b B component of the button's color
+ * \param a The opacity of the button
  */
 void            T4K_DrawButtonOn            (SDL_Surface* target, SDL_Rect* target_rect, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 /**
  * \brief creates a translucent button with rounded ends
    All colors and alpha values are supported.
- * \param w
- * \param h
- * \param radius
- * \param r
- * \param g
- * \param b
- * \param a
- * \return
+ * \param w The width of the button
+ * \param h The height of the button
+ * \param radius The radius of the arcs on each corner. A smaller radius results in sharper edges.
+ * \param r R component of the button's color
+ * \param g G component of the button's color
+ * \param b B component of the button's color
+ * \param a The opacity of the button
+ * \return a w x h translucent button with no text
  */
 SDL_Surface*    T4K_CreateButton            (int w, int h, int radius, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 /**
- * \brief
- * \param s
- * \param radius
+ * \brief Round the corners of a surface by erasing edge pixels
+ * \param s The surface to process
+ * \param radius The radius of the arcs on each corner. A smaller radius results in sharper edges.
  */
 void            T4K_RoundCorners            (SDL_Surface* s, Uint16 radius);
 /**
@@ -308,29 +312,29 @@ SDL_Surface*    T4K_Flip                    (SDL_Surface *in, int x, int y);
    Currently this works only with RGBA images, but this is largely to
    make the (fast) pointer arithmetic work out; it could be easily
    generalized to other image types.
- * \param S1
- * \param S2
- * \param gamma
+ * \param S1 The first surface
+ * \param S2 The second surface
+ * \param gamma A value between 0.0 and 1.0, representing the weight assigned to the first surface.
  * \return
  */
 SDL_Surface*    T4K_Blend                   (SDL_Surface *S1, SDL_Surface *S2, float gamma);
 /**
  * \brief free every surface in the array together with the array itself
- * \param surfs
- * \param length
+ * \param surfs an array of SDL_Surface pointers to free
+ * \param length The size of the array
  */
 void            T4K_FreeSurfaceArray        (SDL_Surface** surfs, int length);
 /**
- * \brief Text whether (x, y) is inside the SDL_Rect r
- * \param r
- * \param x
- * \param y
+ * \brief Text whether the point (x, y) is inside the SDL_Rect r
+ * \param r the bounding rect
+ * \param x x coordinate to test
+ * \param y y coordinate to test
  * \return whether (x, y) is inside the SDL_Rect r.
  */
 int             T4K_inRect                  (SDL_Rect r, int x, int y);
 /**
- * \brief Fill in an SDL_Rect with absolute values based on screen dimensions
- * \param rect
+ * \brief Write an SDL_Rect with dimensions based on screen dimensions
+ * \param rect A pointer to the rect to fill
  * \param pos four floats between 0.0 and 1.0 which specify the desired x, y, w
  * and h as a percentage of screen dimensions
  */
@@ -343,19 +347,17 @@ void            T4K_SetRect                 (SDL_Rect* rect, const float* pos);
 void            T4K_UpdateRect              (SDL_Surface* surf, SDL_Rect* rect);
 /**
  * \brief Darkens the screen by a factor of 2^bits
- * \param bits
+ * \param bits An exponent between 1 and 8. Realistically, 1 and 2 are the only useful values
  */
 void            T4K_DarkenScreen            (Uint8 bits);
 /**
- * \brief change window size (works only in windowed mode)
+ * \brief change window size (unstable, works only in windowed mode)
  * \param new_res_x
  * \param new_res_y
  */
 void            T4K_ChangeWindowSize        (int new_res_x, int new_res_y);
 /**
- * \brief switch between fullscreen and windowed mode. This does <em>not</em>
- * perform any resizing of menu items, so a call to T4K_PrerenderAll may be
- * necessary
+ * \brief Switch between fullscreen and windowed mode. Resolution switching callbacks are invoked.
  */
 void            T4K_SwitchScreenMode        (void);
 
@@ -364,7 +366,7 @@ typedef void (*ResSwitchCallback)(int resx, int resy);
 /**
  * \brief Register a callback to reposition and redraw screen elements when
  * the resolution is changed
- * \param callback
+ * \param callback A function to be called when resolution changes
  */
 void            T4K_OnResolutionSwitch      (ResSwitchCallback callback);
 /**
@@ -375,11 +377,11 @@ void            T4K_OnResolutionSwitch      (ResSwitchCallback callback);
  */
 SDL_EventType   T4K_WaitForEvent            (SDL_EventMask events);
 /**
- * \brief Resize an existing surface
- * \param src
- * \param new_w
- * \param new_h
- * \return
+ * \brief Scale an existing surface
+ * \param src The original surface, which is left unscathed
+ * \param new_w The width of the new surface
+ * \param new_h The height of the new surface
+ * \return a newly allocated SDL_Surface
  */
 SDL_Surface*    T4K_zoom                    (SDL_Surface* src, int new_w, int new_h);
 /**
@@ -392,7 +394,14 @@ SDL_Surface*    T4K_zoom                    (SDL_Surface* src, int new_w, int ne
  */
 int             T4K_TransWipe               (const SDL_Surface* newbkg, WipeStyle type, int segments, int duration);
 /**
- * \brief Initialize the blit queue system. This must be called before T4K_ResetBlitQueue, T4K_AddRect, T4K_DrawSprite, T4K_DrawObject, T4K_EraseObject, T4K_EraseSprite or T4K_UpdateScreen
+ * \brief Initialize the blit queue system. This must be called before
+ * T4K_ResetBlitQueue,
+ * T4K_AddRect,
+ * T4K_DrawSprite,
+ * T4K_DrawObject,
+ * T4K_EraseObject,
+ * T4K_EraseSprite or
+ * T4K_UpdateScreen
  */
 void            T4K_InitBlitQueue           (void);
 /**
