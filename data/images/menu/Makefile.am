@@ -1,7 +1,9 @@
 ## Makefile.am for tux4kids-common/data/images/menu
 ## Process with Automake to create Makefile.in
 
-EXTRA_DIST = left_gray.png	\
+menudir = $(pkgdatadir)/images/menu
+
+dist_menu_DATA = left_gray.png	\
 	left_gray.svg	\
 	left.png	\
 	left.svg	\
