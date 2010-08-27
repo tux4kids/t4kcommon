@@ -1,3 +1,26 @@
+/*
+   t4k_common.h: Contains public headers for the t4k_common library
+
+   Copyright 2009, 2010.
+   Author: Brendan Luchen
+   Project email: <tuxmath-devel@lists.sourceforge.net>
+   Project website: http://tux4kids.alioth.debian.org
+
+t4k_common.h is part of the t4k_common library.
+
+t4k_common is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+t4k_common is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
 /**
   \file t4k_common.h
   \mainpage Tux4Kids_common
@@ -5,7 +28,7 @@
   \section intro_sec Description
   A library of common functions used in these Tux4Kids games
   - Tux, of Math Command
-  - Tux Typin
+  - Tux Typing
 
   Part of "Tux4Kids" Project
 
