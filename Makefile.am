@@ -11,3 +11,6 @@ ACLOCAL_AMFLAGS = -I m4
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = t4k_common.pc
+
+## For Doxygen support:
+include aminclude.am
