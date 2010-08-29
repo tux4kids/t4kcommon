@@ -1,37 +1,39 @@
 /*
-  compiler.h
+   compiler.h:
 
-  Compiler-specific #defines and such
-  for Tux Paint
+   Compiler-specific #defines and such
+   for Tux Paint:
+   http://www.newbreedsoftware.com/tuxpaint/
+   
+   Mostly by Albert Cahalan <albert@users.sf.net>
+   Copyright (c) 2002-2006
 
-  Mostly by Albert Cahalan <albert@users.sf.net>
-  Copyright (c) 2002-2006
 
-  http://www.newbreedsoftware.com/tuxpaint/
+   June 09, 2008: Brought into TuxMath by Brendan Luchen as part of
+   pixel-manipulation code, with blessings of Bill Kendrick.
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+   2010: Relicensed from GPL Version 2 (or later) to GPL
+   Version 3 (or later).
+   
+   Project email: <tuxmath-devel@lists.sourceforge.net>
+   Project website: http://tux4kids.alioth.debian.org
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+compiler.h is part of the t4k_common library.
 
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-  (See COPYING.txt)
+t4k_common is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
 
-  June 14, 2002 - February 18, 2006
-  $Id: compiler.h,v 1.5 2006/08/27 21:00:55 wkendrick Exp $
+t4k_common is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-  June 09, 2008:
-  Brought into TuxMath by Brendan Luchen as part of pixel-manipulation
-  code, with blessings of Bill Kendrick.
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-*/
+
 
 #ifdef WIN32
 

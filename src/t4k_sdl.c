@@ -1,14 +1,31 @@
 /*
-*  C Implementation: SDL_extras
-*
-* Description: a few handy functions for using SDL graphics.
-*
-*
-* Author: David Bruce,,, <dbruce@tampabay.rr.com>, (C) 2007
-*
-* Copyright: GPL v3 or later
-*
-*/
+   t4k_sdl.c
+
+   Wrapper and utility functions to simplify use of the SDL libraries
+   in the Tux4Kids programs (Tux Math and Tux Typing).
+
+   Copyright 2000, 2003, 2007, 2008, 2009, 2010.
+   Authors: David Bruce, Sam Hart, Bill Kendrick, Tim Holy,
+            Boleslaw Kulbabinski, Brendan Luchen.
+   Project email: <tuxmath-devel@lists.sourceforge.net>
+   Project website: http://tux4kids.alioth.debian.org
+
+t4k_sdl.c is part of the t4k_common library.
+
+t4k_common is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+t4k_common is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
+
+
 
 #include <math.h>
 
