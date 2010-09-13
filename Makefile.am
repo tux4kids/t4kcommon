@@ -1,11 +1,12 @@
-## Top-level Makefile.am for tux4kids-common
+## Top-level Makefile.am for t4k_common library
 ## Process with Automake to create Makefile.in
 
 SUBDIRS = data \
-	po	\
-	src
+	  po	\
+	  src
 
-EXTRA_DIST = CMakeLists.txt
+EXTRA_DIST = CMakeLists.txt \
+             aminclude.am
 
 ACLOCAL_AMFLAGS = -I m4
 
