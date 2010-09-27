@@ -1,1 +1,51 @@
-/usr/share/automake-1.10/INSTALL
+
+26 Aug 2010
+
+t4kcommon - library of code shared by tuxmath, tuxtype, and possibly other tux4kids apps in the future.
+
+Git repository: git://git.debian.org/git/tux4kids/t4kcommon.git
+
+Required libraries:
+	SDL
+	SDL_mixer
+	SDL_image
+	SDL_Pango (preferred) or SDL_ttf
+	SDL_net (optional)
+	rsvg2 (optional)
+	cairo (optional)
+	png
+	xml2
+	m
+
+
+## To build and install from autotools-created tarball
+## (e.g. t4kcommon-1.0.0.tar.gz):
+
+tar xzf t4kcommon-1.0.0.tar.gz
+cd t4kcommon-1.0.0.tar.gz
+./configure
+make
+sudo make install
+
+
+## To build and install from git repository using GNU Autotools:
+## (requires Autoconf; Automake; libtool; gettext >= 0.18)
+## (from top-level directory, assumes use of separate build dir)
+
+mkdir build
+cd build
+autoreconf -if ..
+../configure
+make
+sudo make install
+
+
+## To build and install from git repository using CMake:
+## (from top-level directory, assumes use of separate build dir)
+
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+
