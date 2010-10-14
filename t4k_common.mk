@@ -1,13 +1,13 @@
 # This file is part of mingw-cross-env.
 # See doc/index.html for further information.
 
-# T4K_Common
+# t4k_common
 PKG             := t4k_common
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.0.0
 $(PKG)_CHECKSUM := 07b29aededd83b3c386533ff6a2797fe3fcf3374
-$(PKG)_SUBDIR   := T4K_Common-$($(PKG)_VERSION)
-$(PKG)_FILE     := T4K_Common-$($(PKG)_VERSION).tar.gz
+$(PKG)_SUBDIR   := t4k_common-$($(PKG)_VERSION)
+$(PKG)_FILE     := t4k_common-$($(PKG)_VERSION).tar.gz
 $(PKG)_WEBSITE  := http://tux4kids.alioth.debian.org/
 
 # FIXME find out url that can be specified just with package name and version
@@ -26,6 +26,6 @@ define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         --host='$(TARGET)' \
         --disable-shared \
-        --prefix='$(PREFIX)/$(TARGET)' \
+        --prefix='$(PREFIX)/$(TARGET)'
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
 endef
