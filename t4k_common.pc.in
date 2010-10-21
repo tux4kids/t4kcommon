@@ -6,6 +6,13 @@ includedir=@includedir@
 Name: @PACKAGE_NAME@
 Description: Tux4Kids common routines
 Version: @VERSION@
-Requires: 
-Libs: -l@PACKAGE_TARNAME@ -L${libdir} 
+
+# AFAICT we can only list libs with .pc files in "Requires:"
+Requires: sdl >= 1.2.0 SDL_image SDL_Pango librsvg-2.0 libxml-2.0
+# List libs "by hand" that don't have .pc files:
+Libs: -l@PACKAGE_TARNAME@ -L${libdir} -lSDL_mixer -lSDL_ttf -SDL_net
 Cflags: -I${includedir}
+
+# Because SDL_mixer and SDL_ttf do not have .pc files on some platforms,
+# we list their static dependencies here:
+Libs.private: -mwindows -L/opt/mingw-cross-env/usr/i686-pc-mingw32/lib -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lasound -ldl -lesd -lpulse-simple -lpulse -ldirectfb -lfusion -ldirect -laa -lcaca -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype
