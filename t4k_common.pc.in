@@ -15,4 +15,5 @@ Cflags: -I${includedir}
 
 # Because SDL_mixer and SDL_ttf do not have .pc files on some platforms,
 # we list their static dependencies here:
-Libs.private: -mwindows -L/opt/mingw-cross-env/usr/i686-pc-mingw32/lib -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lasound -ldl -lesd -lpulse-simple -lpulse -ldirectfb -lfusion -ldirect -laa -lcaca -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype
+
+Libs.private: -mwindows -L/opt/mingw-cross-env/usr/i686-pc-mingw32/lib -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype

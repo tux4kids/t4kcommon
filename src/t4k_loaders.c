@@ -342,12 +342,25 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
   static bool have_env = false;
 
   if (!have_env)
-    {
+  {
 #ifdef BUILD_MINGW32
-    if (getenv_s(NULL, udd, 0, "APPDATA") )
     {
-      perror("Error getting data dir");
-      sprintf(udd, "userdata");
+      char          path[2*MAX_PATH];
+      const char   *key    = "Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders";
+      const char   *option = "AppData";
+      HRESULT hr = S_OK;
+
+      if (SUCCEEDED(hr = ReadRegistry(key, option, udd, sizeof(udd))))
+      {
+        remove_slash(udd);
+        _mkdir(udd);
+      }
+      else
+      {
+        perror("Error getting data dir");
+        opt_path = NULL;
+	return;
+      }
     }
 #else
     snprintf(udd, PATH_MAX, "%s", getenv("HOME"));
@@ -364,6 +377,9 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
     strncat(opt_path, suffix, PATH_MAX);
   }
 }
+
+
+
 /* Load an image without resizing it */
 SDL_Surface* T4K_LoadImage(const char* file_name, int mode)
 {
