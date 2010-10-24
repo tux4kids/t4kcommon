@@ -335,6 +335,35 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
 
 #endif /* HAVE_RSVG */
 
+
+#ifdef BUILD_MINGW32
+#include <windows.h>
+ 
+/* STOLEN from tuxpaint */
+
+/*
+  Read access to Windows Registry
+*/
+static HRESULT ReadRegistry(const char *key, const char *option, char *value, int size)
+{
+  LONG        res;
+  HKEY        hKey = NULL;
+
+  res = RegOpenKeyEx(HKEY_CURRENT_USER, key, 0, KEY_READ, &hKey);
+  if (res != ERROR_SUCCESS)
+    goto err_exit;
+  res = RegQueryValueEx(hKey, option, NULL, NULL, (LPBYTE)value, (LPDWORD)&size);
+  if (res != ERROR_SUCCESS)
+    goto err_exit;
+  res = ERROR_SUCCESS;
+
+err_exit:
+  if (hKey) RegCloseKey(hKey);
+  return HRESULT_FROM_WIN32(res);
+}
+#endif
+
+
 /* STOLEN from Tuxmath */
 void T4K_GetUserDataDir(char *opt_path, char* suffix)
 {
@@ -350,12 +379,7 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
       const char   *option = "AppData";
       HRESULT hr = S_OK;
 
-      if (SUCCEEDED(hr = ReadRegistry(key, option, udd, sizeof(udd))))
-      {
-        remove_slash(udd);
-        _mkdir(udd);
-      }
-      else
+      if (!SUCCEEDED(hr = ReadRegistry(key, option, udd, sizeof(udd))))
       {
         perror("Error getting data dir");
         opt_path = NULL;
