@@ -5,7 +5,7 @@
 PKG             := t4k_common
 $(PKG)_IGNORE   :=
 $(PKG)_VERSION  := 0.0.1
-$(PKG)_CHECKSUM := eb88b8e0ffc7a7aa1a666b6fff10bff4a7cffedc  
+$(PKG)_CHECKSUM := e6e99672df90e636a2551939107c53ca9561e57d
 $(PKG)_SUBDIR   := t4k_common-$($(PKG)_VERSION)
 $(PKG)_FILE     := t4k_common-$($(PKG)_VERSION).tar.gz
 $(PKG)_WEBSITE  := http://tux4kids.alioth.debian.org/
