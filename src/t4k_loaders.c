@@ -619,6 +619,26 @@ SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height)
   return final_pic;
 }
 
+/* T4K_LoadBothBkgds() : loads two scaled images: one for the fullscreen mode
+   (fs_res_x,fs_rex_y) and one for the windowed mode (win_res_x,win_rex_y)
+   Now we also optimize the format for best performance */
+int T4K_LoadBothBkgds(const char* file_name, SDL_Surface** fs_bkgd, SDL_Surface** win_bkgd)
+{
+  int wx, wy, fx, fy;
+  T4K_GetResolutions(&wx, &wy, &fx, &fy);
+  
+  if (!fs_bkgd || !win_bkgd)
+  {
+    fprintf(stderr, "T4K_LoadBothBkgds(): Invalid ptr arg");
+    return 0;
+  }
+
+  *fs_bkgd = T4K_LoadBkgd(file_name, fx, fy);
+  *win_bkgd = T4K_LoadBkgd(file_name, wx, wy);
+  return 1;
+}
+
+
 
 sprite* T4K_LoadSprite(const char* name, int mode)
 {
@@ -652,7 +672,8 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
   T4K_GetUserDataDir(cachepath, ".t4k_common/caches");
   /* check if SVG sprite file is present */
   sprintf(fn, IMAGE_DIR "/%s.svg", name);
-  if(imgfn = find_file(fn))
+  imgfn = (char*)find_file(fn);
+  if(imgfn)
   {
     //check image dimensions
     if(proportional)

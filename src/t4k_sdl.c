@@ -74,6 +74,28 @@ SDL_Surface* T4K_GetScreen()
 }
 
 
+/*
+ * T4K_GetResolutions() takes int pointer args for the windowed and 
+ * fullscreen resolutions and fills them in with the current values.
+ * Returns 1 if successful, 0 otherwise.
+ */
+
+int T4K_GetResolutions(int* win_x, int* win_y, int* full_x, int* full_y)
+{
+  if(!win_x || !win_y || !full_x || !full_y)
+  {
+    fprintf(stderr, "T4K_GetResolutions() - invalid pointer arg");
+    return 0;  
+  }	  
+
+  *win_x = win_res_x;
+  *win_y = win_res_y;
+  *full_x = fs_res_x;
+  *full_y = fs_res_y;
+
+  return 1;
+}
+
 /* T4K_DrawButton() creates a translucent button with rounded ends
    and draws it on the screen.
    All colors and alpha values are supported.*/
@@ -96,6 +118,8 @@ void T4K_DrawButtonOn(SDL_Surface* target,
   SDL_FreeSurface(tmp_surf);
 }
 
+
+
 /* T4K_CreateButton() creates a translucent button with rounded ends
    All colors and alpha values are supported.*/
 SDL_Surface* T4K_CreateButton(int w, int h, int radius,
@@ -114,6 +138,7 @@ SDL_Surface* T4K_CreateButton(int w, int h, int radius,
   T4K_RoundCorners(tmp_surf, radius);
   return tmp_surf;
 }
+
 
 void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
 {

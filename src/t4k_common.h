@@ -91,6 +91,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 typedef enum { false, true } bool;
 #endif
 
+/* debug macros */
+#define DEBUGCODE(mask) if((mask) & debug_status)
+#define DEBUGMSG(mask, ...) if((mask) & debug_status){ fprintf(stderr, __VA_ARGS__); fflush(stderr); }
+
 /* these values have to match those used in games */
 static const int debug_loaders       = 1 << 0; /**< Debug image loading code */
 static const int debug_menu          = 1 << 1; /**< Debug menu code */
@@ -304,6 +308,13 @@ void            T4K_UnloadMenus             (void);
 SDL_Surface*    T4K_GetScreen               ();
 
 
+/**
+ * \brief Provide current values of x and y resolutions for windowed and fullscreen modes.
+ * \return
+ */
+int T4K_GetResolutions(int* win_x, int* win_y, int* full_x, int* full_y);
+
+	
 /**
  * \brief creates a translucent button with rounded ends and draws it on the screen.
    All colors and alpha values are supported. This is equivalent to <code>T4K_DrawButtonOn(T4K_GetScreen());</code>
@@ -694,6 +705,14 @@ SDL_Surface*    T4K_LoadImageOfBoundingBox  (const char* file_name, int mode, in
  */
 SDL_Surface*    T4K_LoadBkgd                (const char* file_name, int width, int height);
 
+/**
+ * \brief load backgrounds for both fullscreen and windowed resolution
+ * \param file_name
+ * \param fs_bkgd
+ * \param win_bkgd
+ * \return
+ */
+int T4K_LoadBothBkgds(const char* file_name, SDL_Surface** fs_bkgd, SDL_Surface** win_bkgd);
 
 /**
  * \brief Load a multiple-frame sprite from disk. This function loads an SVG sprite or multiple PNGs as needed
