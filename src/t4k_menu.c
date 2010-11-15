@@ -662,6 +662,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               /* Go to previous page, if present: */
               case SDLK_LEFT:
               case SDLK_PAGEUP:
+	      case SDLK_h:   //(Vim-like, see also below.)
               {
                 if(snd_click)
                   T4K_PlaySound(snd_click);
@@ -673,6 +674,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               /* Go to next page, if present: */
               case SDLK_RIGHT:
               case SDLK_PAGEDOWN:
+	      case SDLK_l:
               {
                 if(snd_click)
                   T4K_PlaySound(snd_click);
@@ -683,6 +685,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
               /* Go up one entry, if present: */
               case SDLK_UP:
+	      case SDLK_k:
               {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
@@ -699,6 +702,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               }
 
               case SDLK_DOWN:
+	      case SDLK_j:
               {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
