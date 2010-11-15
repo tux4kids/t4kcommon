@@ -1352,27 +1352,27 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
 #if HAVE_LIBSDL_PANGO
   if (!context)
   {
-    fprintf(stderr, "T4K_BlackOutline(): invalid SDL_Pango context - returning.");
+    fprintf(stderr, "T4K_BlackOutline(): invalid SDL_Pango context - returning.\n");
     return NULL;
   }
 #else
   TTF_Font* font = get_font(size);
   if (!font)
   {
-    fprintf(stderr, "T4K_BlackOutline(): could not load needed font - returning.");
+    fprintf(stderr, "T4K_BlackOutline(): could not load needed font - returning.\n");
     return NULL;
   }
 #endif
 
   if (!t || !c)
   {
-    fprintf(stderr, "T4K_BlackOutline(): invalid ptr parameter, returning.");
+    fprintf(stderr, "T4K_BlackOutline(): invalid ptr parameter, returning.\n");
     return NULL;
   }
 
   if (t[0] == '\0')
   {
-    fprintf(stderr, "T4K_BlackOutline(): empty string, returning");
+    fprintf(stderr, "T4K_BlackOutline(): empty string, returning\n");
     return NULL;
   }
 
