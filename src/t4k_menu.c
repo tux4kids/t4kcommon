@@ -50,6 +50,7 @@ struct mNode {
   struct mNode* parent;
 
   char* title;
+  char* desc;
   int font_size;
 
   char* icon_name;
@@ -115,7 +116,7 @@ static MenuNode* menus[N_OF_MENUS];
 /* stop button, left and right arrow positions do not
    depend on currently displayed menu */
 SDL_Rect menu_rect, stop_rect, prev_rect, next_rect, menu_title_rect;
-SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
+SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray, *desc_prerendered = NULL, *desc_panel = NULL;
 
 
 /*
@@ -128,6 +129,8 @@ const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
+//const float desc_panel_pos[4] = {0.05, 0.3, 0.2, 0.3};
+const float desc_panel_pos[4] = {0.05, 0.3, 0.3, 0.5};
 const char* stop_path = "menu/stop.svg";
 const char* prev_path = "menu/left.svg";
 const char* next_path = "menu/right.svg";
@@ -197,6 +200,7 @@ MenuNode* create_empty_node()
   MenuNode* new_node = malloc(sizeof(MenuNode));
   new_node->parent = NULL;
   new_node->title = NULL;
+  new_node->desc = "";
   new_node->icon_name = NULL;
   new_node->icon = NULL;
   new_node->submenu_size = 0;
@@ -230,6 +234,8 @@ void read_attributes(FILE* xml_file, MenuNode* node)
 
     if(strcmp(attr_name, "title") == 0)
       node->title = strdup(attr_val);
+    else if(strcmp(attr_name, "desc") == 0)
+      node->desc = strdup(attr_val);
     else if(strcmp(attr_name, "entries") == 0)
       node->submenu_size = atoi(attr_val);
     else if(strcmp(attr_name, "param") == 0)
@@ -314,6 +320,8 @@ void free_menu(MenuNode* menu)
   {
     if(menu->title != NULL)
       free(menu->title);
+    if(menu->desc != NULL)
+      free(menu->desc);
     if(menu->icon_name != NULL)
       free(menu->icon_name);
     if(menu->icon != NULL)
@@ -470,6 +478,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
     DEBUGMSG(debug_menu, "run_menu(): drawing whole new menu page\n");
 
     draw_background();
+    
     /* render buttons for current menu page */
     menu_item_unselected = render_buttons(menu, false);
     menu_item_selected = render_buttons(menu, true);
@@ -512,8 +521,18 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       SDL_BlitSurface(title_surf, NULL, T4K_GetScreen(), &menu_title_rect);
       SDL_FreeSurface(title_surf);
     }
+    
+    /* prerender panel */
+    SDL_Rect panelclip = {T4K_GetScreen()->w * desc_panel_pos[0],
+                          T4K_GetScreen()->h * desc_panel_pos[1],
+                          T4K_GetScreen()->w * desc_panel_pos[2],
+                          T4K_GetScreen()->h * desc_panel_pos[3]};
+    desc_panel = T4K_CreateButton(panelclip.w - panelclip.x, panelclip.h - panelclip.y, 8, 0xff, 0xff, 0xff, 100);
+    SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &panelclip);
+    SDL_BlitSurface(T4K_GetScreen(), &panelclip, desc_panel, NULL);
+    
     SDL_UpdateRect(T4K_GetScreen(), 0, 0, 0, 0);
-
+    
     SDL_WM_GrabInput(SDL_GRAB_OFF);
 
     while (SDL_PollEvent(&event));  // clear pending events
@@ -753,6 +772,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
         /* handle button focus */
         if (old_loc != loc) {
           DEBUGMSG(debug_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
+          
           if(old_loc >= 0 && old_loc < items)
           {
             tmp_rect = menu->submenu[old_loc + menu->first_entry]->button_rect;
@@ -762,6 +782,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                   NULL, T4K_GetScreen(), &menu->submenu[menu->first_entry + old_loc]->icon_rect);
             SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
           }
+          
           if(loc >= 0 && loc < items)
           {
             tmp_rect = menu->submenu[loc + menu->first_entry]->button_rect;
@@ -773,6 +794,11 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               menu->submenu[menu->first_entry + loc]->icon->cur = 0;
             }
             SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
+            
+            // Set and render new description text
+            SDL_Color white = {0xff, 0xff, 0xff, 0xff};
+            SDL_FreeSurface(desc_prerendered);
+            desc_prerendered = T4K_SimpleText(menu->submenu[loc + menu->first_entry]->desc, 14, &white);
           }
           old_loc = loc;
         }
@@ -891,6 +917,13 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
       /* handle titlescreen animations */
       handle_animations();
+      
+      if(desc_prerendered) {
+        SDL_Rect pos = {T4K_GetScreen()->w * desc_panel_pos[0], T4K_GetScreen()->w * desc_panel_pos[1]};
+        SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), NULL);
+        SDL_BlitSurface(desc_prerendered, NULL, T4K_GetScreen(), &pos);
+        SDL_Flip(T4K_GetScreen());
+      }
 
       /* Wait so we keep frame rate constant: */
       frame_now = SDL_GetTicks();
