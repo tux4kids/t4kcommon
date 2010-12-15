@@ -919,8 +919,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       handle_animations();
       
       if(desc_prerendered) {
-        SDL_Rect pos = {T4K_GetScreen()->w * desc_panel_pos[0], T4K_GetScreen()->w * desc_panel_pos[1]};
-        SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), NULL);
+        SDL_Rect pos = {T4K_GetScreen()->w * desc_panel_pos[0], T4K_GetScreen()->h * desc_panel_pos[1]};
+        SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &pos);
         SDL_BlitSurface(desc_prerendered, NULL, T4K_GetScreen(), &pos);
         SDL_Flip(T4K_GetScreen());
       }
