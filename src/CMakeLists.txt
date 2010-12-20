@@ -10,6 +10,7 @@ include_directories(
   ${SDL_INCLUDE_DIR}
   ${SDLIMAGE_INCLUDE_DIR}
   ${SDLMIXER_INCLUDE_DIR}
+  ${CMAKE_SOURCE_DIR}/gettext
 )
 
 #Look here for optional headers
@@ -47,6 +48,7 @@ target_link_libraries(${LIB_NAME}
 	${SDLIMAGE_LIBRARY}
 	${SDLPANGO_LIBRARY}
 	${SDLTTF_LIBRARY}
+        ${LINEBREAK_BINARY_DIR}/liblinebreak.a
 )
 
 t4k_include_definition(HAVE_LIBSDL_PANGO)
@@ -57,6 +59,8 @@ set_target_properties (${LIB_NAME} PROPERTIES
 	"COMMON_DATA_PREFIX=\"${T4K_COMMON_DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_NAME}\""
 	LINK_INTERFACE_LIBRARIES ""
 )
+
+add_dependencies(${LIB_NAME} linebreak)
 
 install( TARGETS ${LIB_NAME}
 	DESTINATION lib )

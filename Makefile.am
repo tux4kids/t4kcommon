@@ -3,6 +3,7 @@
 
 SUBDIRS = data \
 	  po	\
+          linebreak \
 	  src
 
 EXTRA_DIST = CMakeLists.txt \

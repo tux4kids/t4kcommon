@@ -138,6 +138,7 @@ static const int debug_loaders       = 1 << 0; //!< Debug image loading code
 static const int debug_menu          = 1 << 1; //!< Debug menu code
 static const int debug_menu_parser   = 1 << 2; //!< Debug XML parsing for menus
 static const int debug_sdl           = 1 << 3; //!< Debug image txf and other support code 
+static const int debug_linewrap      = 1 << 4; //!< Debug for linewrap functions
 static const int debug_all           = ~0;     //!< Enable all debugging output (messy!)
 
 extern int debug_status;
@@ -226,6 +227,11 @@ MFStrategy;
 
 #define IMG_NOT_REQUIRED    0x10
 #define IMG_NO_PNG_FALLBACK 0x20
+
+#define MAX_LINES 128     //!< Maximum lines to wrap.
+#define MAX_LINEWIDTH 256 //!< Maximum characters of each line.
+
+char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
 //TODO separate headers for different areas a la SDL?
 
@@ -1759,5 +1765,77 @@ void T4K_AudioEnable( bool enabled );
 //!
 void T4K_AudioToggle( void );
 
+
+//=============================================================================
+//                      Public Definitions for t4k_linewrap.c
+//=============================================================================
+
+//=============================================================================
+//
+//  T4K_LineWrap
+//
+//! \brief
+//!     This function takes an input string (can be in essentially arbitrary
+//!     encoding) and loads it into an array of strings, each corresponding
+//!     to one line of output text.
+//!    
+//! \param
+//!     input         - A null-terminated input string.
+//! \param
+//!     str_list      - A PRE_ALLOCATED array of characters pointers. This
+//!                     must be at least of size str_list[max_lines][max_width]
+//! \param
+//!     width         - The desired number of characters per line. Note that
+//!                     words with more characters than "width" are not
+//!                     hypenated, so it's possible to get a line that is
+//!                     longer than "width".
+//! \param
+//!     max_lines     - Memory-safety parameters for str_list.
+//! \param
+//!     max_width     - Memory-safety parameters for str_list.
+//!
+//! \return
+//!     Linewrap returns the number of lines used to format the strings.
+//!
+int T4K_LineWrap( const char* input,
+                  char        str_list[MAX_LINES][MAX_LINEWIDTH],
+                  int         width,
+				  int         max_lines,
+				  int         max_width
+                );
+
+//=============================================================================
+//
+//  T4K_LineWrapList
+//
+//! /brief
+//!     This function takes a NULL_terminated array of strings and performs
+//!     translations and linewrapping, outputting another NULL-terminated
+//!     array.
+//!
+//! /param
+//!     input         - A null-terminated input string.
+//! /param
+//!     str_list      - A PRE_ALLOCATED array of characters pointers. This
+//!                     must be at least of size str_list[max_lines][max_width]
+//! /param
+//!     width         - The desired number of characters per line. Note that
+//!                     words with more characters than "width" are not
+//!                     hypenated, so it's possible to get a line that is
+//!                     longer than "width".
+//! /param
+//!     max_lines     - Memory-safety parameters for str_list.
+//! /param
+//!     max_width     - Memory-safety parameters for str_list.
+//!
+//! /return
+//!     None
+//!
+void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
+                       char       str_list[MAX_LINES][MAX_LINEWIDTH],
+					   int        width,
+					   int        max_lines,
+					   int        max_width
+                     );
 #endif
 

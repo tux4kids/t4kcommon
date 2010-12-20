@@ -54,9 +54,12 @@ else()
   message(SEND_ERROR "What OS are you on?")
 endif()
 
+set(LINEBREAK_BINARY_DIR ${CMAKE_BINARY_DIR}/linebreak)
+set(LINEBREAK_SOURCE_DIR ${CMAKE_SOURCE_DIR}/linebreak)
 
 #process subdirectories
 add_subdirectory(src)
 add_subdirectory(data)
+add_subdirectory(linebreak)
 
 include(CPack)

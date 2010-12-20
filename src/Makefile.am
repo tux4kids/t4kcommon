@@ -1,13 +1,16 @@
 ## Makefile.am for t4kcommon/trunk/src
 ## Process with Automake to create Makefile.in
 
-AM_CFLAGS=-Wall -g -DCOMMON_DATA_PREFIX=\"${COMMON_DATA_PREFIX}\" -DDEBUG -DUSE_T4K_PREFIX=1
+AM_CFLAGS=-Wall -g -DCOMMON_DATA_PREFIX=\"${COMMON_DATA_PREFIX}\" -DDEBUG -DUSE_T4K_PREFIX=1 \
+	-I../gettext
 
 if BUILD_MINGW32
   COMMON_DATA_PREFIX=@MINGW32_PACKAGE_DATA_DIR@
 else
   COMMON_DATA_PREFIX=${pkgdatadir}
 endif
+
+libt4k_common_la_LIBADD = ../linebreak/liblinebreak.a
 
 lib_LTLIBRARIES = libt4k_common.la
 
@@ -19,6 +22,7 @@ libt4k_common_la_SOURCES = \
 	t4k_main.c	\
 	t4k_menu.c	\
 	t4k_pixels.c	\
-	t4k_sdl.c
+	t4k_sdl.c       \
+        t4k_linewrap.c
 
 include_HEADERS = t4k_common.h
