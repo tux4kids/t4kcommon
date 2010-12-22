@@ -18,11 +18,12 @@ libt4k_common_la_SOURCES = \
 	t4k_audio.c	\
 	t4k_compiler.h	\
 	t4k_globals.h	\
+        t4k_linewrap.c	\
 	t4k_loaders.c	\
 	t4k_main.c	\
 	t4k_menu.c	\
 	t4k_pixels.c	\
 	t4k_sdl.c       \
-        t4k_linewrap.c
+	t4k_throttle.c
 
 include_HEADERS = t4k_common.h

@@ -1837,5 +1837,35 @@ void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
 					   int        max_lines,
 					   int        max_width
                      );
+
+
+//=============================================================================
+//                      Public Definitions for t4k_throttle.c
+//=============================================================================
+
+
+//=============================================================================
+//
+//  T4K_Throttle
+//
+//! /brief
+//!     Use this simple function to keep a loop from eating all CPU.
+//!     Here we use SDL_Delay() to wait to return until 'loop_msec'
+//!     milliseconds after it returned the last time. Per SDL docs,
+//!     the granularity is likely no better than 10 msec
+//!
+//! /param
+//!     loop_msec     - The desired loop duration, in msec
+//! /param
+//!     last_t        - The valid location of a Uint32 where timing can be
+//!                     stored between invocations of this function.
+//!
+//! /return
+//!     None
+//!
+void T4K_Throttle( int loop_msec,
+                   Uint32* last_t
+		 );
+
 #endif
 
