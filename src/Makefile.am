@@ -1,8 +1,7 @@
 ## Makefile.am for t4kcommon/trunk/src
 ## Process with Automake to create Makefile.in
 
-AM_CFLAGS=-Wall -g -DCOMMON_DATA_PREFIX=\"${COMMON_DATA_PREFIX}\" -DDEBUG -DUSE_T4K_PREFIX=1 \
-	-I../gettext
+AM_CFLAGS=-Wall -g -DCOMMON_DATA_PREFIX=\"${COMMON_DATA_PREFIX}\" -DDEBUG -DUSE_T4K_PREFIX=1 
 
 if BUILD_MINGW32
   COMMON_DATA_PREFIX=@MINGW32_PACKAGE_DATA_DIR@
@@ -27,3 +26,5 @@ libt4k_common_la_SOURCES = \
 	t4k_throttle.c
 
 include_HEADERS = t4k_common.h
+
+EXTRA_DIST = gettext.h

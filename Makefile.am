@@ -2,8 +2,8 @@
 ## Process with Automake to create Makefile.in
 
 SUBDIRS = data \
-	  po	\
           linebreak \
+	  po	\
 	  src
 
 EXTRA_DIST = CMakeLists.txt \

@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdlib.h>
 #include <stdio.h>
 //#include <locale.h>
-#include "../gettext/gettext.h"
+#include "gettext.h"
 #include "t4k_common.h"
 #include "../linebreak/linebreak.h"
 
