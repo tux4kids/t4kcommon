@@ -1,5 +1,6 @@
 ## Makefile.am for t4kcommon/trunk/src
 ## Process with Automake to create Makefile.in
+SUBDIRS = linebreak
 
 AM_CFLAGS=-Wall -g -DCOMMON_DATA_PREFIX=\"${COMMON_DATA_PREFIX}\" -DDEBUG -DUSE_T4K_PREFIX=1 
 
@@ -9,7 +10,7 @@ else
   COMMON_DATA_PREFIX=${pkgdatadir}
 endif
 
-libt4k_common_la_LIBADD = ../linebreak/liblinebreak.a
+libt4k_common_la_LIBADD = linebreak/liblinebreak.la
 
 lib_LTLIBRARIES = libt4k_common.la
 

@@ -70,3 +70,5 @@ install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
 
 include(UseDoxygen OPTIONAL)
 
+#process subdirectories
+add_subdirectory(linebreak)

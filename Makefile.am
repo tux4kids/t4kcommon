@@ -2,7 +2,6 @@
 ## Process with Automake to create Makefile.in
 
 SUBDIRS = data \
-          linebreak \
 	  po	\
 	  src
 

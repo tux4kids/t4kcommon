@@ -1,8 +1,8 @@
 ## Makefile.am for tuxmath/linebreak:
 ## Process with Automake to create Makefile.in
 
-noinst_LIBRARIES = liblinebreak.a
-liblinebreak_a_SOURCES = linebreak.c \
+noinst_LTLIBRARIES = liblinebreak.la
+liblinebreak_la_SOURCES = linebreak.c \
   unistr/u16-mbtouc-aux.c \
   unistr/u16-mbtouc.c \
   unistr/u16-mbtouc-unsafe-aux.c \

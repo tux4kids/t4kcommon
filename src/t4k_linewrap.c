@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 //#include <locale.h>
 #include "gettext.h"
 #include "t4k_common.h"
-#include "../linebreak/linebreak.h"
+#include "linebreak/linebreak.h"
 
 static char wrapped_lines0[MAX_LINES][MAX_LINEWIDTH];  // for internal storage
 char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; // publicly available!
