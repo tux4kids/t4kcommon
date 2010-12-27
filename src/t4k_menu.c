@@ -200,7 +200,7 @@ MenuNode* create_empty_node()
   MenuNode* new_node = malloc(sizeof(MenuNode));
   new_node->parent = NULL;
   new_node->title = NULL;
-  new_node->desc = "";
+  new_node->desc = NULL;
   new_node->icon_name = NULL;
   new_node->icon = NULL;
   new_node->submenu_size = 0;
@@ -337,9 +337,11 @@ void free_menu(MenuNode* menu)
         }
       free(menu->submenu);
     }
-
+    /* Note that we don't need to set the menu->foo items to NULL */
+    /* because they are being deallocated here:                   */
     free(menu);
   }
+  DEBUGMSG(debug_menu, "leaving free_menu()\n");
 }
 
 /* create a simple one-level menu.
@@ -434,6 +436,7 @@ void T4K_UnloadMenus(void)
     {
       DEBUGMSG(debug_menu, "T4K_UnloadMenus(): freeing menu #%d\n", i);
       free_menu(menus[i]);
+      menus[i] = NULL;
     }
 
   DEBUGMSG(debug_menu, "leaving T4K_UnloadMenus()\n");
