@@ -52,6 +52,13 @@
 #ifndef TUX4KIDS_COMMON_H
 #define TUX4KIDS_COMMON_H
 
+// Translation stuff (now works for Mac and Win too!): 
+#include "config.h"
+#include "gettext.h"
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
+
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
@@ -113,7 +120,7 @@
 
 // Hold off on gettext until we decide if we are really going to
 // use it from within t4kcommon - DSB
-#define _(String) String
+//#define _(String) String
 // #define _(String) gettext (String)
 
 #ifndef bool
