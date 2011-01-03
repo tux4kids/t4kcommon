@@ -29,6 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdlib.h>
 #include <string.h>
 
+#include <libxml/parser.h>
+#include <libxml/tree.h>
+
 #include "t4k_globals.h"
 #include "t4k_common.h"
 
@@ -148,8 +151,6 @@ const int min_font_size = 8, default_font_size = 20, max_font_size = 33;
 MenuNode*       create_empty_node();
 char*           get_attribute_name(const char* token);
 char*           get_attribute_value(const char* token);
-void            read_attributes(FILE* xml_file, MenuNode* node);
-MenuNode*       load_menu_from_file(FILE* xml_file, MenuNode* parent);
 void            free_menu(MenuNode* menu);
 
 SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
@@ -213,101 +214,74 @@ MenuNode* create_empty_node()
   return new_node;
 }
 
-/* read attributes and fill appropriate node fields */
-void read_attributes(FILE* xml_file, MenuNode* node)
-{
-  char attr_name[buf_size];
-  char attr_val[buf_size];
-  int i;
-
-  /* read tokens until closing '>' is found */
-  do
-  {
-    fscanf(xml_file, " %[^=\n]", attr_name);
-
-    DEBUGMSG(debug_menu_parser, "read_attributes(): read attribute name: %s\n", attr_name);
-    if(strchr(attr_name, '>'))
-      break;
-
-    fscanf(xml_file, "=\"%[^\"]\"", attr_val);
-    DEBUGMSG(debug_menu_parser, "read_attributes(): read attribute value: %s\n", attr_val);
-
-    if(strcmp(attr_name, "title") == 0)
-      node->title = strdup(attr_val);
-    else if(strcmp(attr_name, "desc") == 0)
-      node->desc = strdup(attr_val);
-    else if(strcmp(attr_name, "entries") == 0)
-      node->submenu_size = atoi(attr_val);
-    else if(strcmp(attr_name, "param") == 0)
-      node->param = atoi(attr_val);
-    else if(strcmp(attr_name, "sprite") == 0)
-      node->icon_name = strdup(attr_val);
-    else if(strcmp(attr_name, "run") == 0)
-    {
-      /* special activity - should be handled separately */
-      if(strcmp(attr_val, "RUN_MAIN_MENU") == 0)
-        node->activity = RUN_MAIN_MENU;
-      else
-        for(i = 0; i < n_of_activities; i++)
-          if(strcmp(attr_val, activities[i]) == 0)
-            node->activity = i;
+/* "Translate" a xmlNode into a MenuNode (recursively) */
+/* NOTE: The activities system is now case insensitive when dealing with IDs */
+MenuNode *menu_TranslateNode(xmlNode *node) {
+    MenuNode *tnode = NULL;
+    int i;
+    
+    if(node->type == XML_ELEMENT_NODE) {
+        xmlAttr *current, *child;
+        tnode = create_empty_node();
+        
+        for(current = node->properties; current; current = current->next) {
+            if(xmlStrcasecmp(current->name, "title") == 0) {
+                tnode->title = strdup(current->children->content);
+            } else if(xmlStrcasecmp(current->name, "run") == 0) {
+                if(strcmp(current->children->content, "RUN_MAIN_MENU") == 0)
+                    tnode->activity = RUN_MAIN_MENU;
+                else
+                    for(i = 0; i < n_of_activities; i++)
+                        if(strcasecmp(current->children->content, activities[i]) == 0)
+                            tnode->activity = i;
+            } else if(xmlStrcasecmp(current->name, "param") == 0) {
+                tnode->param = atoi(current->children->content);
+            } else if(xmlStrcasecmp(current->name, "desc") == 0) {
+                tnode->desc = strdup(current->children->content);
+            } else if(xmlStrcasecmp(current->name, "sprite") == 0) {
+                tnode->icon_name = strdup(current->children->content);
+            } else if(xmlStrcasecmp(current->name, "entries") == 0) {
+                /* Prevent memory leaks in case of multiple entries attibutes */
+                if(tnode->submenu != NULL)
+                    free(tnode->submenu);
+                tnode->submenu_size = atoi(current->children->content);
+                tnode->submenu = malloc(tnode->submenu_size * sizeof(MenuNode));
+            }
+        }
+        
+        
+        /* Now add child nodes. */
+        if(xmlStrcasecmp(node->name, "menu") == 0) {
+            i = 0;
+            for(child = node->children; child; child = child->next) {
+                if(child->type == XML_ELEMENT_NODE) {
+                    tnode->submenu[i++] = menu_TranslateNode(child);
+                }
+            }
+        }
     }
-    else
-      DEBUGMSG(debug_menu_parser, "read_attributes(): unknown attribute %s , omitting\n", attr_name);
-
-  } while(strchr(attr_val, '>') == NULL);
+    
+    return tnode;
 }
 
-/* recursively read and parse given xml menu file and create menu tree
-   return NULL in case of problems */
-MenuNode* load_menu_from_file(FILE* xml_file, MenuNode* parent)
-{
-  MenuNode* new_node = create_empty_node();
-  char buffer[buf_size];
-  int i;
-
-  new_node->parent = parent;
-
-  DEBUGMSG(debug_menu_parser, "entering load_menu_from_file()\n");
-  fscanf(xml_file, " < %s", buffer);
-
-  if(strcmp(buffer, "menu") == 0)
-  {
-    read_attributes(xml_file, new_node);
-    if(new_node->title == NULL)
-    {
-      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
-      return NULL;
+MenuNode *menu_LoadFile(char *file) {
+    xmlDoc *menu;
+    xmlNode *root;
+    
+    /* TODO If we're debugging, we might want to see errors and warnings */
+    menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER |
+                                   XML_PARSE_NOERROR |
+                                   XML_PARSE_NOWARNING);
+    if(menu == NULL) {
+        DEBUGMSG(debug_menu_parser, "menu_LoadFile: Failed to parse and load file. (`%s`)\n", file);
+        return NULL;
     }
-
-    if(new_node->submenu_size > 0)
-    {
-      new_node->submenu = malloc(new_node->submenu_size * sizeof(MenuNode));
-      for(i = 0; i < new_node->submenu_size; i++)
-        new_node->submenu[i] = load_menu_from_file(xml_file, new_node);
-    }
-
-    fscanf(xml_file, " </%[^>\n]> ", buffer);
-    if(strcmp(buffer, "menu") != 0)
-      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): warning - no closing menu tag, found %s instead\n", buffer);
-  }
-  else if(strcmp(buffer, "item") == 0)
-  {
-    read_attributes(xml_file, new_node);
-    if(new_node->title == NULL)
-    {
-      DEBUGMSG(debug_menu_parser, "load_menu_from_file(): no title attribute, exiting\n");
-      return NULL;
-    }
-  }
-  else
-  {
-    DEBUGMSG(debug_menu_parser, "load_menu_from_file(): unknown tag: %s\n, exiting\n", buffer);
-    return NULL;
-  }
-
-  DEBUGMSG(debug_menu_parser, "load_menu_from_file(): node loaded successfully\n");
-  return new_node;
+    
+    /* Get the root element. */
+    root = xmlDocGetRootElement(menu);
+    
+    /* Now, translate the xmlDoc to a MenuNode and return it. */
+    return menu_TranslateNode(root);
 }
 
 /* recursively free all non-NULL pointers in a menu tree */
@@ -394,6 +368,7 @@ void T4K_LoadMenu(int index, const char* file_name)
   snprintf(temp, PATH_MAX, MENU_DIR "/%s", file_name);
   fn = find_file(temp);
   DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
+#if 0
   menu_file = fopen(fn, "r");
   if(menu_file == NULL)
   {
@@ -404,6 +379,8 @@ void T4K_LoadMenu(int index, const char* file_name)
     menus[index] = load_menu_from_file(menu_file, NULL);
     fclose(menu_file);
   }
+#endif
+  menus[index] = menu_LoadFile(fn);
 }
 
 /* free all loaded menu trees */
