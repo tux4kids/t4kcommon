@@ -59,6 +59,11 @@
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include "config.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
@@ -1874,5 +1879,15 @@ void T4K_Throttle( int loop_msec,
                    Uint32* last_t
 		 );
 
+//==============================================================================
+// Public definitions for t4k_replacements.c
+//==============================================================================
+#  ifndef HAVE_ALPHASORT
+int alphasort(const void *d1, const void *d2);
+#  endif //!HAVE_ALPHASORT
+
+#  ifndef HAVE_SCANDIR
+int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *));
+#  endif //!HAVE_SCANDIR
 #endif
 

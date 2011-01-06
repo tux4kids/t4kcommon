@@ -301,7 +301,7 @@ AC_FUNC_STAT
 AC_FUNC_STRCOLL
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
-AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify atexit basename bcopy floor getcwd localeconv localtime_r memmove mempcpy memset mkdir munmap nl_langinfo scandir setlocale sqrt stpcpy strcasecmp strchr strcspn strdup strncasecmp strndup strrchr strstr strtoul])
+AC_CHECK_FUNCS([__argz_count __argz_next __argz_stringify atexit basename bcopy floor getcwd localeconv localtime_r memmove mempcpy memset mkdir munmap nl_langinfo scandir alphasort setlocale sqrt stpcpy strcasecmp strchr strcspn strdup strncasecmp strndup strrchr strstr strtoul])
 
 
 dnl FIXME - get rid of remaining win32 conditional code
