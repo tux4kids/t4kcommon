@@ -5,12 +5,17 @@
 cmake_minimum_required(VERSION 2.6)
 include(T4K_Sugar)
 
+find_package(LibXml2 REQUIRED)
+
 #Look here for headers
 include_directories(
   ${SDL_INCLUDE_DIR}
   ${SDLIMAGE_INCLUDE_DIR}
   ${SDLMIXER_INCLUDE_DIR}
+  ${LIBXML2_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/gettext
+  ${CMAKE_BINARY_DIR}/src/linebreak
+  ${CMAKE_SOURCE_DIR}/src/linebreak
 )
 
 #Look here for optional headers
@@ -48,6 +53,7 @@ target_link_libraries(${LIB_NAME}
 	${SDLIMAGE_LIBRARY}
 	${SDLPANGO_LIBRARY}
 	${SDLTTF_LIBRARY}
+        ${LIBXML2_LIBRARIES}
         ${LINEBREAK_BINARY_DIR}/liblinebreak.a
 )
 

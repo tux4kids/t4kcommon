@@ -29,4 +29,5 @@ libt4k_common_la_SOURCES = \
 
 include_HEADERS = t4k_common.h
 
-EXTRA_DIST = gettext.h
+EXTRA_DIST = gettext.h \
+             CMakeLists.txt

@@ -6,7 +6,12 @@ SUBDIRS = data \
 	  src
 
 EXTRA_DIST = CMakeLists.txt \
-             aminclude.am
+             aminclude.am \
+             cmake-modules/ConfigureChecksIntl.cmake \
+             cmake-modules/FindRSVG.cmake \
+             cmake-modules/FindSDL_Pango.cmake \
+             cmake-modules/T4K_Sugar.cmake \
+             cmake-modules/UseDoxygen.cmake
 
 ACLOCAL_AMFLAGS = -I m4
 
