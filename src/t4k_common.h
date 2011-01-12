@@ -63,7 +63,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "config.h"
+#include <dirent.h>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
@@ -1883,7 +1883,7 @@ void T4K_Throttle( int loop_msec,
 // Public definitions for t4k_replacements.c
 //==============================================================================
 #  ifndef HAVE_ALPHASORT
-int alphasort(const void *d1, const void *d2);
+int alphasort(const struct dirent** d1, const struct dirent** d2);
 #  endif //!HAVE_ALPHASORT
 
 #  ifndef HAVE_SCANDIR
