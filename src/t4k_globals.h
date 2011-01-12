@@ -28,9 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
 //FIXME this seems weird - config.h is where the "HAVE_FOO" autoheader macros live!
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
+//#ifdef HAVE_CONFIG_H
+#include "t4k_common-config.h"
+//#endif
 #include "gettext.h"
 #include "t4k_common.h"
 #include "SDL.h"

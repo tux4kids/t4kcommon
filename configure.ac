@@ -363,6 +363,8 @@ DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(t4k_common, doxygen.cfg)
 #DX_INIT_DOXYGEN([t4k_common], build/Doxyfile)
 
+dnl ------------- give config.h another name so it won't clash when t4k_common.h included by tuxmath/tuxtype:
+AX_PREFIX_CONFIG_H
 
 AC_CONFIG_FILES([Makefile
                  data/Makefile

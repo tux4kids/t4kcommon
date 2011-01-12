@@ -41,7 +41,7 @@ SDL_Color red, yellow, white, black;
 */
 void InitT4KCommon(int debug_flags)
 {
-  printf("Initializing " PACKAGE_STRING "\n");
+  printf("Initializing " T4K_COMMON_PACKAGE_STRING "\n");
 
   debug_status = debug_flags;
 
