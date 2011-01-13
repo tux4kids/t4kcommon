@@ -24,6 +24,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "t4k_common-config.h"
+#include "t4k_globals.h"
 
 #include <dirent.h>
 #include <stdlib.h>
