@@ -57,7 +57,7 @@ int alphasort(const struct dirent **d1, const struct dirent **d2) {
 
 #ifndef T4K_COMMON_HAVE_SCANDIR
 #   ifdef WIN32
-int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *))
+int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(const struct dirent *), int (*dcomp)(const struct dirent**, const struct dirent**))
 {
   int len;
   char *findIn, *d;
@@ -169,7 +169,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 #endif
 #endif
 
-int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *))
+int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(const struct dirent *), int (*dcomp)(const struct dirent**, const struct dirent**))
 {
   struct dirent *d, *p, **names;
   struct stat stb;

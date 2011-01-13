@@ -3,6 +3,9 @@
 #Please hack responsibly.
 
 cmake_minimum_required(VERSION 2.6)
+
+include(ConfigureChecks)
+configure_file(${CMAKE_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/t4k_common-config.h)
 include(T4K_Sugar)
 
 find_package(LibXml2 REQUIRED)
@@ -14,6 +17,9 @@ include_directories(
   ${SDLMIXER_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${CMAKE_SOURCE_DIR}/gettext
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/src
+  ${CMAKE_BINARY_DIR}/gettext
   ${CMAKE_BINARY_DIR}/src/linebreak
   ${CMAKE_SOURCE_DIR}/src/linebreak
 )
@@ -72,6 +78,8 @@ install( TARGETS ${LIB_NAME}
 	DESTINATION lib )
 
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
+	DESTINATION include)
+install(FILES ${CMAKE_BINARY_DIR}/t4k_common-config.h
 	DESTINATION include)
 
 include(UseDoxygen OPTIONAL)

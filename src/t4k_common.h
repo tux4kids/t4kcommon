@@ -1887,7 +1887,7 @@ int alphasort(const struct dirent** d1, const struct dirent** d2);
 #  endif //!T4K_COMMON_HAVE_ALPHASORT
 
 #  ifndef T4K_COMMON_HAVE_SCANDIR
-int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *));
+int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(const struct dirent *), int (*dcomp)(const struct dirent**, const struct dirent**));
 #  endif //!T4K_COMMON_HAVE_SCANDIR
 #endif
 

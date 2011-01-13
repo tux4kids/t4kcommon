@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "t4k_common.h"
 #include "t4k_globals.h"
-
 int debug_status;
 
 
@@ -41,7 +40,7 @@ SDL_Color red, yellow, white, black;
 */
 void InitT4KCommon(int debug_flags)
 {
-  printf("Initializing " T4K_COMMON_PACKAGE_STRING "\n");
+//  printf("Initializing " T4K_COMMON_PACKAGE_STRING "\n");
 
   debug_status = debug_flags;
 

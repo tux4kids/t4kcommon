@@ -21,6 +21,8 @@ pkgconfig_DATA = t4k_common.pc
 ## For Doxygen support:
 include aminclude.am
 
-# If using AX_PREFIX_CONFIG_H, distclean leaves some files so get rid of them (HACK)
-distclean-hdr:
-	-rm -f config.h stamp-h1 _configs.sed t4k_common-config.h	
+# If using AX_PREFIX_CONFIG_H, distclean leaves some files so get rid of them 
+# with custom rule:
+distclean-local: distclean-ax-prefix-config-h
+distclean-ax-prefix-config-h:
+	        rm -f _configs.sed t4k_common-config.h

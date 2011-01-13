@@ -27,7 +27,8 @@ libt4k_common_la_SOURCES = \
 	t4k_throttle.c	\
 	t4k_replacements.c
 
-include_HEADERS = t4k_common.h
+include_HEADERS = t4k_common.h \
+		  ../t4k_common-config.h
 
 EXTRA_DIST = gettext.h \
              CMakeLists.txt
