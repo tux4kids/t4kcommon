@@ -6,9 +6,12 @@ SUBDIRS = data \
 	  src
 
 EXTRA_DIST = CMakeLists.txt \
+	     config.h.cmake \
              aminclude.am \
+             cmake-modules/ConfigureChecks.cmake \
              cmake-modules/ConfigureChecksIntl.cmake \
              cmake-modules/FindRSVG.cmake \
+             cmake-modules/FindIconv.cmake \
              cmake-modules/FindSDL_Pango.cmake \
              cmake-modules/T4K_Sugar.cmake \
              cmake-modules/UseDoxygen.cmake
