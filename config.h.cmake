@@ -1,0 +1,21 @@
+#cmakedefine T4K_COMMON_HAVE_ERROR_H 1
+#cmakedefine T4K_COMMON_HAVE_SCANDIR 1
+#cmakedefine T4K_COMMON_HAVE_ALPHASORT 1
+
+#cmakedefine T4K_COMMON_HAVE_GETTEXT 1
+#cmakedefine T4K_COMMON_ENABLE_NLS 1
+#cmakedefine T4K_COMMON_HAVE_SDL_PANGO 1
+#cmakedefine T4K_COMMON_HAVE_RSVG 1
+#cmakedefine T4K_COMMON_HAVE_LIBT4K_COMMON 1
+#cmakedefine T4K_COMMON_HAVE_LIBSDL_NET 1
+#cmakedefine T4K_COMMON_PACKAGE_STRING t4k_common
+
+/* Stuff needed for linewrap */
+#cmakedefine T4K_COMMON_LINEBREAK 1
+#cmakedefine T4K_COMMON_HAVE_STDINT_H 1
+#cmakedefine T4K_COMMON_ICONV_SECOND_ARGUMENT_IS_CONST 1
+#ifdef T4K_COMMON_ICONV_SECOND_ARGUMENT_IS_CONST
+#define ICONV_CONST const
+#else
+#define ICONV_CONST
+#endif
