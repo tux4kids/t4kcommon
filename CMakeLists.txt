@@ -25,7 +25,7 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_Pango)
 if (SDLPANGO_FOUND)
-  set(HAVE_LIBSDL_PANGO 1)
+	set(T4K_COMMON_HAVE_LIBSDL_PANGO 1)
 else (SDLPANGO_FOUND)
   find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
 endif (SDLPANGO_FOUND)
@@ -33,8 +33,8 @@ endif (SDLPANGO_FOUND)
 # needed for SVG loading and caching
 find_package(RSVG)
 find_package(PNG)
-set(HAVE_LIBPNG PNG_FOUND)
-set(HAVE_LIBRSVG RSVG_FOUND)
+set(T4K_COMMON_HAVE_LIBPNG PNG_FOUND)
+set(T4K_COMMON_HAVE_LIBRSVG RSVG_FOUND)
 
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
