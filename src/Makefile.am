@@ -15,9 +15,10 @@ libt4k_common_la_LIBADD = linebreak/liblinebreak.la
 lib_LTLIBRARIES = libt4k_common.la
 
 libt4k_common_la_SOURCES = \
-	t4k_audio.c	\
 	t4k_compiler.h	\
 	t4k_globals.h	\
+	t4k_audio.c	\
+	t4k_convert_utf.c	\
         t4k_linewrap.c	\
 	t4k_loaders.c	\
 	t4k_main.c	\

@@ -64,6 +64,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <wchar.h>
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_mixer.h"
@@ -151,6 +152,7 @@ static const int debug_menu          = 1 << 1; //!< Debug menu code
 static const int debug_menu_parser   = 1 << 2; //!< Debug XML parsing for menus
 static const int debug_sdl           = 1 << 3; //!< Debug image txf and other support code 
 static const int debug_linewrap      = 1 << 4; //!< Debug for linewrap functions
+static const int debug_i18n	     = 1 << 5; //!< Debug for gettext and UTF conversions
 static const int debug_all           = ~0;     //!< Enable all debugging output (messy!)
 
 extern int debug_status;
@@ -1891,3 +1893,58 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(cons
 #  endif //!T4K_COMMON_HAVE_SCANDIR
 #endif
 
+
+//=============================================================================
+//                      Public Definitions for t4k_convert_utf.c
+//=============================================================================
+
+
+//=============================================================================
+//
+//  T4K_ConvertFromUTF8
+//
+//! /brief
+//!     A simple wrapper for using GNU iconv() to convert UTF-8 text to wchar_t
+//!     ("Unicode") text.
+//! /param
+//!     wide_word     - ptr to wchar_t buffer to contain converted text.
+//! /param
+//!     UTF8_word     - ptr to UTF-8 string to be converted.
+//! /param
+//!     max_length    - generally the length of the output buffer to avoid
+//!                     overflow.  It also must be no greater than the buffer
+//!                     length used internally in this function (i.e. 
+//!                     UTF_BUF_LENGTH, currently 1024).
+//!
+//! /return
+//!     Returns the length of the wchar_t string generated, 0 on errors.
+//!
+int T4K_ConvertFromUTF8(wchar_t* wide_word, 
+		      const char* UTF8_word, 
+		      int max_length
+		      );
+
+//=============================================================================
+//
+//  T4K_ConvertToUTF8
+//
+//! /brief
+//!     A simple wrapper for using GNU iconv() to convert wchar_t
+//!     ("Unicode") text to UTF-8 text. 
+//! /param
+//!     wide_word     - ptr to wchar_t string to be converted.
+//! /param
+//!     UTF8_word     - ptr to buffer to hold UTF-8 string after conversion.
+//! /param
+//!     max_length    - generally the length of the output buffer to avoid
+//!                     overflow.  It also must be no greater than the buffer
+//!                     length used internally in this function (i.e. 
+//!                     UTF_BUF_LENGTH, currently 1024).
+//!
+//! /return
+//!     Returns the length of the UTF-8 string generated, 0 on errors.
+//!
+int T4K_ConvertToUTF8(const wchar_t* wide_word, 
+		      char* UTF8_word, 
+		      int max_length
+		      );
