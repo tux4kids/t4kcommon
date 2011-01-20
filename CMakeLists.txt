@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 set(PACKAGE_NAME Tux4Kids_common)
-set(PACKAGE_VERSION 1.0.0)
+set(PACKAGE_VERSION 0.0.4)
 set(T4K_COMMON_PACKAGE_STRING "${PACKAGE_NAME}-${PACKAGE_VERSION}" )
 set(LIB_NAME t4k_common)
 project(${PACKAGE_NAME})
