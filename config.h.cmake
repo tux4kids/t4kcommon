@@ -6,7 +6,7 @@
 #cmakedefine T4K_COMMON_ENABLE_NLS 1
 #cmakedefine T4K_COMMON_HAVE_LIBSDL_PANGO 1
 #cmakedefine T4K_COMMON_HAVE_RSVG 1
-#cmakedefine T4K_COMMON_HAVE_LIBT4K_COMMON 1
+#cmakedefine T4K_COMMON_HAVE_LIBPNG 1
 #cmakedefine T4K_COMMON_HAVE_LIBSDL_NET 1
 #cmakedefine T4K_COMMON_PACKAGE_STRING t4k_common
 

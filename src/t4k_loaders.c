@@ -60,6 +60,7 @@ SDL_Surface*    set_format(SDL_Surface* img, int mode);
 sprite*         load_sprite(const char* name, int mode, int w, int h, bool proportional);
 
 
+static void savePNG(SDL_Surface* surf, char* fn);
 
 
 #if T4K_COMMON_HAVE_RSVG
@@ -907,9 +908,9 @@ SDL_Surface *IMG_Load_Cache(const char* fn)
 }
 
 
-#if T4K_COMMON_HAVE_LIBPNG
+#ifdef T4K_COMMON_HAVE_LIBPNG
 //save a surface to file as a PNG.
-static void savePNG(SDL_Surface* surf,char* fn)
+void savePNG(SDL_Surface* surf,char* fn)
 {
   FILE* fi;
   DIR* dir_ptr;
@@ -1053,7 +1054,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
         text_ptr[count].key = (png_charp) "Software";
         text_ptr[count].text =
-          (png_charp) T4K_COMMON_PACKAGE_STRING /*VER_VERSION " (" VER_DATE ")"*/;
+          (png_charp) "T4K_COMMON_PACKAGE_STRING" /*VER_VERSION " (" VER_DATE ")"*/;
         text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
         count++;
 
@@ -1103,7 +1104,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
   return 0;
 }
 #else
-static void savePNG(SDL_Surface* surf, char* fn)
+void savePNG(SDL_Surface* surf, char* fn)
 {
   DEBUGMSG(debug_loaders, "PNG caching unavailable in this version\n");
 }

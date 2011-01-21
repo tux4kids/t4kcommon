@@ -4,10 +4,10 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(PACKAGE_NAME Tux4Kids_common)
+set(PACKAGE_NAME "Tux4Kids_common")
 set(PACKAGE_VERSION 0.1.0)
 set(T4K_COMMON_PACKAGE_STRING "${PACKAGE_NAME}-${PACKAGE_VERSION}" )
-set(LIB_NAME t4k_common)
+set(LIB_NAME "t4k_common")
 project(${PACKAGE_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
@@ -31,10 +31,12 @@ else (SDLPANGO_FOUND)
 endif (SDLPANGO_FOUND)
 
 # needed for SVG loading and caching
-find_package(RSVG)
 find_package(PNG)
+find_package(RSVG)
+set(T4K_COMMON_HAVE_RSVG RSVG_FOUND)
 set(T4K_COMMON_HAVE_LIBPNG PNG_FOUND)
-set(T4K_COMMON_HAVE_LIBRSVG RSVG_FOUND)
+find_package(SDL_net)
+set(T4K_COMMON_HAVE_LIBSDL_NET SDL_net_FOUND)
 
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
