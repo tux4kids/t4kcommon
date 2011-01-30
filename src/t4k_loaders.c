@@ -934,7 +934,7 @@ void savePNG(SDL_Surface* surf,char* fn)
       {
         int status;
 
-#ifndef BUILD_MINGW32
+#ifndef T4K_COMMON_BUILD_MINGW32
         status = mkdir(fn, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #else
         status = mkdir(fn);

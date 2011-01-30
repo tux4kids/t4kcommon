@@ -4,16 +4,16 @@
 # t4k_common
 PKG             := t4k_common
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 0.0.3
-$(PKG)_CHECKSUM := c07e64c9386c1a44a63e3d2db5eb1ee5d4b3632f
+$(PKG)_VERSION  := 0.1.0
+$(PKG)_CHECKSUM := f94293301f2a33d2e9aa2a6805ac23922970b91a
 $(PKG)_SUBDIR   := t4k_common-$($(PKG)_VERSION)
 $(PKG)_FILE     := t4k_common-$($(PKG)_VERSION).tar.gz
 $(PKG)_WEBSITE  := http://tux4kids.alioth.debian.org/
 
 # FIXME find out url that can be specified just with package name and version
-$(PKG)_URL      := https://alioth.debian.org/frs/download.php/3439/t4k_common-0.0.3.tar.gz 
+$(PKG)_URL      := https://alioth.debian.org/frs/download.php/3426/t4k_common-0.0.1.tar.gz 
  
-$(PKG)_DEPS     := gcc sdl sdl_mixer sdl_image sdl_net sdl_pango sdl_ttf librsvg libxml2 pthreads
+$(PKG)_DEPS     := gcc sdl sdl_mixer sdl_image sdl_net sdl_pango sdl_ttf libpng librsvg libxml2 pthreads
 
 # FIXME find out how to update package
 #define $(PKG)_UPDATE
