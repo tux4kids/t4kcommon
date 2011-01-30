@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define T4K_PATH_MAX 1024
 #define FONT_NAME_LENGTH 64
 #define ERASE_MARGIN 5
-
+#define T4K_TOOLTIP_FONTSIZE 18
 
 extern int debug_status;
 

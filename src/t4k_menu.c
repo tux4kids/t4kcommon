@@ -119,7 +119,9 @@ static MenuNode* menus[N_OF_MENUS];
 /* stop button, left and right arrow positions do not
    depend on currently displayed menu */
 SDL_Rect menu_rect, stop_rect, prev_rect, next_rect, menu_title_rect;
-SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray, *desc_prerendered = NULL, *desc_panel = NULL;
+SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gray;
+/* Surfaces for "tooltips" description panel: */
+SDL_Surface *desc_prerendered = NULL, *desc_panel = NULL;
 
 
 /*
@@ -132,7 +134,6 @@ const float menu_pos[4] = {0.38, 0.23, 0.55, 0.72};
 const float stop_pos[4] = {0.94, 0.0, 0.06, 0.06};
 const float prev_pos[4] = {0.87, 0.93, 0.06, 0.06};
 const float next_pos[4] = {0.94, 0.93, 0.06, 0.06};
-//const float desc_panel_pos[4] = {0.05, 0.3, 0.2, 0.3};
 const float desc_panel_pos[4] = {0.05, 0.3, 0.3, 0.5};
 const char* stop_path = "menu/stop.svg";
 const char* prev_path = "menu/left.svg";
@@ -161,6 +162,9 @@ void            set_font_size();
 void            prerender_menu(MenuNode* menu);
 int		min(int a, int b);
 int		max(int a, int b);
+
+/* Calculated estimate of chars per line fitting into desc_panel */
+int desc_chars_per_line(uint fontsize);
 
 void set_font_size_explicitly(MenuNode* menu, int size);
 void set_menu_font_size(MenuNode* menu);
@@ -777,15 +781,17 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
             // FIXME calc desired width instead of hardcoded '23' 
             // Set and render new description text
 	    {
-              char *desc = menu->submenu[loc + menu->first_entry]->desc;
+              char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
 	      char out[256];
+	      int char_width;
 	      // Clear old rendered text:
               SDL_FreeSurface(desc_prerendered);
 	      desc_prerendered = NULL;
               if(desc == NULL)
                 desc = "";
-              T4K_LineWrapInsBreaks(desc, out, 23, 64, 64);
-              desc_prerendered = T4K_SimpleText(out, 14, &white);
+	      char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
+              T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
+              desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
 	    }
           }
           old_loc = loc;
@@ -1130,6 +1136,36 @@ int find_longest_menu_page(MenuNode* menu)
 
   return longest;
 }
+
+
+
+/* Calculate how many chars can fit on each line of "tooltips box
+ * based on width of 'x'.
+ * NOTE: based on some Googling, the width of 'x' seems to be a fair
+ * estimate of the weighted average of English character widths. 
+ * Not sure how this will work for other languages - DSB.
+ */
+int desc_chars_per_line(uint fontsize)
+{
+  char buf[256];
+  int i = 0;
+  int done = 0;
+  SDL_Surface* s;
+  for(i = 0; i < 255 && !done; i++)
+  {
+    buf[i] = 'x';
+    buf[i + 1] = '\0';
+    s = T4K_SimpleText(buf, fontsize, &white);
+    if(s && s->w > desc_panel->w)  //means string of (i++) M exceeds width
+      done = 1;
+    SDL_FreeSurface(s);
+  }
+  DEBUGMSG(debug_menu, "desc_chars_per_line(): desc_panel->w = %d\treturn value = %d\n",
+		  desc_panel->w, i);
+  return i;
+}
+
+
 
 /* find the longest text in all existing menus and binary search
    for the best font size */
