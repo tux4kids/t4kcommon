@@ -67,7 +67,7 @@ static void savePNG(SDL_Surface* surf, char* fn);
 /* structures related to svg info caching */
 typedef struct
 {
-   char fn[PATH_MAX];
+   char fn[T4K_PATH_MAX];
    int width;
    int height;
 } svginfo;
@@ -83,7 +83,7 @@ int numSVG=0;
 /* structures related to sdl surface caching */
 typedef struct
 {
-   char fn[PATH_MAX];
+   char fn[T4K_PATH_MAX];
    SDL_Surface* surf;
 } cachedSurface;
 
@@ -98,7 +98,7 @@ int numSurfaces=0;
 
 
 //directories to search in for loaded files, in addition to common data dir (just one for now)
-static char app_prefix_path[1][PATH_MAX];
+static char app_prefix_path[1][T4K_PATH_MAX];
 
 /* Remove trailing slash--STOLEN from tuxpaint */
 char *T4K_RemoveSlash(char *path)
@@ -140,20 +140,20 @@ int T4K_CheckFile(const char* file)
 
 void T4K_AddDataPrefix(const char* path)
 {
-  strncpy(app_prefix_path[0], path, PATH_MAX);
+  strncpy(app_prefix_path[0], path, T4K_PATH_MAX);
 }
 
 /* Look for a file as an absolute path, then in
    potential install directories */
 const char* find_file(const char* base_name)
 {
-  static char tmp_path[PATH_MAX];
+  static char tmp_path[T4K_PATH_MAX];
   if (T4K_CheckFile(base_name))
     return base_name;
-  snprintf(tmp_path, PATH_MAX, "%s/%s", app_prefix_path[0], base_name);
+  snprintf(tmp_path, T4K_PATH_MAX, "%s/%s", app_prefix_path[0], base_name);
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
-  snprintf(tmp_path, PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name);
+  snprintf(tmp_path, T4K_PATH_MAX, "%s/%s", COMMON_DATA_PREFIX, base_name);
   if (T4K_CheckFile(tmp_path))
     return tmp_path;
   return "";
@@ -368,7 +368,7 @@ err_exit:
 /* STOLEN from Tuxmath */
 void T4K_GetUserDataDir(char *opt_path, char* suffix)
 {
-  static char udd[PATH_MAX];
+  static char udd[T4K_PATH_MAX];
   static bool have_env = false;
 
   if (!have_env)
@@ -388,18 +388,18 @@ void T4K_GetUserDataDir(char *opt_path, char* suffix)
       }
     }
 #else
-    snprintf(udd, PATH_MAX, "%s", getenv("HOME"));
+    snprintf(udd, T4K_PATH_MAX, "%s", getenv("HOME"));
 #endif
     T4K_RemoveSlash(udd);
     have_env = true;
   }
 
-  strncpy(opt_path, udd, PATH_MAX);
+  strncpy(opt_path, udd, T4K_PATH_MAX);
 
   if (suffix && *suffix)
   {
-    strncat(opt_path, "/", PATH_MAX);
-    strncat(opt_path, suffix, PATH_MAX);
+    strncat(opt_path, "/", T4K_PATH_MAX);
+    strncat(opt_path, suffix, T4K_PATH_MAX);
   }
 }
 
@@ -435,7 +435,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 {
   SDL_Surface* loaded_pic = NULL;
   SDL_Surface* final_pic = NULL;
-  char fn[PATH_MAX];
+  char fn[T4K_PATH_MAX];
   int fn_len;
   int width = -1, height = -1;
   bool is_svg = true;
@@ -449,7 +449,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   /* run loader depending on file extension */
 
   /* add path prefix */
-  snprintf(fn, PATH_MAX, IMAGE_DIR "/%s", file_name);
+  snprintf(fn, T4K_PATH_MAX, IMAGE_DIR "/%s", file_name);
   fn_len = strlen(fn);
 
   if(strcmp(fn + fn_len - 4, ".svg"))
@@ -660,12 +660,12 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 {
   sprite *new_sprite = NULL;
   int i;
-  char fn[PATH_MAX]; //the qualified filename relative to the data prefix
+  char fn[T4K_PATH_MAX]; //the qualified filename relative to the data prefix
 
 #ifdef T4K_COMMON_HAVE_RSVG
   char* imgfn = NULL; //absolute filename of an image
-  char cachepath[PATH_MAX]; //path to the cache directory
-  char pngfn[PATH_MAX]; //absolute filename to a cached PNG
+  char cachepath[T4K_PATH_MAX]; //path to the cache directory
+  char pngfn[T4K_PATH_MAX]; //absolute filename to a cached PNG
   int width, height;
   bool shouldcache = false;
 
@@ -1115,7 +1115,7 @@ void savePNG(SDL_Surface* surf, char* fn)
 Mix_Chunk* T4K_LoadSound( char *datafile )
 {
   Mix_Chunk* tempChunk = NULL;
-  char fn[PATH_MAX];
+  char fn[T4K_PATH_MAX];
 
   sprintf(fn, SOUNDS_DIR "/%s", datafile);
   tempChunk = Mix_LoadWAV(fn);
@@ -1129,7 +1129,7 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
 /* LoadMusic : Load music from a datafile */
 Mix_Music* T4K_LoadMusic(char *datafile )
 {
-  char tempfn[PATH_MAX];
+  char tempfn[T4K_PATH_MAX];
   const char* fn = NULL;
   Mix_Music* tempMusic = NULL;
 

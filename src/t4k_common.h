@@ -1814,10 +1814,42 @@ void T4K_AudioToggle( void );
 int T4K_LineWrap( const char* input,
                   char        str_list[MAX_LINES][MAX_LINEWIDTH],
                   int         width,
-				  int         max_lines,
-				  int         max_width
+		  int         max_lines,
+		  int         max_width
                 );
 
+//=============================================================================
+//
+//  T4K_LineWrapInsBreaks
+//
+//! \brief
+//!     This function takes an input string and inserts newline characters at
+//!     places determined by the linebreak library, returning a single string.
+//!    
+//! \param
+//!     input         - A null-terminated input string.
+//! \para
+//!     output        - Pre-allocated location to contain string with breaks
+//!                     inserted. 
+//! \param
+//!     width         - The desired number of characters per line. Note that
+//!                     words with more characters than "width" are not
+//!                     hypenated, so it's possible to get a line that is
+//!                     longer than "width".
+//! \param
+//!     max_lines     - Memory-safety parameters for str_list.
+//! \param
+//!     max_width     - Memory-safety parameters for str_list.
+//!
+//! \return
+//!     Linewrap returns the number of lines used to format the strings.
+//!
+int T4K_LineWrapInsBreaks( const char* input,
+                           char*       output,
+                           int         width,
+			   int         max_lines,
+	       		   int         max_width
+                         );
 //=============================================================================
 //
 //  T4K_LineWrapList
@@ -1847,9 +1879,9 @@ int T4K_LineWrap( const char* input,
 //!
 void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
                        char       str_list[MAX_LINES][MAX_LINEWIDTH],
-					   int        width,
-					   int        max_lines,
-					   int        max_width
+		       int        width,
+		       int        max_lines,
+		       int        max_width
                      );
 
 

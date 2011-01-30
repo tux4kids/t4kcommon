@@ -356,7 +356,7 @@ void T4K_CreateOneLevelMenu(int index, int items, char** item_names, char** spri
 void T4K_LoadMenu(int index, const char* file_name)
 {
   const char* fn = NULL;
-  char temp[PATH_MAX];
+  char temp[T4K_PATH_MAX];
   FILE* menu_file = NULL;
 
   if(menus[index])
@@ -365,7 +365,7 @@ void T4K_LoadMenu(int index, const char* file_name)
     menus[index] = NULL;
   }
   
-  snprintf(temp, PATH_MAX, MENU_DIR "/%s", file_name);
+  snprintf(temp, T4K_PATH_MAX, MENU_DIR "/%s", file_name);
   fn = find_file(temp);
   DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
 #if 0
@@ -774,11 +774,19 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               menu->submenu[menu->first_entry + loc]->icon->cur = 0;
             }
             SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
-            
+            // FIXME calc desired width instead of hardcoded '23' 
             // Set and render new description text
-            SDL_Color white = {0xff, 0xff, 0xff, 0xff};
-            SDL_FreeSurface(desc_prerendered);
-            desc_prerendered = T4K_SimpleText(menu->submenu[loc + menu->first_entry]->desc, 14, &white);
+	    {
+              char *desc = menu->submenu[loc + menu->first_entry]->desc;
+	      char out[256];
+	      // Clear old rendered text:
+              SDL_FreeSurface(desc_prerendered);
+	      desc_prerendered = NULL;
+              if(desc == NULL)
+                desc = "";
+              T4K_LineWrapInsBreaks(desc, out, 23, 64, 64);
+              desc_prerendered = T4K_SimpleText(out, 14, &white);
+	    }
           }
           old_loc = loc;
         }

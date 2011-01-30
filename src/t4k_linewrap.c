@@ -1,20 +1,20 @@
-/* linewrap.c
+/* t4k_linewrap.c
   
    convenience API for libgettextpo's linebreak routine
 
-   Copyright 2009, 2010.
-   Author: Tim Holy
+   Copyright 2009, 2010, 2011.
+   Author: Tim Holy, David Bruce
    Project email: <tuxmath-devel@lists.sourceforge.net>
    Project website: http://tux4kids.alioth.debian.org
 
-linewrap.c is part of "Tux, of Math Command", a.k.a. "tuxmath".
+t4k_linewrap.c is part of Tux4kids' t4k_common library.
 
-Tuxmath is free software: you can redistribute it and/or modify
+t4k_common is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 3 of the License, or
 (at your option) any later version.
 
-Tuxmath is distributed in the hope that it will be useful,
+t4k_common is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
@@ -88,6 +88,60 @@ int T4K_LineWrap(const char *input, char str_list[MAX_LINES][MAX_LINEWIDTH],
     return max_lines;
 }
 
+
+
+int T4K_LineWrapInsBreaks(const char* input, char* output,
+             int width, int max_lines, int max_width)
+{
+  int length = strlen (input);
+//  char *breaks = malloc (length);
+  char breaks[MAX_LINES * MAX_LINEWIDTH];
+
+  int i = 0;
+  int out_index = 0;
+  int num_breaks = 0;
+ 
+
+  if (length > MAX_LINES * MAX_LINEWIDTH)
+  {
+    fprintf(stderr, "warning: in linewrap(), length of input %d exceeds maximum %d, truncating\n",
+            length, MAX_LINES * MAX_LINEWIDTH);
+    length = MAX_LINES * MAX_LINEWIDTH;
+  }
+
+  // Generate the positions with line breaks
+  //mbs_width_linebreaks (input, length, width, 0, 0, NULL, locale_charset (), breaks);
+  mbs_width_linebreaks (input, length, width, 0, 0, NULL, "UTF-8", breaks);
+
+  
+  //Skip any leading breaks:
+  while (breaks[i] == UC_BREAK_POSSIBLE || breaks[i] == UC_BREAK_MANDATORY)
+    i++;
+
+  // Copy chars from input string to output string. "breaks" holds "true"
+  // values at the first character of the next line, not at the space
+  // between words.
+  for (; i < length; i++, out_index++)
+  {
+    if (breaks[i] == UC_BREAK_POSSIBLE
+     || breaks[i] == UC_BREAK_MANDATORY)
+    {
+      output[out_index] = '\n';  // insert newline character
+      num_breaks++;
+      out_index++;
+    }
+    output[out_index] = input[i];
+  }
+  output[out_index] = '\0';
+
+//  free(breaks);
+
+  // Return the number of lines
+  return num_breaks;
+}
+
+
+
 void T4K_LineWrapList(const char input[MAX_LINES][MAX_LINEWIDTH],
                    char str_list[MAX_LINES][MAX_LINEWIDTH],
                    int width, int max_lines, int max_width)
@@ -110,9 +164,9 @@ void T4K_LineWrapList(const char input[MAX_LINES][MAX_LINEWIDTH],
       }
     
     /* Handle real strings */
-    DEBUGMSG(debug_linewrap,"Not blank. Translated: %s\n",gettext(input[inputIndex]));
-    n_lines = T4K_LineWrap(gettext(input[inputIndex]), wrapped_lines0, width, max_lines, max_width);
-    DEBUGMSG(debug_linewrap,"Wrapped to %d lines.\n", n_lines);
+    DEBUGMSG(debug_linewrap, "Not blank. Translated: %s\n", _(input[inputIndex]));
+    n_lines = T4K_LineWrap(_(input[inputIndex]), wrapped_lines0, width, max_lines, max_width);
+    DEBUGMSG(debug_linewrap, "Wrapped to %d lines.\n", n_lines);
 
     for (intermedIndex = 0;
          intermedIndex < n_lines && outputIndex < max_lines-1;
