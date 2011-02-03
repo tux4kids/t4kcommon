@@ -1016,6 +1016,7 @@ void prerender_menu(MenuNode* menu)
     if(menu->submenu[i]->icon_name)
       found_icons = true;
     temp_surf = NULL;
+    
     temp_surf = T4K_SimpleText(_(menu->submenu[i]->title), menu->font_size, &black);
     if(temp_surf)
     {
@@ -1139,30 +1140,16 @@ int find_longest_menu_page(MenuNode* menu)
 
 
 
-/* Calculate how many chars can fit on each line of "tooltips box
- * based on width of 'x'.
- * NOTE: based on some Googling, the width of 'x' seems to be a fair
- * estimate of the weighted average of English character widths. 
- * Not sure how this will work for other languages - DSB.
+/* Calculate how many chars can fit on each line of "tooltips" box.
+ * NOTE - the "guts" of this function have been moved into
+ * T4K_CharsForWidth() for more general use.
  */
 int desc_chars_per_line(uint fontsize)
 {
-  char buf[256];
-  int i = 0;
-  int done = 0;
-  SDL_Surface* s;
-  for(i = 0; i < 255 && !done; i++)
-  {
-    buf[i] = 'x';
-    buf[i + 1] = '\0';
-    s = T4K_SimpleText(buf, fontsize, &white);
-    if(s && s->w > desc_panel->w)  //means string of (i++) M exceeds width
-      done = 1;
-    SDL_FreeSurface(s);
-  }
-  DEBUGMSG(debug_menu, "desc_chars_per_line(): desc_panel->w = %d\treturn value = %d\n",
-		  desc_panel->w, i);
-  return i;
+  if(desc_panel == NULL)
+    return 0;
+  else
+    return T4K_CharsForWidth(fontsize, desc_panel->w);
 }
 
 

@@ -1500,6 +1500,29 @@ SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
   return surf;
 }
 
+/* Here we calculate an estimate of the string length that will
+ * fit within a box 'pixel_width' pixels wide.  The letter 'x'
+ * was chosen for this calculation based on some googling that
+ * suggested it gave a reasonable estimate - DSB.
+ */
+int T4K_CharsForWidth(int fontsize, int pixel_width)
+{
+  char buf[256];
+  int i = 0;
+  int done = 0;
+  SDL_Surface* s;
+  for(i = 0; i < 255 && !done; i++)
+  {
+    buf[i] = 'x';
+    buf[i + 1] = '\0';
+    s = T4K_SimpleText(buf, fontsize, &white);
+    if(s && s->w > pixel_width)  //means string of (i++) 'x' exceeds width
+      done = 1;
+    SDL_FreeSurface(s);
+  }
+  return  i;
+}
+
 int size_text(const char* text, int font_size, int* width, int* height)
 {
 #if T4K_COMMON_HAVE_LIBSDL_PANGO
