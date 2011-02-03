@@ -706,7 +706,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
               case SDLK_DOWN:
 	      case SDLK_j:
-              {
+	      {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
                 if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
@@ -720,6 +720,42 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 }
                 break;
               }
+
+              case SDLK_TAB:
+	      {
+                /* See if [Shift] pressed to decide if we go up or down: */
+		if(event.key.keysym.mod & KMOD_SHIFT) //go up
+                {
+                  if(snd_hover)
+                    T4K_PlaySound(snd_hover);
+                  if (loc > 0)
+                    loc--;
+                  else if (menu->submenu_size <= menu->entries_per_screen) 
+                    loc = menu->submenu_size - 1;  // wrap around if only 1 T4K_GetScreen()
+                  else if (menu->first_entry > 0)
+                  {
+                    loc = menu->entries_per_screen - 1;
+                    action = PAGEUP;
+                  }
+                  break;
+                }
+                else  //[Shift] not pressed so go down:
+	        {
+                  if(snd_hover)
+                    T4K_PlaySound(snd_hover);
+                  if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
+                    loc++;
+                  else if (menu->submenu_size <= menu->entries_per_screen) 
+                    loc = 0;  // wrap around if only 1 T4K_GetScreen()
+                  else if (menu->first_entry + menu->entries_per_screen < menu->submenu_size)
+                  {
+                    loc = 0;
+                    action = PAGEDOWN;
+                  }
+                  break;
+                }
+	      }
+
 
 //              /* Toggle T4K_GetScreen() mode: */
 //              case SDLK_F10:
