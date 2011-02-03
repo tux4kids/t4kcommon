@@ -100,7 +100,17 @@ int T4K_LineWrapInsBreaks(const char* input, char* output,
   int i = 0;
   int out_index = 0;
   int num_breaks = 0;
- 
+
+  if (output == NULL)
+  {
+    return 0;
+  }
+  if (input == NULL)
+  {
+    output[0] = '\0';
+    return 0;
+  }
+  
 
   if (length > MAX_LINES * MAX_LINEWIDTH)
   {
