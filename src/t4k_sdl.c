@@ -1338,7 +1338,6 @@ void T4K_Cleanup_SDL_Text(void)
 /* background.  The appearance can be tuned by adjusting the number of */
 /* background copies and the offset where the foreground text is       */
 /* finally written (see below).                                        */
-//SDL_Surface* T4K_BlackOutline(const char *t, TTF_Font *font, SDL_Color *c)
 SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
 {
   SDL_Surface* out = NULL;
@@ -1400,7 +1399,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
                              32,
                              rmask, gmask, bmask, amask);
   /* Use color key for eventual transparency: */
-  color_key = SDL_MapRGB(bg->format, 01, 01, 01);
+  color_key = SDL_MapRGB(bg->format, 30, 30, 30);
   SDL_FillRect(bg, NULL, color_key);
 
   /* Now draw black outline/shadow 2 pixels on each side: */
@@ -1409,8 +1408,8 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
 
   /* NOTE: can make the "shadow" more or less pronounced by */
   /* changing the parameters of these loops.                */
-  for (dstrect.x = 1; dstrect.x < 4; dstrect.x++)
-    for (dstrect.y = 1; dstrect.y < 3; dstrect.y++)
+  for (dstrect.x = 1; dstrect.x < 5; dstrect.x++)
+    for (dstrect.y = 1; dstrect.y < 5; dstrect.y++)
       SDL_BlitSurface(black_letters , NULL, bg, &dstrect );
 
   SDL_FreeSurface(black_letters);
