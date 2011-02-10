@@ -1,3 +1,8 @@
+# Process with configure script to generate t4k_common.pc file for pkg-config
+# NOTE: we rely heavily on substituted output variables from Autoconf
+# or Cmake to generate a t4k_common.pc that reflects conditional build
+# with optional libraries.
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
@@ -7,13 +12,12 @@ Name: @PACKAGE_NAME@
 Description: Tux4Kids common routines
 Version: @VERSION@
 
-# AFAICT we can only list libs with .pc files in "Requires:"
-Requires: sdl >= 1.2.0 SDL_image SDL_Pango librsvg-2.0 libxml-2.0
+# List needed libs that have *.pc files in "Requires:"
+Requires: @T4K_COMMON_DEP_PKGS@ 
 # List libs "by hand" that don't have .pc files:
-Libs: -l@PACKAGE_TARNAME@ -L${libdir} -lSDL_mixer -lSDL_ttf -lSDL_net
+Libs: -l@PACKAGE_TARNAME@ -L${libdir} @T4K_COMMON_DEP_LIBS@
 Cflags: -I${includedir}
 
-# Because SDL_mixer and SDL_ttf do not have .pc files on some platforms,
-# we list their static dependencies here:
-
-Libs.private: -mwindows -L/opt/mingw-cross-env/usr/i686-pc-mingw32/lib -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype
+# List secondary dependencies of libs that don't have *.pc files
+# (needed for static linking) 
+Libs.private: @T4K_COMMON_DEP_LIBS_PRIVATE@
