@@ -13,11 +13,11 @@ Description: Tux4Kids common routines
 Version: @VERSION@
 
 # List needed libs that have *.pc files in "Requires:"
-Requires: @T4K_COMMON_DEP_PKGS@ 
+Requires: @DEP_PKGS@ 
 # List libs "by hand" that don't have .pc files:
-Libs: -l@PACKAGE_TARNAME@ -L${libdir} @T4K_COMMON_DEP_LIBS@
+Libs: -l@PACKAGE_TARNAME@ -L${libdir} @DEP_LIBS@
 Cflags: -I${includedir}
 
 # List secondary dependencies of libs that don't have *.pc files
 # (needed for static linking) 
-Libs.private: @T4K_COMMON_DEP_LIBS_PRIVATE@
+Libs.private: @DEP_LIBS_PRIVATE@

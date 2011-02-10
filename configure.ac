@@ -58,9 +58,9 @@ dnl NOTE - we ought to trim down the Libs.private list to secondary dependencies
 dnl that always occur even if all optional libs are deselected, and add the
 dnl others only as needed - DSB
 
-T4K_COMMON_DEP_PKGS=""
-T4K_COMMON_DEP_LIBS=""
-T4K_COMMON_DEP_LIBS_PRIVATE="-mwindows -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype"
+DEP_PKGS=""
+DEP_LIBS=""
+DEP_LIBS_PRIVATE="-mwindows -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype"
 
 
 dnl Check for SDL
@@ -73,7 +73,7 @@ PKG_CHECK_MODULES([SDL],
 
 CFLAGS="$CFLAGS $SDL_CFLAGS" 
 LIBS="$LIBS $SDL_LIBS"
-T4K_COMMON_DEP_PKGS="$T4K_COMMON_DEP_PKGS sdl >= 1.2.0"
+DEP_PKGS="$DEP_PKGS sdl >= 1.2.0"
 
 
 
@@ -91,7 +91,7 @@ PKG_CHECK_MODULES([SDL_IMAGE],
 AC_DEFINE([HAVE_LIBSDL_IMAGE],[1],[Define to 1 if you have the 'SDL_image' library])
 CFLAGS="$CFLAGS $SDL_IMAGE"
 LIBS="$LIBS $SDL_IMAGE_LIBS"
-T4K_COMMON_DEP_PKGS="$T4K_COMMON_DEP_PKGS SDL_image"
+DEP_PKGS="$DEP_PKGS SDL_image"
 
 dnl Check for SDL_mixer: --------------------------------------------------------
 
@@ -107,7 +107,7 @@ PKG_CHECK_MODULES([SDL_MIXER],
 AC_DEFINE([HAVE_LIBSDL_MIXER],[1],[Define to 1 if you have the 'SDL_mixer' library])
 CFLAGS="$CFLAGS $SDL_MIXER_CFLAGS"
 LIBS="$LIBS $SDL_MIXER_LIBS"
-T4K_COMMON_DEP_LIBS="$T4K_COMMON_DEP_LIBS -lSDL_mixer"
+DEP_LIBS="$DEP_LIBS -lSDL_mixer"
 
 
 dnl Check for SDL_Pango: --------------------------------------------------------
@@ -137,7 +137,7 @@ PKG_CHECK_MODULES([SDL_PANGO],
 AC_DEFINE([HAVE_LIBSDL_PANGO],[1],[Define to 1 if you have the `SDL_Pango` library])
 CFLAGS="$CFLAGS $SDL_PANGO_CFLAGS"
 LIBS="$LIBS $SDL_PANGO_LIBS"
-T4K_COMMON_DEP_PKGS="$T4K_COMMON_DEP_PKGS SDL_Pango"
+DEP_PKGS="$DEP_PKGS SDL_Pango"
 
 fi
 
@@ -162,7 +162,7 @@ PKG_CHECK_MODULES([SDL_ttf],
 AC_DEFINE([HAVE_LIBSDL_TTF],[1],[Define to 1 if you have the `SDL_ttf` library])
 CFLAGS="$CFLAGS $SDL_TTF_CFLAGS"
 LIBS="$LIBS $SDL_TTF_LIBS"
-T4K_COMMON_DEP_LIBS="$T4K_COMMON_DEP_LIBS -lSDL_ttf"
+DEP_LIBS="$DEP_LIBS -lSDL_ttf"
 fi
 
 
@@ -198,7 +198,7 @@ PKG_CHECK_MODULES([SDL_NET],
 AC_DEFINE([HAVE_LIBSDL_NET],[1],[Define to 1 if you have the 'SDL_net' library])
 CFLAGS="$CFLAGS $SDL_NET_CFLAGS"
 LIBS="$LIBS $SDL_NET_LIBS"
-T4K_COMMON_DEP_LIBS="$T4K_COMMON_DEP_LIBS -lSDL_net"
+DEP_LIBS="$DEP_LIBS -lSDL_net"
 fi
 
 
@@ -218,7 +218,7 @@ PKG_CHECK_MODULES([RSVG],
 
 CFLAGS="$CFLAGS $RSVG_CFLAGS"
 LIBS="$LIBS $RSVG_LIBS"
-T4K_COMMON_DEP_PKGS="$T4K_COMMON_DEP_PKGS librsvg-2.0"
+DEP_PKGS="$DEP_PKGS librsvg-2.0"
 fi
 
 if test "x$with_rsvg" = xyes; then
@@ -260,7 +260,7 @@ PKG_CHECK_MODULES([XML2],
 AC_DEFINE([HAVE_LIBXML2],[1],[Define to 1 if you have the `libxml-2.0` library])
 CFLAGS="$CFLAGS $XML2_CFLAGS"
 LIBS="$LIBS $XML2_LIBS"
-T4K_COMMON_DEP_PKGS="$T4K_COMMON_DEP_PKGS libxml-2.0"
+DEP_PKGS="$DEP_PKGS libxml-2.0"
 
 
 
@@ -277,9 +277,9 @@ dnl Output substitutions needed for t4k_common.pc.in:
 dnl (these are used by the subsequent build process of a program using t4k_common,
 dnl not by the build process of t4k_common itself).
 
-AC_SUBST(T4K_COMMON_DEP_PKGS)
-AC_SUBST(T4K_COMMON_DEP_LIBS)
-AC_SUBST(T4K_COMMON_DEP_LIBS_PRIVATE)
+AC_SUBST(DEP_PKGS)
+AC_SUBST(DEP_LIBS)
+AC_SUBST(DEP_LIBS_PRIVATE)
 
 
 # --------------------------------------------------------------------------------------
