@@ -708,7 +708,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
               case SDLK_DOWN:
 	      case SDLK_j:
-              {
+	      {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
                 if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
@@ -722,6 +722,42 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 }
                 break;
               }
+
+              case SDLK_TAB:
+	      {
+                /* See if [Shift] pressed to decide if we go up or down: */
+		if(event.key.keysym.mod & KMOD_SHIFT) //go up
+                {
+                  if(snd_hover)
+                    T4K_PlaySound(snd_hover);
+                  if (loc > 0)
+                    loc--;
+                  else if (menu->submenu_size <= menu->entries_per_screen) 
+                    loc = menu->submenu_size - 1;  // wrap around if only 1 T4K_GetScreen()
+                  else if (menu->first_entry > 0)
+                  {
+                    loc = menu->entries_per_screen - 1;
+                    action = PAGEUP;
+                  }
+                  break;
+                }
+                else  //[Shift] not pressed so go down:
+	        {
+                  if(snd_hover)
+                    T4K_PlaySound(snd_hover);
+                  if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
+                    loc++;
+                  else if (menu->submenu_size <= menu->entries_per_screen) 
+                    loc = 0;  // wrap around if only 1 T4K_GetScreen()
+                  else if (menu->first_entry + menu->entries_per_screen < menu->submenu_size)
+                  {
+                    loc = 0;
+                    action = PAGEDOWN;
+                  }
+                  break;
+                }
+	      }
+
 
 //              /* Toggle T4K_GetScreen() mode: */
 //              case SDLK_F10:
@@ -1018,6 +1054,7 @@ void prerender_menu(MenuNode* menu)
     if(menu->submenu[i]->icon_name)
       found_icons = true;
     temp_surf = NULL;
+    
     temp_surf = T4K_SimpleText(_(menu->submenu[i]->title), menu->font_size, &black);
     if(temp_surf)
     {
@@ -1141,30 +1178,16 @@ int find_longest_menu_page(MenuNode* menu)
 
 
 
-/* Calculate how many chars can fit on each line of "tooltips box
- * based on width of 'x'.
- * NOTE: based on some Googling, the width of 'x' seems to be a fair
- * estimate of the weighted average of English character widths. 
- * Not sure how this will work for other languages - DSB.
+/* Calculate how many chars can fit on each line of "tooltips" box.
+ * NOTE - the "guts" of this function have been moved into
+ * T4K_CharsForWidth() for more general use.
  */
 int desc_chars_per_line(uint fontsize)
 {
-  char buf[256];
-  int i = 0;
-  int done = 0;
-  SDL_Surface* s;
-  for(i = 0; i < 255 && !done; i++)
-  {
-    buf[i] = 'x';
-    buf[i + 1] = '\0';
-    s = T4K_SimpleText(buf, fontsize, &white);
-    if(s && s->w > desc_panel->w)  //means string of (i++) M exceeds width
-      done = 1;
-    SDL_FreeSurface(s);
-  }
-  DEBUGMSG(debug_menu, "desc_chars_per_line(): desc_panel->w = %d\treturn value = %d\n",
-		  desc_panel->w, i);
-  return i;
+  if(desc_panel == NULL)
+    return 0;
+  else
+    return T4K_CharsForWidth(fontsize, desc_panel->w);
 }
 
 

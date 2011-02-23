@@ -1274,6 +1274,23 @@ SDL_Surface* T4K_SimpleTextWithOffset( const char* t,
                                        int*        glyph_offset
                                      );
 
+//==============================================================================
+//  T4K_CharsForWidth
+//
+//! \brief
+//!     Calculate how long a string for a given fontsize will fit within a
+//!     given pixel width.  The estimate is based on strings of 'x'.
+//! 
+//! \param
+//!     fontsize      - Font size
+//! \param 
+//!     pixel_width   - Width in pixels of the desired text box
+//! \return
+//!     strlen() of the longest string of 'x' that fits 
+//!
+int T4K_CharsForWidth( int fontsize,
+	               int pixel_width
+		     );
 
 //==============================================================================
 //                  Public Definitions in t4k_loaders.c
