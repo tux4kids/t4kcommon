@@ -463,6 +463,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
     draw_background();
     
+    T4K_PrerenderAll();	// Important when the screen is being RESIZED
+
     /* render buttons for current menu page */
     menu_item_unselected = render_buttons(menu, false);
     menu_item_selected = render_buttons(menu, true);
