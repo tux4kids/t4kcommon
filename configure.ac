@@ -54,9 +54,10 @@ dnl back to standard autoconf macro as needed:
 dnl ---------------------------------------------------------------------------
 
 dnl Create output variables to be used in t4k_common.pc.in:
-dnl NOTE - we ought to trim down the Libs.private list to secondary dependencies
-dnl that always occur even if all optional libs are deselected, and add the
-dnl others only as needed - DSB
+dnl NOTE - the libs in DEP_LIBS_PRIVATE are all needed, even if all optional
+dnl libraries are deselected. The one lib in the list that is not needed by the
+dnl DEP_LIBS is -lpthread, which is needed by TuxMath itself.  Perhaps we should
+dnl check for it with the pkg-config/autoconf macros?
 
 DEP_PKGS=""
 DEP_LIBS=""

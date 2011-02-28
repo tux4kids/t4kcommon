@@ -814,7 +814,6 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               menu->submenu[menu->first_entry + loc]->icon->cur = 0;
             }
             SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
-            // FIXME calc desired width instead of hardcoded '23' 
             // Set and render new description text
 	    {
               char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
