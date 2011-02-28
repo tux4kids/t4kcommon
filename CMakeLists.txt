@@ -64,3 +64,11 @@ add_subdirectory(src)
 add_subdirectory(data)
 
 include(CPack)
+
+# FIXME - below are "dumb" assignments to the variables
+# required for t4k_common.pc.in to generate a working t4k_common.pc
+# We should make these variables reflect what libs we actually found,
+# particularly SDL_Pango vs. SDL_ttf - DSB
+set(DEP_PKGS "sdl >= 1.2.0 SDL_image SDL_Pango librsvg-2.0 libxml-2.0") 
+set(DEP_LIBS "-lSDL_mixer -lSDL_net") 
+set(DEP_LIBS_PRIVATE "-mwindows -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype") 
