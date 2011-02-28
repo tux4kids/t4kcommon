@@ -797,7 +797,6 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
           int key = event.key.keysym.sym;
           
           if (key == SDLK_F10) {
-            printf("Old = %d, New = %d\n", old_loc, loc);
 	    T4K_PrerenderAll();	 // Important when the screen is being RESIZED
             prerender_panel();   // To adjust the description panel size with new resolution
             if (loc == -1 && old_loc == -1)
@@ -841,7 +840,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 	      char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
               T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
               desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
-	      printf("T_Wid: %d, desc-width = %d, \nOut = %s\n", char_width, desc_panel->w, out);
+              desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
 	    }
 
             if(desc_prerendered) {
