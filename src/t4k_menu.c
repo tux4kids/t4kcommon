@@ -162,6 +162,7 @@ void            set_font_size();
 void            prerender_menu(MenuNode* menu);
 int		min(int a, int b);
 int		max(int a, int b);
+void            prerender_panel();
 
 /* Calculated estimate of chars per line fitting into desc_panel */
 int desc_chars_per_line(uint fontsize);
@@ -463,8 +464,6 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
     draw_background();
     
-    T4K_PrerenderAll();	// Important when the screen is being RESIZED
-
     /* render buttons for current menu page */
     menu_item_unselected = render_buttons(menu, false);
     menu_item_selected = render_buttons(menu, true);
@@ -508,15 +507,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       SDL_FreeSurface(title_surf);
     }
     
-    /* prerender panel */
-    SDL_Rect panelclip = {T4K_GetScreen()->w * desc_panel_pos[0],
-                          T4K_GetScreen()->h * desc_panel_pos[1],
-                          T4K_GetScreen()->w * desc_panel_pos[2],
-                          T4K_GetScreen()->h * desc_panel_pos[3]};
-    desc_panel = T4K_CreateButton(panelclip.w - panelclip.x, panelclip.h - panelclip.y, 8, 0xff, 0xff, 0xff, 100);
-    SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &panelclip);
-    SDL_BlitSurface(T4K_GetScreen(), &panelclip, desc_panel, NULL);
-    
+    prerender_panel();
+      
     SDL_UpdateRect(T4K_GetScreen(), 0, 0, 0, 0);
     
     SDL_WM_GrabInput(SDL_GRAB_OFF);
@@ -791,10 +783,29 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
           }  // End of case SDL_KEYDOWN in outer switch statement
         }  // End event switch statement
 
+        /* check if catched event causes any changes to titlescreen,
+           if handle_event() returns 1, menu should be redrawn */
+        if(handle_event(&event))
+          stop = true;
+        if (T4K_HandleStdEvents(&event) )
+          stop = true;
+
         /* handle button focus */
-        if (old_loc != loc) {
+        if (old_loc != loc || event.key.keysym.sym == SDLK_F10) {
           DEBUGMSG(debug_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
           
+          int key = event.key.keysym.sym;
+          
+          if (key == SDLK_F10) {
+            printf("Old = %d, New = %d\n", old_loc, loc);
+	    T4K_PrerenderAll();	 // Important when the screen is being RESIZED
+            prerender_panel();   // To adjust the description panel size with new resolution
+            if (loc == -1 && old_loc == -1)
+              loc = 0;
+            else if (loc == -1)
+              loc = old_loc;     // To ensure a valid value for loc
+          }
+
           if(old_loc >= 0 && old_loc < items)
           {
             tmp_rect = menu->submenu[old_loc + menu->first_entry]->button_rect;
@@ -816,7 +827,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               menu->submenu[menu->first_entry + loc]->icon->cur = 0;
             }
             SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
-            // FIXME calc desired width instead of hardcoded '23' 
+
             // Set and render new description text
 	    {
               char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
@@ -830,17 +841,19 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 	      char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
               T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
               desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
+	      printf("T_Wid: %d, desc-width = %d, \nOut = %s\n", char_width, desc_panel->w, out);
 	    }
+
+            if(desc_prerendered) {
+              SDL_Rect pos = {T4K_GetScreen()->w * desc_panel_pos[0], T4K_GetScreen()->h * desc_panel_pos[1]};
+              SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &pos);
+              SDL_BlitSurface(desc_prerendered, NULL, T4K_GetScreen(), &pos);
+              SDL_Flip(T4K_GetScreen());
+            }
+
           }
           old_loc = loc;
         }
-
-        /* check if catched event causes any changes to titlescreen,
-           if handle_event() returns 1, menu should be redrawn */
-        if(handle_event(&event))
-          stop = true;
-        if (T4K_HandleStdEvents(&event) )
-          stop = true;
 
         /* handle special action that was caused by an event */
         switch(action)
@@ -979,6 +992,19 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 /*
   functins responsible for rendering menus
 */
+
+
+/* prerender the description panel */
+void prerender_panel() {
+
+    SDL_Rect panelclip = {T4K_GetScreen()->w * desc_panel_pos[0],
+                          T4K_GetScreen()->h * desc_panel_pos[1],
+                          T4K_GetScreen()->w * desc_panel_pos[2],
+                          T4K_GetScreen()->h * desc_panel_pos[3]};
+    desc_panel = T4K_CreateButton(panelclip.w - panelclip.x, panelclip.h - panelclip.y, 8, 0xff, 0xff, 0xff, 100);
+    SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &panelclip);
+    SDL_BlitSurface(T4K_GetScreen(), &panelclip, desc_panel, NULL);
+}
 
 /* return button surfaces that are currently displayed (without sprites) */
 SDL_Surface** render_buttons(MenuNode* menu, bool selected)
