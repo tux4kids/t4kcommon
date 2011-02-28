@@ -840,7 +840,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 	      char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
               T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
               desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
-              desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
+              if (desc != "")
+                desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
 	    }
 
             if(desc_prerendered) {
