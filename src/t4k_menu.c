@@ -37,13 +37,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #define MENU_DIR "menus"
 
-/* TODO do we want t4k-common to use gettext directly, or should we     */
-/* rely on the game programs to pass t4k-common the translated strings? */
-/* The latter would seem to make sense, but I don't quite see how we    */
-/* would then translate the menu entries that this file reads from the  */
-/* menu.xml files. It seems the code ought to be here, but the data and */
-/* po files would belong to tuxmath or tuxtype.  I really don't know    */
-/* how this should work.  For now I'm inactivating the gettext() define - DSB */                                         
 
 /*
   representation of a menu tree node
@@ -452,8 +445,9 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
   Uint32 frame_start = 0;       //For keeping frame rate constant
   Uint32 frame_now = 0;
   Uint32 frame_counter = 0;
-  int loc = -1;                  //The currently selected menu item
-  int old_loc = -1;
+  //int loc = -1;                  //The currently selected menu item
+  int loc = 0;                  //Start with focus on first item
+  int old_loc = 0;
   int click_flag = 1;
 
   internal_res_switch_handler(&T4K_PrerenderAll);
@@ -682,7 +676,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
               /* Go up one entry, if present: */
               case SDLK_UP:
-	      case SDLK_k:
+	      case SDLK_k:    // For grade-school Vim users
               {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
@@ -699,7 +693,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               }
 
               case SDLK_DOWN:
-	      case SDLK_j:
+	      case SDLK_j:    // For grade-school Vim users
 	      {
                 if(snd_hover)
                   T4K_PlaySound(snd_hover);
@@ -887,6 +881,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                   {
                     /* go back to the root of this menu */
                     menu = menus[index];
+		    loc = 0;
                   }
                   else
                   {
@@ -913,6 +908,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 menu->first_entry = 0;
                 menu = tmp_node;
                 menu->first_entry = 0;
+		loc = 0;
               }
               stop = true;
             }
@@ -926,17 +922,22 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               return STOP;
             }
             else
+	    {
               menu = menu->parent;
+	      loc = 0;
+	    }
             stop = true;
             break;
 
           case PAGEUP:
             menu->first_entry -= menu->entries_per_screen;
+	    loc = 0;
             stop = true;
             break;
 
           case PAGEDOWN:
             menu->first_entry += menu->entries_per_screen;
+	    loc = 0;
             stop = true;
             break;
         }
