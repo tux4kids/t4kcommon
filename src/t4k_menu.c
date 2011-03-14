@@ -586,8 +586,39 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
           case SDL_MOUSEBUTTONDOWN:
           {
-            loc = -1;  // By default, don't be in any entry
-            for (i = 0; i < items; i++)
+	    /* Handle scroll events: */
+            if(event.button.button == SDL_BUTTON_WHEELUP)
+	    {
+              if(snd_hover)
+                T4K_PlaySound(snd_hover);
+              if (loc > 0)
+                loc--;
+              else if (menu->submenu_size <= menu->entries_per_screen) 
+                loc = menu->submenu_size - 1;  // wrap around if only 1 T4K_GetScreen()
+              else if (menu->first_entry > 0)
+              {
+                loc = menu->entries_per_screen - 1;
+                action = PAGEUP;
+              }
+              break;
+            }
+
+	    else if(event.button.button == SDL_BUTTON_WHEELDOWN)
+	    {
+              if(snd_hover)
+                T4K_PlaySound(snd_hover);
+              if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
+                loc++;
+              else if (menu->submenu_size <= menu->entries_per_screen) 
+                loc = 0;  // wrap around if only 1 T4K_GetScreen()
+              else if (menu->first_entry + menu->entries_per_screen < menu->submenu_size)
+              {
+                loc = 0;
+                action = PAGEDOWN;
+              }
+              break;
+            }
+	    else for (i = 0; i < items; i++) //Handle non-scroll events within button rects
             {
               if (T4K_inRect(menu->submenu[menu->first_entry + i]->button_rect, event.motion.x, event.motion.y))
               {
@@ -600,8 +631,9 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               }
             }
 
+
             /* "Left" button */
-            if (T4K_inRect(prev_rect, event.motion.x, event.motion.y)
+	    if (T4K_inRect(prev_rect, event.motion.x, event.motion.y)
                && menu->first_entry > 0)
             {
               if(snd_click)
