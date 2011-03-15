@@ -449,6 +449,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
   int loc = 0;                  //Start with focus on first item
   int old_loc = 0;
   int click_flag = 1;
+  int using_scroll = 0;
 
   internal_res_switch_handler(&T4K_PrerenderAll);
   
@@ -531,7 +532,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
           case SDL_MOUSEMOTION:
           {
-            loc = -1;
+	    if(!using_scroll)
+              loc = -1;
             for (i = 0; i < items; i++)
             {
               if (T4K_inRect(menu->submenu[menu->first_entry + i]->button_rect, event.motion.x, event.motion.y))
@@ -589,6 +591,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 	    /* Handle scroll events: */
             if(event.button.button == SDL_BUTTON_WHEELUP)
 	    {
+	      using_scroll = 1;
               if(snd_hover)
                 T4K_PlaySound(snd_hover);
               if (loc > 0)
@@ -605,6 +608,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
 	    else if(event.button.button == SDL_BUTTON_WHEELDOWN)
 	    {
+	      using_scroll = 1;
               if(snd_hover)
                 T4K_PlaySound(snd_hover);
               if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
@@ -627,6 +631,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                   T4K_PlaySound(snd_click);
                 loc = i;
                 action = CLICK;
+	        using_scroll = 0;
                 break;   /* from for loop */
               }
             }
@@ -639,6 +644,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               if(snd_click)
                 T4K_PlaySound(snd_click);
               action = PAGEUP;
+	      using_scroll = 0;
             }
 
             /* "Right" button - go to next page: */
@@ -648,6 +654,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
               if(snd_click)
                 T4K_PlaySound(snd_click);
               action = PAGEDOWN;
+	      using_scroll = 0;
             }
 
             /* "Stop" button - go to main menu: */
@@ -657,12 +664,19 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 T4K_PlaySound(snd_click);
               action = STOP_ESC;
             }
+	    else if(loc != -1) //If focus is set from scrolling, use click to activate
+            {
+                if(snd_click)
+                  T4K_PlaySound(snd_click);
+                action = CLICK;
+            }
 
             break;
           } /* End of case SDL_MOUSEDOWN */
 
           case SDL_KEYDOWN:
           {
+	    using_scroll = 0;
             /* Proceed according to particular key pressed: */
             switch (event.key.keysym.sym)
             {
@@ -865,7 +879,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
                 desc = "";
 	      char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
               T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
-              desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
+      //        desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
               if (desc != "")
                 desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
 	    }
