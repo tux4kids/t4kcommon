@@ -437,6 +437,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
   sprite* tmp_sprite;
   int i;
   int stop = 0;
+  int first_loop = 1;
   int items;
   int old_w, old_h;
 
@@ -518,7 +519,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
       frame_start = SDL_GetTicks();         /* For keeping frame rate constant.*/
 
       action = NONE;
-      while (!stop && SDL_PollEvent(&event))
+      while (!stop && (SDL_PollEvent(&event) || first_loop))
       {
         switch (event.type)
         {
@@ -831,8 +832,10 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
           stop = true;
 
         /* handle button focus */
-        if (old_loc != loc || event.key.keysym.sym == SDLK_F10) {
+        if (old_loc != loc || first_loop || event.key.keysym.sym == SDLK_F10) {
           DEBUGMSG(debug_menu, "run_menu(): changed button focus, old=%d, new=%d\n", old_loc, loc);
+
+	  first_loop = 0;
           
           int key = event.key.keysym.sym;
           
