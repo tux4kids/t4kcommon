@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_compiler.h"
 #include "t4k_common.h"
 
-#ifdef T4K_COMMON_HAVE_LIBPNG
+#ifdef HAVE_LIBPNG
 #include <dirent.h>
 #include <sys/stat.h>
 #include <png.h>
@@ -37,7 +37,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf);
 static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of the API
 #endif
 
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
 #include<librsvg/rsvg.h>
 #include<librsvg/rsvg-cairo.h>
 #endif
@@ -47,7 +47,7 @@ static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of th
 
 /* local functions */
 
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
 SDL_Surface*    load_svg(const char* file_name, int width, int height, const char* layer_name);
 sprite*         load_svg_sprite(const char* file_name, int width, int height);
 SDL_Surface*    render_svg_from_handle(RsvgHandle* file_handle, int width, int height, const char* layer_name);
@@ -63,7 +63,7 @@ sprite*         load_sprite(const char* name, int mode, int w, int h, bool propo
 static void savePNG(SDL_Surface* surf, char* fn);
 
 
-#if T4K_COMMON_HAVE_RSVG
+#if HAVE_RSVG
 /* structures related to svg info caching */
 typedef struct
 {
@@ -158,7 +158,7 @@ const char* find_file(const char* base_name)
     return tmp_path;
   return "";
 }
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
 
 /* Load a layer of SVG file and resize it to given dimensions.
    If width or height is negative no resizing is applied.
@@ -334,7 +334,7 @@ void get_svg_dimensions(const char* file_name, int* width, int* height)
   saveSVGInfo(file_name, *width, *height); //save dimensions for quick access
 }
 
-#endif /* T4K_COMMON_HAVE_RSVG */
+#endif /* HAVE_RSVG */
 
 
 #ifdef BUILD_MINGW32
@@ -466,7 +466,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
   }
   if (is_svg)
   {
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
     DEBUGMSG(debug_loaders, "load_image(): trying to load %s as SVG.\n", fn);
     if(proportional)
     {
@@ -484,7 +484,7 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 
     if(loaded_pic == NULL)
     {
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
       DEBUGMSG(debug_loaders, "load_image(): failed to load %s as SVG.\n", fn);
 #else
       DEBUGMSG(debug_loaders, "load_image(): SVG support not available.\n");
@@ -662,7 +662,7 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
   int i;
   char fn[T4K_PATH_MAX]; //the qualified filename relative to the data prefix
 
-#ifdef T4K_COMMON_HAVE_RSVG
+#ifdef HAVE_RSVG
   char* imgfn = NULL; //absolute filename of an image
   char cachepath[T4K_PATH_MAX]; //path to the cache directory
   char pngfn[T4K_PATH_MAX]; //absolute filename to a cached PNG
@@ -834,7 +834,7 @@ void T4K_NextFrame(sprite* s)
     s->cur = (s->cur + 1) % s->num_frames;
 }
 
-#if T4K_COMMON_HAVE_RSVG
+#if HAVE_RSVG
 /* save SVG info */
 int saveSVGInfo(const char* fn,int w,int h)
 {
@@ -863,7 +863,7 @@ int SVGInfoIndex(const char* fn)
   return -1;
 }
 
-#endif //T4K_COMMON_HAVE_RSVG
+#endif //HAVE_RSVG
 
 /* save sdl surface */
 int cacheSurface(const char* fn,SDL_Surface* surf)
@@ -908,7 +908,7 @@ SDL_Surface *IMG_Load_Cache(const char* fn)
 }
 
 
-#ifdef T4K_COMMON_HAVE_LIBPNG
+#if HAVE_LIBPNG
 //save a surface to file as a PNG.
 void savePNG(SDL_Surface* surf,char* fn)
 {
@@ -1054,7 +1054,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
         text_ptr[count].key = (png_charp) "Software";
         text_ptr[count].text =
-          (png_charp) "T4K_COMMON_PACKAGE_STRING" /*VER_VERSION " (" VER_DATE ")"*/;
+          (png_charp) PACKAGE_STRING /*VER_VERSION " (" VER_DATE ")"*/;
         text_ptr[count].compression = PNG_TEXT_COMPRESSION_NONE;
         count++;
 
@@ -1108,7 +1108,7 @@ void savePNG(SDL_Surface* surf, char* fn)
 {
   DEBUGMSG(debug_loaders, "PNG caching unavailable in this version\n");
 }
-#endif //T4K_COMMON_HAVE_LIBPNG
+#endif //HAVE_LIBPNG
 
 
 /* LoadSound : Load a sound/music patch from a file. */

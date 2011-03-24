@@ -23,8 +23,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
-#include "t4k_common-config.h"
-#include "t4k_globals.h"
+#include "config.h"
 
 #include <dirent.h>
 #include <stdlib.h>
@@ -43,20 +42,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #endif /* WIN32 */
 
 /* Prefer strcoll, but use strcmp otherwise, for string comparison */
-#ifdef T4K_COMMON_HAVE_STRCOLL
+#ifdef HAVE_STRCOLL
 #   define _str_Compare(s1, s2) strcoll((s1), (s2))
 #else
 #   define _str_Compare(s1, s2) strcmp((s1), (s2))
 #endif
 
 /* replacement for alphasort; works on Windows too! */
-#ifndef T4K_COMMON_HAVE_ALPHASORT
+#ifndef HAVE_ALPHASORT
 int alphasort(const struct dirent **d1, const struct dirent **d2) {
     return _str_Compare((*d1)->d_name, (*d2)->d_name);
 }
-#endif //!T4K_COMMON_HAVE_ALPHASORT
+#endif //!HAVE_ALPHASORT
 
-#ifndef T4K_COMMON_HAVE_SCANDIR
+#ifndef HAVE_SCANDIR
 #   ifdef WIN32
 int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(const struct dirent *), int (*dcomp)(const struct dirent**, const struct dirent**))
 {
@@ -254,4 +253,4 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(stru
 }
 */
 #   endif // Platform selection.
-#endif //!T4K_COMMON_HAVE_SCANDIR
+#endif //!HAVE_SCANDIR
