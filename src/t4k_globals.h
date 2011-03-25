@@ -27,11 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define GLOBALS_H
 
 
-//FIXME this seems weird - config.h is where the "HAVE_FOO" autoheader macros live!
-#ifdef HAVE_CONFIG_H
+// Translation stuff (now works for Mac and Win too!): 
 #include "config.h"
-#endif
 #include "gettext.h"
+#define _(String) gettext (String)
+#define gettext_noop(String) String
+#define N_(String) gettext_noop (String)
+
 #include "t4k_common.h"
 #include "SDL.h"
 

@@ -29,7 +29,8 @@ libt4k_common_la_SOURCES = \
 	t4k_replacements.c
 
 include_HEADERS = t4k_common.h \
-		  ../t4k_common-config.h
+		  t4k_alphasort.h \
+		  t4k_scandir.h
 
 EXTRA_DIST = gettext.h \
              CMakeLists.txt

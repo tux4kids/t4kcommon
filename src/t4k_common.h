@@ -52,12 +52,6 @@
 #ifndef TUX4KIDS_COMMON_H
 #define TUX4KIDS_COMMON_H
 
-// Translation stuff (now works for Mac and Win too!): 
-#include "config.h"
-#include "gettext.h"
-#define _(String) gettext (String)
-#define gettext_noop(String) String
-#define N_(String) gettext_noop (String)
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -1930,16 +1924,7 @@ void T4K_Throttle( int loop_msec,
                    Uint32* last_t
 		 );
 
-//==============================================================================
-// Public definitions for t4k_replacements.c
-//==============================================================================
-#  ifndef HAVE_ALPHASORT
-int alphasort(const struct dirent** d1, const struct dirent** d2);
-#  endif //!HAVE_ALPHASORT
 
-#  ifndef HAVE_SCANDIR
-int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *));
-#  endif //!HAVE_SCANDIR
 #endif
 
 

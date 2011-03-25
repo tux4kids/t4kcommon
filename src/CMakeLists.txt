@@ -5,7 +5,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 include(ConfigureChecks)
-configure_file(${CMAKE_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/t4k_common-config.h)
+configure_file(${CMAKE_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/config.h)
 include(T4K_Sugar)
 
 find_package(LibXml2 REQUIRED)
@@ -68,7 +68,7 @@ t4k_include_definition(HAVE_LIBPNG)
 set_target_properties (${LIB_NAME} PROPERTIES 
 	COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
 	COMPILE_DEFINITIONS
-	"COMMON_DATA_PREFIX=\"${T4K_COMMON_DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_NAME}\""
+	"COMMON_DATA_PREFIX=\"${DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_NAME}\""
 	LINK_INTERFACE_LIBRARIES ""
 )
 
@@ -78,8 +78,8 @@ install( TARGETS ${LIB_NAME}
 	DESTINATION lib )
 
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
-	DESTINATION include)
-install(FILES ${CMAKE_BINARY_DIR}/t4k_common-config.h
+	      ${T4K_COMMON_SOURCE_DIR}/t4k_alphasort.h
+	      ${T4K_COMMON_SOURCE_DIR}/t4k_scandir.h
 	DESTINATION include)
 
 include(UseDoxygen OPTIONAL)

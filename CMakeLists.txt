@@ -25,7 +25,7 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_Pango)
 if (SDLPANGO_FOUND)
-	set(T4K_COMMON_HAVE_LIBSDL_PANGO 1)
+	set(HAVE_LIBSDL_PANGO 1)
 else (SDLPANGO_FOUND)
   find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
 endif (SDLPANGO_FOUND)
@@ -33,10 +33,10 @@ endif (SDLPANGO_FOUND)
 # needed for SVG loading and caching
 find_package(PNG)
 find_package(RSVG)
-set(T4K_COMMON_HAVE_RSVG RSVG_FOUND)
-set(T4K_COMMON_HAVE_LIBPNG PNG_FOUND)
+set(HAVE_RSVG RSVG_FOUND)
+set(HAVE_LIBPNG PNG_FOUND)
 find_package(SDL_net)
-set(T4K_COMMON_HAVE_LIBSDL_NET SDL_net_FOUND)
+set(HAVE_LIBSDL_NET SDL_net_FOUND)
 
 message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
@@ -44,14 +44,14 @@ message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
 # based on tuxmath's CMakeLists.txt
 if (APPLE)
-  set(T4K_COMMON_MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
-  set(T4K_COMMON_DATA_PREFIX
+  set(MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
+  set(DATA_PREFIX
       ${T4K_COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
 elseif(UNIX)
-  set (T4K_COMMON_DATA_PREFIX
+  set (DATA_PREFIX
       ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
 elseif(WIN32)
-  t4k_to_unix_path(T4K_COMMON_DATA_PREFIX "\$ENV{APPDATA}/${PACKAGE_NAME}")
+  t4k_to_unix_path(DATA_PREFIX "\$ENV{APPDATA}/${PACKAGE_NAME}")
 else()
   message(SEND_ERROR "What OS are you on?")
 endif()
