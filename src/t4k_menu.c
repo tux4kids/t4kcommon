@@ -355,7 +355,9 @@ void T4K_LoadMenu(int index, const char* file_name)
 {
   const char* fn = NULL;
   char temp[T4K_PATH_MAX];
-  FILE* menu_file = NULL;
+
+  if(file_name == NULL)
+    return;
 
   if(menus[index])
   {
@@ -366,18 +368,7 @@ void T4K_LoadMenu(int index, const char* file_name)
   snprintf(temp, T4K_PATH_MAX, MENU_DIR "/%s", file_name);
   fn = find_file(temp);
   DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
-#if 0
-  menu_file = fopen(fn, "r");
-  if(menu_file == NULL)
-  {
-    DEBUGMSG(debug_menu, "T4K_LoadMenu(): Could not load %s !\n", file_name);
-  }
-  else
-  {
-    menus[index] = load_menu_from_file(menu_file, NULL);
-    fclose(menu_file);
-  }
-#endif
+
   menus[index] = menu_LoadFile(fn);
 }
 
