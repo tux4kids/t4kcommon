@@ -158,7 +158,7 @@ int		max(int a, int b);
 void            prerender_panel();
 
 /* Calculated estimate of chars per line fitting into desc_panel */
-int desc_chars_per_line(uint fontsize);
+int desc_chars_per_line(int fontsize);
 
 void set_font_size_explicitly(MenuNode* menu, int size);
 void set_menu_font_size(MenuNode* menu);
@@ -1249,7 +1249,7 @@ int find_longest_menu_page(MenuNode* menu)
  * NOTE - the "guts" of this function have been moved into
  * T4K_CharsForWidth() for more general use.
  */
-int desc_chars_per_line(uint fontsize)
+int desc_chars_per_line(int fontsize)
 {
   if(desc_panel == NULL)
     return 0;
