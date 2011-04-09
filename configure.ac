@@ -13,8 +13,6 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(foreign)
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADER([config.h])
-dnl ------------- give config.h another name so it won't clash when t4k_common.h included by tuxmath/tuxtype:
-AX_PREFIX_CONFIG_H
 
 NAME_VERSION=$PACKAGE-$VERSION
 
@@ -364,18 +362,6 @@ AC_SUBST(T4K_DEVELOPER_WARNINGS, ["NO"])
 AC_SUBST(DOXYFILE_SOURCE_DIR, [$srcdir"/src"])
 AC_SUBST(DOXYFILE_OUTPUT_DIR, [doxygen])
 
-#DX_DOXYGEN_FEATURE(ON)
-#DX_HTML_FEATURE(ON)
-#DX_CHM_FEATURE(OFF)
-#DX_CHI_FEATURE(OFF)
-#DX_MAN_FEATURE(OFF)
-## DX_DOT_FEATURE(ON)
-#DX_RTF_FEATURE(OFF)
-#DX_XML_FEATURE(OFF)
-#DX_PDF_FEATURE(ON)
-#DX_PS_FEATURE(ON)
-#DX_INIT_DOXYGEN([t4k_common], [$top_builddir/Doxyfile])
-
 DX_HTML_FEATURE(ON)
 DX_CHM_FEATURE(OFF)
 DX_CHI_FEATURE(OFF)
@@ -385,8 +371,6 @@ DX_XML_FEATURE(OFF)
 DX_PDF_FEATURE(ON)
 DX_PS_FEATURE(OFF)
 DX_INIT_DOXYGEN(t4k_common, doxygen.cfg)
-#DX_INIT_DOXYGEN([t4k_common], build/Doxyfile)
-
 
 AC_CONFIG_FILES([Makefile
                  data/Makefile

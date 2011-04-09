@@ -1,4 +1,4 @@
-26 Jan 2011 - for t4k_common 0.1.0
+09 Apr 2011 - for t4k_common 0.1.1
 
 t4kcommon - library of code shared by tuxmath, tuxtype, and
 possibly other tux4kids apps in the future.
@@ -50,19 +50,24 @@ cmake ..
 make
 sudo make install
 
-## NOTE FOR DEVELOPERS: it is highly recommended that you build from a separate
-build/ directory as illustrated above, to keep the source directory less
-cluttered. This is particularly important if you are testing both cmake and
-autotools builds, as they will create slightly different files that will cause
-subtle build problems.  Using e.g. "build/" and "build_cmake/" keeps them
-properly isolated.
+## NOTE FOR DEVELOPERS: The Autotools build is better tested and maintained
+than the CMake build, although they are intended to be equivalent.  If subtle
+problems appear when working on t4k_common or TuxMath with CMake, first see if
+the same issue occurs when building with Autotools.  If you are a CMake maven,
+assistance with these difficulties would be greatly appreciated.
+
+Also, it is highly recommended that you build from a separate build/ directory
+as illustrated above, to keep the source directory less cluttered. This is
+particularly important if you are testing both cmake and autotools builds, as
+they will create slightly different files that will cause subtle build
+problems.  Using e.g. "build/" and "build_cmake/" keeps them properly isolated.
 
 ## IMPORTANT - after any of above, you may need to run ldconfig to update the
 paths searched by the linker.  From what I can tell, libtool is supposed to do
 this when you run "sudo make install", but I and others have encountered issues
 with this.  As a result, when you try to build and run e.g.  tuxmath, you may
-get errors saying that the library was not found. By default, t4k_common will be
-installed under /usr/local/lib.  At least on Debian-based systems as of this
+get errors saying that the library was not found. By default, t4k_common will
+be installed under /usr/local/lib.  At least on Debian-based systems as of this
 writing, /usr/local/lib is not in the linker's default path, but can be added
 to it simply by running "sudo ldconfig" with no arguments.  This only has to be
 done once, no matter how many times t4k_common is installed or uninstalled.
