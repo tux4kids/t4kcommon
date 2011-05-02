@@ -4,28 +4,27 @@
 # t4k_common
 PKG             := t4k_common
 $(PKG)_IGNORE   :=
-$(PKG)_VERSION  := 0.1.0
-$(PKG)_CHECKSUM := f94293301f2a33d2e9aa2a6805ac23922970b91a
-$(PKG)_SUBDIR   := t4k_common-$($(PKG)_VERSION)
-$(PKG)_FILE     := t4k_common-$($(PKG)_VERSION).tar.gz
+$(PKG)_VERSION  := 0.1.1
+$(PKG)_CHECKSUM := 626eddedee86059ccab593a226c8d98571018b46
+$(PKG)_SUBDIR   := $(PKG)-$($(PKG)_VERSION)
+$(PKG)_FILE     := $($(PKG)_SUBDIR).tar.gz
 $(PKG)_WEBSITE  := http://tux4kids.alioth.debian.org/
-
-# FIXME find out url that can be specified just with package name and version
-$(PKG)_URL      := https://alioth.debian.org/frs/download.php/3426/t4k_common-0.0.1.tar.gz 
- 
+$(PKG)_URL      := http://$(SOURCEFORGE_MIRROR)/project/tuxmath/$(PKG)/$($(PKG)_FILE)
 $(PKG)_DEPS     := gcc sdl sdl_mixer sdl_image sdl_net sdl_pango sdl_ttf libpng librsvg libxml2 pthreads
 
-# FIXME find out how to update package
-#define $(PKG)_UPDATE
-#    $(call SOURCEFORGE_FILES,http://sourceforge.net/projects/sdlpango/files/SDL_Pango/) | \
-#    $(SED) -n 's,.*SDL_Pango-\([0-9][^>]*\)\.tar.*,\1,p' | \
-#    tail -1
-#endef
+define $(PKG)_UPDATE
+    wget -q -O- 'http://alioth.debian.org/frs/?group_id=31080' | \
+    $(SED) -n 's,.*t4k_common-\([0-9][^>]*\)\.tar.*,\1,p' | \
+    head -1
+endef
 
 define $(PKG)_BUILD
     cd '$(1)' && ./configure \
         --host='$(TARGET)' \
         --disable-shared \
-        --prefix='$(PREFIX)/$(TARGET)'
+        --prefix='$(PREFIX)/$(TARGET)' \
+        --with-sdlpango \
+        --with-sdlnet \
+        --with-rsvg
     $(MAKE) -C '$(1)' -j '$(JOBS)' install bin_PROGRAMS= sbin_PROGRAMS= noinst_PROGRAMS=
 endef
