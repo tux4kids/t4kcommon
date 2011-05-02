@@ -1,0 +1,12 @@
+See git log for complete history
+
+Briefly:
+
+0.1.0 (9 Apr 2011)
+	- fixes of tooltips feature with text wrapping
+	- ensure tooltips display on first loop
+	- fix of t4k_common.pc.in to handle SDL_Pango/SDL_ttf dep
+	- revert from using t4k_common-config.h, as that broke NLS
+	- fix T4K_BlackOutline() colorkey problem
+	- put scandir and alphasort prototypes into own headers
+	- fix of some screen resizing bugs
