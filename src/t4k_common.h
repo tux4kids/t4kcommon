@@ -239,7 +239,7 @@ MFStrategy;
 #define MAX_LINES 128     //!< Maximum lines to wrap.
 #define MAX_LINEWIDTH 256 //!< Maximum characters of each line.
 
-char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
+static char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
 //TODO separate headers for different areas a la SDL?
 
