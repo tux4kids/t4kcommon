@@ -5,9 +5,9 @@
    all available CPU.
 
    Copyright 2009, 2010.
-   Author: David Bruce
-   Project email: <tuxmath-devel@lists.sourceforge.net>
-   Project website: http://tux4kids.alioth.debian.org
+Author: David Bruce
+Project email: <tuxmath-devel@lists.sourceforge.net>
+Project website: http://tux4kids.alioth.debian.org
 
 throttle.c is part of "Tux, of Math Command", a.k.a. "tuxmath".
 
@@ -33,28 +33,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void T4K_Throttle(int loop_msec, Uint32* last_t)
 {
-  Uint32 now_t, wait_t;
+    Uint32 now_t, wait_t;
 
-  if(!last_t)
-    return;
+    if(!last_t)
+	return;
 
-  //Target loop time must be between 0 and 1000 msec:
-  if(loop_msec < 0)
-    loop_msec = 0;
-  if(loop_msec > 1000)
-    loop_msec = 1000;
+    //Target loop time must be between 0 and 1000 msec:
+    if(loop_msec < 0)
+	loop_msec = 0;
+    if(loop_msec > 1000)
+	loop_msec = 1000;
 
-  //See if we need to wait:
-  now_t = SDL_GetTicks();
-  if (now_t < (*last_t + loop_msec))
-  {
-    wait_t = (*last_t + loop_msec) - now_t;
-    //Avoid problem if we somehow wrap past uint32 size (at 49.7 days!)
-    if(wait_t < 0)
-      wait_t = 0;
-    if(wait_t > loop_msec)
-      wait_t = loop_msec;
-    SDL_Delay(wait_t);
-  }
-  *last_t = SDL_GetTicks();
+    //See if we need to wait:
+    now_t = SDL_GetTicks();
+    if (now_t < (*last_t + loop_msec))
+    {
+	wait_t = (*last_t + loop_msec) - now_t;
+	//Avoid problem if we somehow wrap past uint32 size (at 49.7 days!)
+	if(wait_t < 0)
+	    wait_t = 0;
+	if(wait_t > loop_msec)
+	    wait_t = loop_msec;
+	SDL_Delay(wait_t);
+    }
+    *last_t = SDL_GetTicks();
 }

@@ -4,9 +4,9 @@
    Audio-related functions.
 
    Copyright 2003, 2006, 2009, 2010.
-   Authors: Sam Hart, Jesse Andrews, David Bruce, Brendan Luchen
-   Project email: <tuxmath-devel@lists.sourceforge.net>
-   Project website: http://tux4kids.alioth.debian.org
+Authors: Sam Hart, Jesse Andrews, David Bruce, Brendan Luchen
+Project email: <tuxmath-devel@lists.sourceforge.net>
+Project website: http://tux4kids.alioth.debian.org
 
 t4k_audio.c is part of the t4k_common library.
 
@@ -37,19 +37,19 @@ const char* MUSIC_DIR = "sounds";
 // play sound once and exit
 void T4K_PlaySound(Mix_Chunk* sound)
 {
-  T4K_PlaySoundLoop(sound, 0);
+    T4K_PlaySoundLoop(sound, 0);
 }
 
 // play sound "loops" times, -1 for infinite
 void T4K_PlaySoundLoop(Mix_Chunk* sound, int loops)
 {
-  if(sound && audio_enabled)
-    Mix_PlayChannel(-1, sound, loops);
+    if(sound && audio_enabled)
+	Mix_PlayChannel(-1, sound, loops);
 }
 
 void T4K_AudioHaltChannel( int channel )
 {
-      Mix_HaltChannel(channel);
+    Mix_HaltChannel(channel);
 }
 
 /* audioMusicLoad attempts to load and play the music file
@@ -57,16 +57,16 @@ void T4K_AudioHaltChannel( int channel )
  */
 void T4K_AudioMusicLoad(char* music_path, int loops)
 {
-  if (audio_enabled)
-  {
-    default_music = T4K_LoadMusic(music_path);
-    T4K_AudioMusicPlay(default_music, loops);
-  }
-//  T4K_AudioMusicUnload(); // make sure defaultMusic is clear
-//  default_music = T4K_LoadMusic(music_path);
-//  music_loops = loops;
-//  if (audio_enabled)
-//    Mix_PlayMusic(default_music, loops);
+    if (audio_enabled)
+    {
+	default_music = T4K_LoadMusic(music_path);
+	T4K_AudioMusicPlay(default_music, loops);
+    }
+    //  T4K_AudioMusicUnload(); // make sure defaultMusic is clear
+    //  default_music = T4K_LoadMusic(music_path);
+    //  music_loops = loops;
+    //  if (audio_enabled)
+    //    Mix_PlayMusic(default_music, loops);
 }
 
 /* audioMusicUnload attempts to unload any music data that was
@@ -74,14 +74,14 @@ void T4K_AudioMusicLoad(char* music_path, int loops)
  */
 void T4K_AudioMusicUnload()
 {
-  if(default_music)
-    Mix_FreeMusic(default_music);
-  default_music = NULL;
+    if(default_music)
+	Mix_FreeMusic(default_music);
+    default_music = NULL;
 }
 
 bool T4K_IsPlayingMusic()
 {
-  return (default_music != NULL);
+    return (default_music != NULL);
 }
 
 /* audioMusicPlay attempts to play the passed music data.
@@ -91,34 +91,34 @@ bool T4K_IsPlayingMusic()
  */
 void T4K_AudioMusicPlay(Mix_Music *musicData, int loops)
 {
-  if (musicData != default_music)
-  {
-    T4K_AudioMusicUnload(); //FIXME this feels buggy...
-  }
-  music_loops = loops;
-  if (audio_enabled)
-    Mix_PlayMusic(musicData, loops);
+    if (musicData != default_music)
+    {
+	T4K_AudioMusicUnload(); //FIXME this feels buggy...
+    }
+    music_loops = loops;
+    if (audio_enabled)
+	Mix_PlayMusic(musicData, loops);
 }
 
 void T4K_AudioEnable(bool enabled)
 {
-  if (audio_enabled == enabled) 
-    return;
-  
-  audio_enabled = enabled;
-  if (audio_enabled)
-  {
-    if (default_music)
-      Mix_PlayMusic(default_music, music_loops);
-  }
-  else
-  {
-    Mix_HaltChannel(-1);
-    Mix_FadeOutMusic(100);
-  }
+    if (audio_enabled == enabled) 
+	return;
+
+    audio_enabled = enabled;
+    if (audio_enabled)
+    {
+	if (default_music)
+	    Mix_PlayMusic(default_music, music_loops);
+    }
+    else
+    {
+	Mix_HaltChannel(-1);
+	Mix_FadeOutMusic(100);
+    }
 }
 
 void T4K_AudioToggle()
 {
-  T4K_AudioEnable(!audio_enabled);   
+    T4K_AudioEnable(!audio_enabled);   
 }

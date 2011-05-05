@@ -3,9 +3,9 @@
    global to t4k_common, along with some preprocessor macros.
 
    Copyright 2009, 2010.
-   Author: Brendan Luchen
-   Project email: <tuxmath-devel@lists.sourceforge.net>
-   Project website: http://tux4kids.alioth.debian.org
+Author: Brendan Luchen
+Project email: <tuxmath-devel@lists.sourceforge.net>
+Project website: http://tux4kids.alioth.debian.org
 
 t4k_globals.h is part of the t4k_common library.
 
@@ -23,8 +23,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 
-#ifndef GLOBALS_H
-#define GLOBALS_H
+#ifndef T4K_GLOBALS_H
+#define T4K_GLOBALS_H
 
 
 // Translation stuff (now works for Mac and Win too!): 

@@ -17,7 +17,7 @@ set(SDL_BUILDING_LIBRARY 1) #indicate we don't need to (and shouldn't) link SDLm
 
 set(T4K_DEVELOPER_WARNINGS OFF CACHE STRING "Change or override to enable warnings")
 if(CMAKE_BUILD_TYPE MATCHES Release)
-  set(T4K_DEVELOPER_WARNINGS ON)
+    set(T4K_DEVELOPER_WARNINGS ON)
 endif()
 
 find_package(SDL REQUIRED)
@@ -25,9 +25,9 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_Pango)
 if (SDLPANGO_FOUND)
-	set(HAVE_LIBSDL_PANGO 1)
+    set(HAVE_LIBSDL_PANGO 1)
 else (SDLPANGO_FOUND)
-  find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
+    find_package(SDL_ttf REQUIRED) # we prefer Pango but use SDL_ttf as a backup
 endif (SDLPANGO_FOUND)
 
 # needed for SVG loading and caching
@@ -44,16 +44,16 @@ message("SDL_Pango:  ${SDLPANGO_FOUND}")
 
 # based on tuxmath's CMakeLists.txt
 if (APPLE)
-  set(MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
-  set(DATA_PREFIX
-      ${T4K_COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
+    set(MACOSX_BUNDLE_NAME ${PACKAGE_NAME})
+    set(DATA_PREFIX
+	${T4K_COMMON_MACOSX_BUNDLE_NAME}.app/Contents/Resources)
 elseif(UNIX)
-  set (DATA_PREFIX
-      ${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
+    set (DATA_PREFIX
+	${CMAKE_INSTALL_PREFIX}/share/${LIB_NAME})
 elseif(WIN32)
-  t4k_to_unix_path(DATA_PREFIX "\$ENV{APPDATA}/${PACKAGE_NAME}")
+    t4k_to_unix_path(DATA_PREFIX "\$ENV{APPDATA}/${PACKAGE_NAME}")
 else()
-  message(SEND_ERROR "What OS are you on?")
+    message(SEND_ERROR "What OS are you on?")
 endif()
 
 set(LINEBREAK_BINARY_DIR ${CMAKE_BINARY_DIR}/src/linebreak)
