@@ -1920,7 +1920,6 @@ void T4K_Throttle( int loop_msec,
 	);
 
 
-#endif
 
 
 //=============================================================================
@@ -1977,3 +1976,72 @@ int T4K_ConvertToUTF8(const wchar_t* wide_word,
 	char* UTF8_word, 
 	int max_length
 	);
+
+
+
+//=============================================================================
+//                      Public Definitions for t4k_replacements.c
+//=============================================================================
+
+//==============================================================================
+//
+//  T4K_alphasort
+//
+//! \brief 
+//!     Wrapper for alphasort function, using either platform's alphasort or our
+//!     replacement in t4k_replacements if not provided by system.
+//! 
+//! \param
+//!     const struct dirent** d1 - first arg to be compared
+//!
+//! \param
+//!     const struct dirent** d2 - second arg to be compared
+//!
+//! \return 
+//!     From man alphasort: "alphasort() and versionsort() functions return an
+//!     integer less than, equal to, or greater than zero if the first argument
+//!     is considered to be  respectively  less than, equal to, or greater than
+//!     the second."
+int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
+
+
+//==============================================================================
+//!
+//!  T4K_scandir
+//!
+//! \brief 
+//!     Wrapper for scandir function, using either platform's scandir or our
+//!     replacement in t4k_replacements if not provided by system.
+//! 
+//!     From man scandir (arg names adapted):
+//!     The scandir() function scans the directory dirname, calling sdfilter() 
+//!     on each directory entry. Entries for which sdfilter() returns nonzero
+//!     are stored in strings allocated via malloc(3), sorted using qsort(3)
+//!     with the comparison function dcomp(), and collected in array namelist
+//!     which is allocated via  malloc(3).  If  sdfilter  is NULL, all entries
+//!     are selected.
+//!
+//!     The  alphasort()  and versionsort() functions can be used as the comparison
+//!     function compar().  The former sorts directory entries using strcoll(3), 
+//!     the latter using strverscmp(3) on the strings (*a)->d_name and (*b)->d_name.
+//!
+//! \param
+//!     const char *dirname
+//!
+//! \param
+//!     struct dirent*** namelist
+//!
+//! \param
+//!     int (*sdfilter)(struct dirent *)
+//!
+//! \param
+//!     int (*dcomp)(const void *, const void *)
+//!
+//! \return 
+//!     The scandir() function returns the number of directory entries selected
+//!     or -1 if an error occurs.
+
+int T4K_scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *));
+
+
+#endif

@@ -30,14 +30,11 @@
 //!     Tux4Kids_common
 //!
 //! \section intro_sec Description
+//!     NOTE: this is DEPRECATED and will be removed - tuxmath, tuxtype,
+//!     and other programs should use T4K_scandir() instead which is
+//!     designed to always be available, either as a wrapper for the
+//!     platform's scandir() or via our replacement. 
 //!     
-//!     Conditionally included header for replacement scandir function
-//!     To use, program should check whether platform provides this
-//!     function using e.g. autoconf:
-//!
-//!     #ifdef HAVE_SCANDIR
-//!     #include <t4k_scandir.h>
-//!     #endif
 //!
 //!     Part of "Tux4Kids" Project
 //!
