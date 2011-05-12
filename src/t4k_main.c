@@ -3,7 +3,7 @@
    Functions used to initialize the t4k_common library
 
    Copyright 2009, 2010.
-Authors: Boleslaw Kulbabinski Brendan Luchen
+Authors: Boleslaw Kulbabinski, Brendan Luchen
 Project email: <tuxmath-devel@lists.sourceforge.net>
 Project website: http://tux4kids.alioth.debian.org
 

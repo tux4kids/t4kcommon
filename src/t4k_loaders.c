@@ -198,7 +198,7 @@ sprite* load_svg_sprite(const char* file_name, int width, int height)
     char lay_name[20];
     int i;
 
-    DEBUGMSG(debug_loaders, "load_svg_sprite(): loading sprite from %s\n", file_name);
+    DEBUGMSG(debug_loaders, "load_svg_sprite(): loading sprite from %s, width = %d, height = %d\n", file_name, width, height);
 
     rsvg_init();
 

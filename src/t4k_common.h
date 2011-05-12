@@ -2,8 +2,8 @@
 //
 //   t4k_common.h: Contains public headers for the t4k_common library
 //
-//   Copyright 2009, 2010.
-//   Author: Brendan Luchen
+//   Copyright 2009, 2010, 2011.
+//   Authors: Brendan Luchen, David Bruce.
 //   Project email: <tuxmath-devel@lists.sourceforge.net>
 //   Project website: http://tux4kids.alioth.debian.org
 //
