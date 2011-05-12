@@ -2,6 +2,8 @@
 #other CMakeLists.txt and is not safe for human consumption. 
 #Please hack responsibly.
 
+# TODO - add cmake build support for t4k_test program - DSB
+
 cmake_minimum_required(VERSION 2.6)
 
 include(ConfigureChecks)

@@ -47,11 +47,46 @@
 //!     See COPYING file that comes with this distribution.
 //!
 
-
+#include "config.h"
 #include "t4k_common.h"
 
 int main(int argc, char* argv[])
 {
+
+    int i;
+
+    for (i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
+        {
+            /* Display help message: */
+
+            fprintf(stderr, "\nt4k_test, a test program for the t4k_common library.\n"); 
+            fprintf(stderr, "Run program with:\n"
+          	  "--version, -v          - Display version number.\n"
+          	  "--copyright, -c        - Display copyright and license information.\n"
+          	  "--help, -h             - Display this help message.\n"
+          	  "--silent, -s           - (Default) - run without interaction.\n"
+          	  "--fullscreen, -f       - Run additional interactive sound and graphics tests in fullscreen mode.\n"
+          	  "--windowed, -w         - Run additional interactive sound and graphics tests in window.\n"
+          	  );
+
+            fprintf(stderr, "\n");
+            exit(0);
+        }
+        else if (strcmp(argv[i], "--version") == 0 ||
+                strcmp(argv[i], "-v") == 0)
+        {
+            fprintf(stderr, "t4k_test program for t4k_common library, Version %s.\n", VERSION);
+            exit(0);
+        }
+        else /* Warn for unknown option, except debug flags */
+            /* that we deal with separately:               */
+        {
+             fprintf(stderr, "Unknown option: %s\n", argv[i]);
+        }
+    }/* end of command-line args */
+
     fprintf(stderr, "Entering t4k_test (test program for t4k_common).\n");
     InitT4KCommon(debug_all);
     fprintf(stderr, "t4k_test exiting normally.\n");
