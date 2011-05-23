@@ -29,9 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 int debug_status;
 
 
-SDL_Color red, yellow, white, black;
-
-
 /* set global variables */
 /* TODO look into support for locale switching at runtime
  ** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115 
@@ -44,10 +41,6 @@ void InitT4KCommon(int debug_flags)
 
     debug_status = debug_flags;
 
-    black.r       = 0x00; black.g       = 0x00; black.b       = 0x00;
-    red.r         = 0xff; red.g         = 0x00; red.b         = 0x00;
-    white.r       = 0xff; white.g       = 0xff; white.b       = 0xff;
-    yellow.r      = 0xff; yellow.g      = 0xff; yellow.b      = 0x00;
 
     T4K_InitBlitQueue();
 }

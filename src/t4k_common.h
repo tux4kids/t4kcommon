@@ -146,6 +146,15 @@ static const int debug_all           = ~0;     //!< Enable all debugging output 
 
 extern int debug_status;
 
+//Define our color constants:
+static const SDL_Color black        = {0x00, 0x00, 0x00, 0xff};
+static const SDL_Color gray         = {0x80, 0x80, 0x80, 0xff};
+static const SDL_Color dark_blue    = {0x00, 0x00, 0x60, 0xff};
+static const SDL_Color red          = {0xff, 0x00, 0x00, 0xff};
+static const SDL_Color white        = {0xff, 0xff, 0xff, 0xff};
+static const SDL_Color yellow       = {0xff, 0xff, 0x00, 0xff};
+static const SDL_Color bright_green = {0x60, 0xff, 0x00, 0xff};
+
 //!
 //! Games defining custom debug flags should use this constant to ensure
 //! consistency with t4k_common values.
@@ -1213,7 +1222,7 @@ void T4K_Cleanup_SDL_Text( void );
 //!
 SDL_Surface* T4K_BlackOutline( const char* t,
 	int         size,
-	SDL_Color*  c
+	const SDL_Color*  c
 	);
 
 //==============================================================================
@@ -1235,7 +1244,7 @@ SDL_Surface* T4K_BlackOutline( const char* t,
 //!
 SDL_Surface* T4K_SimpleText( const char* t,
 	int         size,
-	SDL_Color*  col
+	const SDL_Color*  col
 	);
 
 //==============================================================================
@@ -1259,7 +1268,7 @@ SDL_Surface* T4K_SimpleText( const char* t,
 //!
 SDL_Surface* T4K_SimpleTextWithOffset( const char* t,
 	int         size,
-	SDL_Color*  col,
+	const SDL_Color*  col,
 	int*        glyph_offset
 	);
 

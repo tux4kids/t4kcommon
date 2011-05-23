@@ -1338,7 +1338,7 @@ void T4K_Cleanup_SDL_Text(void)
 /* background.  The appearance can be tuned by adjusting the number of */
 /* background copies and the offset where the foreground text is       */
 /* finally written (see below).                                        */
-SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
+SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 {
     SDL_Surface* out = NULL;
     SDL_Surface* black_letters = NULL;
@@ -1457,7 +1457,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, SDL_Color* c)
 
 /* This (fast) function just returns a non-outlined surf */
 /* using either SDL_Pango or SDL_ttf                     */
-SDL_Surface* T4K_SimpleText(const char *t, int size, SDL_Color* col)
+SDL_Surface* T4K_SimpleText(const char *t, int size, const SDL_Color* col)
 {
     SDL_Surface* surf = NULL;
 
@@ -1539,7 +1539,7 @@ int size_text(const char* text, int font_size, int* width, int* height)
 }
 /* This (fast) function just returns a non-outlined surf */
 /* using SDL_Pango if available, SDL_ttf as fallback     */
-SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, SDL_Color* col, int *glyph_offset)
+SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* col, int *glyph_offset)
 {
     SDL_Surface* surf = NULL;
 
