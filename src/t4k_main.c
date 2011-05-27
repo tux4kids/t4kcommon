@@ -26,24 +26,92 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "t4k_common.h"
 #include "t4k_globals.h"
+
+#ifdef HAVE_LIBSDL_NET
+#include "SDL_net.h"
+#endif
+
 int debug_status;
 
 
 /* set global variables */
 /* TODO look into support for locale switching at runtime
  ** http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=490115 
- ** TODO seems like SDL_Init and friends should be done here...
- ** 
  */
-void InitT4KCommon(int debug_flags)
+int InitT4KCommon(int debug_flags)
 {
     printf("Initializing " PACKAGE_STRING "\n");
 
+    /* Video: */
+    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    {
+	fprintf(stderr,
+		"\nError: I could not initialize video!\n"
+		"The Simple DirectMedia error that occured was:\n"
+		"%s\n\n", SDL_GetError());
+	return 0;
+    }
+
+    /* Audio: */
+    if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    {
+        fprintf(stderr,
+	    "\nWarning: I could not initialize audio!\n"
+	    "The Simple DirectMedia error that occured was:\n"
+	    "%s\n\n", SDL_GetError());
+    }
+    
+    /* Text (either SDL_ttf or SDL_Pango): */
+    if (!T4K_Setup_SDL_Text())
+    {
+	fprintf( stderr, "Couldn't initialize text (SDL_ttf or SDL_Pango)\n");
+	return 0;
+    }
+
+#ifdef HAVE_LIBSDL_NET
+    /* Networking: */
+    if (SDLNet_Init() < 0)
+    {
+        fprintf(stderr, "SDLNet_Init: %s\n", SDLNet_GetError());
+	return 0;
+    }
+#endif
+
+    /* Seed random-number generator: */
+    srand(SDL_GetTicks());
+
     debug_status = debug_flags;
-
-
     T4K_InitBlitQueue();
+    return 1;
 }
+
+void CleanupT4KCommon(void)
+{
+    int frequency, channels, n_timesopened;
+    Uint16 format;
+
+    // Close the audio mixer. We have to do this at least as many times
+    // as it was opened.
+    n_timesopened = Mix_QuerySpec(&frequency, &format, &channels);
+    while (n_timesopened)
+    {
+	Mix_CloseAudio();
+	n_timesopened--;
+    }
+    
+    T4K_UnloadMenus();
+    // Unload SDL_Pango or SDL_ttf:
+    T4K_Cleanup_SDL_Text();
+    
+#ifdef HAVE_LIBSDL_NET
+    /* Quit networking if appropriate: */
+    SDLNet_Quit();
+#endif
+
+    // Finally, quit SDL
+    SDL_Quit();
+}
+
 
 int T4K_HandleStdEvents (const SDL_Event* event)
 {

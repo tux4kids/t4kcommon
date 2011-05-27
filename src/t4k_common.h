@@ -270,9 +270,24 @@ static char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrap
 //!     - debug_all
 //!
 //! \return
+//!     1 if successful, 0 otherwise
+//!
+int InitT4KCommon( int debug_flags );
+
+//==============================================================================
+//
+//  CleanupT4KCommon
+//
+//! \brief 
+//!     Cleanup Tux4Kids-Common
+//! 
+//! \param
 //!     None
 //!
-void InitT4KCommon( int debug_flags );
+//! \return
+//!     None
+//!
+void CleanupT4KCommon( void );
 
 //==============================================================================
 //  
