@@ -519,6 +519,8 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			{
 			    T4K_FreeSurfaceArray(menu_item_unselected, items);
 			    T4K_FreeSurfaceArray(menu_item_selected, items);
+			    if(desc_panel != NULL)
+				SDL_FreeSurface(desc_panel);
 			    return QUIT;
 			}
 
@@ -1023,6 +1025,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
 	/* free button surfaces */
 	DEBUGMSG(debug_menu, "run_menu(): freeing %d button surfaces\n", items);
+
 	T4K_FreeSurfaceArray(menu_item_unselected, items);
 	T4K_FreeSurfaceArray(menu_item_selected, items);
     }
@@ -1042,6 +1045,8 @@ void prerender_panel() {
 	T4K_GetScreen()->h * desc_panel_pos[1],
 	T4K_GetScreen()->w * desc_panel_pos[2],
 	T4K_GetScreen()->h * desc_panel_pos[3]};
+    if(desc_panel != NULL)
+	SDL_FreeSurface(desc_panel);
     desc_panel = T4K_CreateButton(panelclip.w - panelclip.x, panelclip.h - panelclip.y, 8, 0xff, 0xff, 0xff, 100);
     SDL_BlitSurface(desc_panel, NULL, T4K_GetScreen(), &panelclip);
     SDL_BlitSurface(T4K_GetScreen(), &panelclip, desc_panel, NULL);
