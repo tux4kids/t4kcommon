@@ -52,7 +52,6 @@
 #ifndef TUX4KIDS_COMMON_H
 #define TUX4KIDS_COMMON_H
 
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -176,6 +175,7 @@ extern SDL_Surface *stop_button, *prev_arrow, *next_arrow, *prev_gray, *next_gra
 
 #define MAX_SPRITE_FRAMES 15 /**< The max number of images a single sprite can use */
 
+//==============================================================================
 //!
 //! \struct
 //!     sprite
@@ -210,6 +210,7 @@ typedef enum
 }
 WipeStyle;
 
+//==============================================================================
 //!
 //! Special values used by RunMenu.
 //!
@@ -220,6 +221,10 @@ enum
     STOP          = -1   //!< user pressed the stop button
 };
 
+//==============================================================================
+//!
+//! \enum
+//!     MFStrategy
 //!
 //! Strategies for determining menu font sizes.
 //!
@@ -240,8 +245,8 @@ MFStrategy;
 #define IMG_NOT_REQUIRED    0x10
 #define IMG_NO_PNG_FALLBACK 0x20
 
-#define MAX_LINES 128     //!< Maximum lines to wrap.
-#define MAX_LINEWIDTH 256 //!< Maximum characters of each line.
+#define MAX_LINES           128 //!< Maximum lines to wrap.
+#define MAX_LINEWIDTH       256 //!< Maximum characters of each line.
 
 static char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
@@ -328,8 +333,8 @@ int T4K_HandleStdEvents( const SDL_Event* event );
 //!     None
 //!
 void T4K_SetActivitiesList( int    num, 
-	char** acts 
-	);
+                            char** acts 
+                          );
 
 //==============================================================================
 // 
@@ -349,9 +354,9 @@ void T4K_SetActivitiesList( int    num,
 //!     None
 //!
 void T4K_SetMenuSounds( char*      mus_path, 
-	Mix_Chunk* click, 
-	Mix_Chunk* hover 
-	);
+                        Mix_Chunk* click, 
+                        Mix_Chunk* hover 
+                      );
 
 //==============================================================================
 //
@@ -385,8 +390,8 @@ void T4K_SetMenuSpritePrefix( char* pref );
 //!     None
 //!
 void T4K_SetMenuFontSize( MFStrategy strategy,
-	int        size
-	);
+                          int        size
+                        );
 
 //==============================================================================
 //
@@ -412,12 +417,12 @@ void T4K_SetMenuFontSize( MFStrategy strategy,
 //!     None
 //! 
 void T4K_CreateOneLevelMenu( int     index,
-	int     items,
-	char**  item_names, 
-	char**  sprite_names, 
-	char*   title, 
-	char*   trailer
-	);
+                             int     items,
+                             char**  item_names, 
+                             char**  sprite_names, 
+                             char*   title, 
+                             char*   trailer
+                            );
 
 //============================================================================== 
 //
@@ -447,12 +452,12 @@ void T4K_CreateOneLevelMenu( int     index,
 //!     Returns a value operation of the user in the menu.
 //!
 int T4K_RunMenu( int    index,
-	bool   return_choice,
-	void   (*draw_background)(),
-	int    (*handle_event)(SDL_Event*), 
-	void   (*handle_animations)(),
-	int    (*handle_activity)(int, int)
-	);
+                 bool   return_choice,
+                 void   (*draw_background)(),
+                 int    (*handle_event)(SDL_Event*), 
+                 void   (*handle_animations)(),
+                 int    (*handle_activity)(int, int)
+               );
 
 //==============================================================================
 // 
@@ -502,8 +507,8 @@ void T4K_PrerenderAll( void );
 //!     None
 //!
 void T4K_LoadMenu( int         index,
-	const char* file_name
-	);
+                   const char* file_name
+                 );
 
 //============================================================================== 
 //  
@@ -565,10 +570,10 @@ SDL_Surface* T4K_GetScreen( void );
 //!     0            - Failed operation. 
 //!
 int T4K_GetResolutions( int* win_x,
-	int* win_y,
-	int* full_x,
-	int* full_y
-	);
+                        int* win_y,
+                        int* full_x,
+                        int* full_y
+                      );
 
 //==============================================================================
 // 
@@ -597,12 +602,12 @@ int T4K_GetResolutions( int* win_x,
 //!     None
 //!
 void T4K_DrawButton( SDL_Rect* target_rect,
-	int       radius,
-	Uint8     r,
-	Uint8     g,
-	Uint8     b,
-	Uint8     a
-	);
+                     int       radius,
+                     Uint8     r,
+                     Uint8     g,
+                     Uint8     b,
+                     Uint8     a
+                   );
 
 //============================================================================== 
 //
@@ -637,13 +642,13 @@ void T4K_DrawButton( SDL_Rect* target_rect,
 //!     None
 //!
 void T4K_DrawButtonOn( SDL_Surface* target,
-	SDL_Rect*    target_rect,
-	int          radius,
-	Uint8        r,
-	Uint8        g,
-	Uint8        b,
-	Uint8        a 
-	);
+                       SDL_Rect*    target_rect,
+                       int          radius,
+                       Uint8        r,
+                       Uint8        g,
+                       Uint8        b,
+                       Uint8        a 
+                      );
 
 //============================================================================== 
 //
@@ -673,13 +678,13 @@ void T4K_DrawButtonOn( SDL_Surface* target,
 //!     Surface of the translucent button with no text
 //!
 SDL_Surface* T4K_CreateButton( int    w,
-	int    h,
-	int    radius,
-	Uint8  r,
-	Uint8  g,
-	Uint8  b,
-	Uint8  a 
-	);
+                               int    h,
+                               int    radius,
+                               Uint8  r,
+                               Uint8  g,
+                               Uint8  b,
+                               Uint8  a 
+                              );
 
 //==============================================================================
 //
@@ -698,8 +703,8 @@ SDL_Surface* T4K_CreateButton( int    w,
 //!    None
 //!
 void T4K_RoundCorners( SDL_Surface* s,
-	Uint16       radius
-	);
+                       Uint16       radius
+                     );
 
 //==============================================================================
 //
@@ -719,9 +724,9 @@ void T4K_RoundCorners( SDL_Surface* s,
 //!     Returns flipped surface.
 //!
 SDL_Surface* T4K_Flip( SDL_Surface* in,
-	int          x,
-	int          y
-	);
+                       int          x,
+                       int          y
+                     );
 
 //==============================================================================
 //
@@ -749,9 +754,9 @@ SDL_Surface* T4K_Flip( SDL_Surface* in,
 //!    otherwise it will return a NULL value. 
 //!
 SDL_Surface* T4K_Blend( SDL_Surface* S1,
-	SDL_Surface* S2,
-	float        gamma
-	);
+                        SDL_Surface* S2,
+                        float        gamma
+                      );
 
 //==============================================================================
 //
@@ -769,8 +774,8 @@ SDL_Surface* T4K_Blend( SDL_Surface* S1,
 //!     None
 //!
 void T4K_FreeSurfaceArray( SDL_Surface** surfs, 
-	int           length
-	);
+                           int           length
+                         );
 
 //==============================================================================
 // 
@@ -792,9 +797,9 @@ void T4K_FreeSurfaceArray( SDL_Surface** surfs,
 //!     0        - The x and y are outside of the SDL_Rect r.
 //!
 int T4K_inRect( SDL_Rect r,
-	int      x,
-	int      y
-	);
+                int      x,
+                int      y
+              );
 
 //==============================================================================
 // 
@@ -815,8 +820,8 @@ int T4K_inRect( SDL_Rect r,
 //!     None
 //!
 void T4K_SetRect( SDL_Rect*    rect,
-	const float* pos
-	);
+                  const float* pos
+                );
 
 //==============================================================================
 // 
@@ -834,8 +839,8 @@ void T4K_SetRect( SDL_Rect*    rect,
 //!     None
 //!
 void T4K_UpdateRect( SDL_Surface* surf,
-	SDL_Rect*    rect
-	);
+                     SDL_Rect*    rect
+                   );
 
 //==============================================================================
 //
@@ -870,8 +875,8 @@ void T4K_DarkenScreen( Uint8 bits );
 //!     None
 //!
 void T4K_ChangeWindowSize( int new_res_x,
-	int new_res_y
-	);
+                           int new_res_y
+                         );
 
 //==============================================================================
 // 
@@ -946,9 +951,9 @@ SDL_EventType T4K_WaitForEvent( SDL_EventMask events );
 //!     Will return a newly allocated SDL_Surface.
 //!
 SDL_Surface* T4K_zoom( SDL_Surface* src,
-	int          new_w,
-	int          new_h
-	);
+                       int          new_w,
+                       int          new_h
+                     );
 
 //==============================================================================
 // 
@@ -971,10 +976,10 @@ SDL_Surface* T4K_zoom( SDL_Surface* src,
 //!     is not equal to screen width and height otherwise returns 1.
 //!
 int T4K_TransWipe( const SDL_Surface* newbkg,
-	WipeStyle          type,
-	int                segments,
-	int                duration
-	);
+                   WipeStyle          type,
+                   int                segments,
+                   int                duration
+                 );
 
 //==============================================================================
 // 
@@ -1032,8 +1037,8 @@ void T4K_ResetBlitQueue( void );
 //!    0          - If invalid parameter and add SDL_Rect failed. 
 //!
 int T4K_AddRect( SDL_Rect* src,
-	SDL_Rect* dst
-	);
+                 SDL_Rect* dst
+               );
 
 //==============================================================================
 //
@@ -1054,9 +1059,9 @@ int T4K_AddRect( SDL_Rect* src,
 //!     0          - Failed to draw the sprite.
 //!
 int T4K_DrawSprite( sprite* gfx,
-	int     x,
-	int     y
-	);
+                    int     x,
+                    int     y
+                  );
 
 //==============================================================================
 //
@@ -1078,9 +1083,9 @@ int T4K_DrawSprite( sprite* gfx,
 //!     0           - Failed to draw the object.
 //!
 int T4K_DrawObject( SDL_Surface* surf,
-	int          x,
-	int          y
-	);
+                    int          x,
+                    int          y
+                  );
 
 //==============================================================================
 //
@@ -1120,10 +1125,10 @@ void T4K_UpdateScreen( int* frame );
 //!     0          - Failed to erase the sprite.
 //!
 int T4K_EraseSprite( sprite*      img,
-	SDL_Surface* curr_bkgd,
-	int          x,
-	int          y
-	);
+                     SDL_Surface* curr_bkgd,
+                     int          x,
+                     int          y
+                   );
 
 //==============================================================================
 //
@@ -1147,10 +1152,10 @@ int T4K_EraseSprite( sprite*      img,
 //!     0           - Failed operation 
 //!
 int T4K_EraseObject( SDL_Surface* surf,
-	SDL_Surface* curr_bkgd,
-	int x,
-	int y
-	);
+                     SDL_Surface* curr_bkgd,
+                     int          x,
+                     int          y
+                   );
 
 //==============================================================================
 // 
@@ -1236,9 +1241,9 @@ void T4K_Cleanup_SDL_Text( void );
 //!     Returns newly created surface.
 //!
 SDL_Surface* T4K_BlackOutline( const char* t,
-	int         size,
-	const SDL_Color*  c
-	);
+                               int         size,
+                               const SDL_Color*  c
+                             );
 
 //==============================================================================
 // 
@@ -1257,10 +1262,10 @@ SDL_Surface* T4K_BlackOutline( const char* t,
 //! \return 
 //!     A non-outlined surface using either SDL_Pango or SDL_ttf.
 //!
-SDL_Surface* T4K_SimpleText( const char* t,
-	int         size,
-	const SDL_Color*  col
-	);
+SDL_Surface* T4K_SimpleText( const char*      t,
+                             int              size,
+                             const SDL_Color* col
+                           );
 
 //==============================================================================
 //
@@ -1281,11 +1286,11 @@ SDL_Surface* T4K_SimpleText( const char* t,
 //! \return
 //!     A non-outlined surface using either SDL_Pango or SDL_ttf. 
 //!
-SDL_Surface* T4K_SimpleTextWithOffset( const char* t,
-	int         size,
-	const SDL_Color*  col,
-	int*        glyph_offset
-	);
+SDL_Surface* T4K_SimpleTextWithOffset( const char*       t,
+                                       int               size,
+                                       const SDL_Color*  col,
+                                       int*              glyph_offset
+                                     );
 
 //==============================================================================
 //  T4K_CharsForWidth
@@ -1302,8 +1307,8 @@ SDL_Surface* T4K_SimpleTextWithOffset( const char* t,
 //!     strlen() of the longest string of 'x' that fits 
 //!
 int T4K_CharsForWidth( int fontsize,
-	int pixel_width
-	);
+                       int pixel_width
+                     );
 
 //==============================================================================
 //                  Public Definitions in t4k_loaders.c
@@ -1373,8 +1378,8 @@ char* T4K_RemoveSlash( char *path );
 //!     otherwise it will return a NULL value.
 //!
 SDL_Surface* T4K_LoadImage( const char* file_name,
-	int         mode
-	);
+                            int         mode
+                          );
 
 //==============================================================================
 // 
@@ -1402,10 +1407,10 @@ SDL_Surface* T4K_LoadImage( const char* file_name,
 //!     otherwise it will return a NULL value.
 //!
 SDL_Surface* T4K_LoadScaledImage( const char* file_name,
-	int         mode,
-	int         width,
-	int         height
-	);
+                                  int         mode,
+                                  int         width,
+                                  int         height
+                                );
 
 //==============================================================================
 // 
@@ -1431,10 +1436,10 @@ SDL_Surface* T4K_LoadScaledImage( const char* file_name,
 //!     otherwise it will return a NULL value.
 //!
 SDL_Surface* T4K_LoadImageOfBoundingBox( const char* file_name,
-	int         mode,
-	int         max_width,
-	int         max_height
-	);
+                                         int         mode,
+                                         int         max_width,
+                                         int         max_height
+                                       );
 
 //=============================================================================
 // 
@@ -1479,10 +1484,10 @@ SDL_Surface* T4K_LoadBkgd( const char* file_name,
 //! \return
 //!     0                - Failed loading of background.
 //!
-int T4K_LoadBothBkgds( const char* file_name,
-	SDL_Surface** fs_bkgd,
-	SDL_Surface** win_bkgd
-	);
+int T4K_LoadBothBkgds( const char*   file_name,
+                       SDL_Surface** fs_bkgd,
+                       SDL_Surface** win_bkgd
+                     );
 
 //==============================================================================
 //
@@ -1503,8 +1508,8 @@ int T4K_LoadBothBkgds( const char* file_name,
 //!     return a NULL value.
 //!
 sprite* T4K_LoadSprite( const char* name,
-	int         mode
-	);
+                        int         mode
+                      );
 
 //==============================================================================
 //
@@ -1530,10 +1535,10 @@ sprite* T4K_LoadSprite( const char* name,
 //!     return a NULL value.
 //!
 sprite* T4K_LoadScaledSprite( const char* name,
-	int         mode,
-	int         width,
-	int         height
-	);
+                              int         mode,
+                              int         width,
+                              int         height
+                            );
 
 //==============================================================================
 // 
@@ -1559,10 +1564,10 @@ sprite* T4K_LoadScaledSprite( const char* name,
 //!     return a NULL value.
 //!
 sprite* T4K_LoadSpriteOfBoundingBox( const char* name,
-	int mode,
-	int max_width,
-	int max_height
-	);
+                                     int         mode,
+                                     int         max_width,
+                                     int max_height
+                                   );
 
 //==============================================================================
 // 
@@ -1584,10 +1589,10 @@ sprite* T4K_LoadSpriteOfBoundingBox( const char* name,
 //! \see 
 //!     T4K_Flip
 //!
-sprite* T4K_FlipSprite ( sprite* in,
-	int X,
-	int Y 
-	);
+sprite* T4K_FlipSprite( sprite* in,
+                        int     X,
+                        int     Y 
+                      );
 
 //==============================================================================
 //
@@ -1688,8 +1693,8 @@ void T4K_PlaySound( Mix_Chunk* sound );
 //!     None
 //!
 void T4K_PlaySoundLoop( Mix_Chunk* sound,
-	int        loops
-	);
+                        int        loops
+                      );
 
 //==============================================================================
 // 
@@ -1723,8 +1728,8 @@ void T4K_AudioHaltChannel( int channel );
 //!     None
 //!
 void T4K_AudioMusicLoad( char* music_path,
-	int   loops
-	);
+                         int   loops
+                       );
 
 //==============================================================================
 // 
@@ -1764,7 +1769,8 @@ bool T4K_IsPlayingMusic( void );
 //  T4K_AudioMusicPlay
 //
 //! \brief
-//!     attempts to play the passed music data, stopping current music if necessary
+//!     Attempts to play the passed music data, stopping current music if
+//!     necessary.
 //! 
 //! \param
 //!     musicData       - Data of music.
@@ -1775,8 +1781,8 @@ bool T4K_IsPlayingMusic( void );
 //!     None
 //!
 void T4K_AudioMusicPlay( Mix_Music* musicData,
-	int        loops
-	);
+                         int        loops
+                       );
 
 //==============================================================================
 // 
@@ -1842,11 +1848,11 @@ void T4K_AudioToggle( void );
 //!     Linewrap returns the number of lines used to format the strings.
 //!
 int T4K_LineWrap( const char* input,
-	char        str_list[MAX_LINES][MAX_LINEWIDTH],
-	int         width,
-	int         max_lines,
-	int         max_width
-	);
+                  char        str_list[MAX_LINES][MAX_LINEWIDTH],
+                  int         width,
+                  int         max_lines,
+                  int         max_width
+                );
 
 //=============================================================================
 //
@@ -1875,11 +1881,12 @@ int T4K_LineWrap( const char* input,
 //!     Linewrap returns the number of lines used to format the strings.
 //!
 int T4K_LineWrapInsBreaks( const char* input,
-	char*       output,
-	int         width,
-	int         max_lines,
-	int         max_width
-	);
+                           char*       output,
+                           int         width,
+                           int         max_lines,
+                           int         max_width
+                         );
+
 //=============================================================================
 //
 //  T4K_LineWrapList
@@ -1908,11 +1915,11 @@ int T4K_LineWrapInsBreaks( const char* input,
 //!     None
 //!
 void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
-	char       str_list[MAX_LINES][MAX_LINEWIDTH],
-	int        width,
-	int        max_lines,
-	int        max_width
-	);
+                       char       str_list[MAX_LINES][MAX_LINEWIDTH],
+                       int        width,
+                       int        max_lines,
+                       int        max_width
+                     );
 
 
 //=============================================================================
@@ -1939,11 +1946,9 @@ void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
 //! /return
 //!     None
 //!
-void T4K_Throttle( int loop_msec,
-	Uint32* last_t
-	);
-
-
+void T4K_Throttle( int     loop_msec,
+                   Uint32* last_t
+                 );
 
 
 //=============================================================================
@@ -1958,6 +1963,7 @@ void T4K_Throttle( int loop_msec,
 //! /brief
 //!     A simple wrapper for using GNU iconv() to convert UTF-8 text to wchar_t
 //!     ("Unicode") text.
+//!
 //! /param
 //!     wide_word     - ptr to wchar_t buffer to contain converted text.
 //! /param
@@ -1971,10 +1977,10 @@ void T4K_Throttle( int loop_msec,
 //! /return
 //!     Returns the length of the wchar_t string generated, 0 on errors.
 //!
-int T4K_ConvertFromUTF8(wchar_t* wide_word, 
-	const char* UTF8_word, 
-	int max_length
-	);
+int T4K_ConvertFromUTF8( wchar_t*    wide_word, 
+                         const char* UTF8_word, 
+                         int         max_length
+                       );
 
 //=============================================================================
 //
@@ -1983,6 +1989,7 @@ int T4K_ConvertFromUTF8(wchar_t* wide_word,
 //! /brief
 //!     A simple wrapper for using GNU iconv() to convert wchar_t
 //!     ("Unicode") text to UTF-8 text. 
+//!
 //! /param
 //!     wide_word     - ptr to wchar_t string to be converted.
 //! /param
@@ -1996,11 +2003,10 @@ int T4K_ConvertFromUTF8(wchar_t* wide_word,
 //! /return
 //!     Returns the length of the UTF-8 string generated, 0 on errors.
 //!
-int T4K_ConvertToUTF8(const wchar_t* wide_word, 
-	char* UTF8_word, 
-	int max_length
-	);
-
+int T4K_ConvertToUTF8( const wchar_t* wide_word, 
+                       char*          UTF8_word, 
+                       int            max_length
+                     );
 
 
 //=============================================================================
@@ -2026,13 +2032,15 @@ int T4K_ConvertToUTF8(const wchar_t* wide_word,
 //!     integer less than, equal to, or greater than zero if the first argument
 //!     is considered to be  respectively  less than, equal to, or greater than
 //!     the second."
-int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
-
+//!
+int T4K_alphasort( const struct dirent** d1,
+                   const struct dirent** d2
+                 );
 
 //==============================================================================
-//!
-//!  T4K_scandir
-//!
+//
+//  T4K_scandir
+//
 //! \brief 
 //!     Wrapper for scandir function, using either platform's scandir or our
 //!     replacement in t4k_replacements if not provided by system.
@@ -2045,8 +2053,8 @@ int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
 //!     which is allocated via  malloc(3).  If  sdfilter  is NULL, all entries
 //!     are selected.
 //!
-//!     The  alphasort()  and versionsort() functions can be used as the comparison
-//!     function compar().  The former sorts directory entries using strcoll(3), 
+//!     The alphasort() and versionsort() functions can be used as the comparison
+//!     function compar(). The former sorts directory entries using strcoll(3), 
 //!     the latter using strverscmp(3) on the strings (*a)->d_name and (*b)->d_name.
 //!
 //! \param
@@ -2064,8 +2072,12 @@ int T4K_alphasort(const struct dirent** d1, const struct dirent** d2);
 //! \return 
 //!     The scandir() function returns the number of directory entries selected
 //!     or -1 if an error occurs.
+//!
+int T4K_scandir( const char*      dirname,
+                 struct dirent*** namelist,
+                 int (*sdfilter)(struct dirent *),
+                 int (*dcomp)(const void *, const void *)
+               );
 
-int T4K_scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(struct dirent *), int (*dcomp)(const void *, const void *));
+#endif /* TUX4KIDS_COMMON_H */
 
-
-#endif
