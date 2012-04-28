@@ -19,3 +19,5 @@
 #else
 #define ICONV_CONST
 #endif
+
+#cmakedefine VERSION "${PACKAGE_VERSION}"

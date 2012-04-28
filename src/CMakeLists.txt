@@ -10,6 +10,9 @@ include(ConfigureChecks)
 configure_file(${CMAKE_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/config.h)
 include(T4K_Sugar)
 
+#Cmake module contains the source files for this library
+include(${CMAKE_SOURCE_DIR}/cmake-modules/Files.cmake)
+
 find_package(LibXml2 REQUIRED)
 
 #Look here for headers
@@ -38,10 +41,6 @@ set( T4K_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 if(T4K_DEVELOPER_WARNINGS)
     list(APPEND CMAKE_C_FLAGS -Wall) 
 endif()
-
-#Find source files
-file(GLOB_RECURSE T4K_COMMON_SOURCES ${T4K_COMMON_SOURCE_DIR}/*.c)
-file(GLOB_RECURSE T4K_COMMON_HEADERS ${T4K_COMMON_SOURCE_DIR}/*.h)
 
 #Declare the library as a SO 
 add_library( ${LIB_NAME} SHARED
@@ -77,8 +76,7 @@ set_target_properties (${LIB_NAME} PROPERTIES
 add_dependencies(${LIB_NAME} linebreak)
 
 install( TARGETS ${LIB_NAME}
-    DESTINATION lib )
-
+    DESTINATION lib ) 
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
     ${T4K_COMMON_SOURCE_DIR}/t4k_alphasort.h
     ${T4K_COMMON_SOURCE_DIR}/t4k_scandir.h
@@ -88,3 +86,19 @@ include(UseDoxygen OPTIONAL)
 
 #process subdirectories
 add_subdirectory(linebreak)
+
+#Build t4k_test app
+set(T4K_TESTAPP t4k_test)
+add_executable(${T4K_TESTAPP} ${T4K_TEST_SOURCES})
+TARGET_LINK_LIBRARIES(${T4K_TESTAPP}
+    ${LIB_NAME}
+    ${SDL_LIBRARY}
+    ${SDLMIX_LIBRARY}
+    ${SDLIMAGE_LIBRARY}
+    ${SDLNET_LIBRARY}
+    ${SDLPANGO_LIBRARY}
+    ${SDLTTF_LIBRARY}
+    ${LIBXML2_LIBRARIES}
+    ${RSVG_LIBRARIES}
+    ${LINEBREAK_BINARY_DIR}/liblinebreak.a
+    )
