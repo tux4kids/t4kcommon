@@ -1,0 +1,30 @@
+This work was packaged for Debian by:
+
+    Holger Levsen <holger@debian.org> on Thu, 17 May 2012 15:25:06 +0200
+
+It was downloaded from:
+
+    http://tux4kids.alioth.debian.org/tuxmath/download.php
+
+Upstream Authors:
+
+	David Bruce <davidstuartbruce@gmail.com>
+	Brendan Luchen <bml46333@rit.edu>
+	Boleslaw Kulbabinski <bkulbabinski@gmail.com>
+	Aviral Dasgupta <aviraldg@gmail.com>
+	Francisco B. Secretario Jr <sasayins@gmail.com>
+	Matthew Trey <tux4kids@treyhome.com>
+	Siddharth <sids.aquarius@gmail.com>
+
+Copyright: (C) 2009-2012 David Bruce and others
+
+License: t4kcommon is licensed under the GPL version 3, see "/usr/share/common-licenses/GPL-3".
+
+The Debian packaging is:
+
+    Copyright (C) 2012 Holger Levsen <holger@debian.org>
+
+and is licensed under the GPL version 3,
+see "/usr/share/common-licenses/GPL-3".
+
+

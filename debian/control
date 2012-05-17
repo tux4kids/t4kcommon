@@ -1,0 +1,25 @@
+Source: t4kcommon
+Priority: extra
+Maintainer: Holger Levsen <holger@debian.org>
+Build-Depends: debhelper (>= 7.0.50~), dh-autoreconf
+Standards-Version: 3.9.3
+Section: libs
+Homepage: http://tux4kids.alioth.debian.org/
+Vcs-Git: git://git.debian.org/git/tux4kids/t4kcommon.git
+#Vcs-Browser: http://git.debian.org/?p=tux4kids/t4kcommon.git;a=summary
+
+Package: libt4k-common0-dev
+Section: libdevel
+Architecture: any
+Depends: t4kcommon0 (= ${binary:Version})
+Description: Common library for tux4kids - development files
+ t4k_common is a library of code shared between tuxmath and tuxtype.
+ . 
+ This package contains the development flies.
+
+Package: libt4k-common0
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Common library for tux4kids
+ t4k_common is a library of code shared between tuxmath and tuxtype.

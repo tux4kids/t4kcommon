@@ -1,0 +1,6 @@
+t4kcommon (1.9.0+1+git9366b80-1) unstable; urgency=low
+
+  * Initial release, needed for new tuxmath version. Will in future also be
+    used for tuxtype.
+
+ -- Holger Levsen <holger@debian.org>  Thu, 17 May 2012 15:25:06 +0200
