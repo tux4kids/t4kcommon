@@ -70,7 +70,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(cons
     len    = strlen(dirname);
     findIn = (char *)malloc(len+5);
     strcpy(findIn, dirname);
-    printf("scandir : findIn orign=%s\n", findIn);
+    fprintf(stderr, "scandir : findIn orign=%s\n", findIn);
     for (d = findIn; *d; d++)
 	if (*d=='/')
 	    *d='\\';
@@ -98,7 +98,7 @@ int scandir(const char *dirname, struct dirent ***namelist, int (*sdfilter)(cons
 	*d = 0;
     }
 
-    printf("scandir : findIn processed=%s\n", findIn);
+    fprintf(stderr, "scandir : findIn processed=%s\n", findIn);
     if ((h=FindFirstFile(findIn, &find))==INVALID_HANDLE_VALUE)
     {
 	printf("scandir : FindFirstFile error\n");

@@ -40,7 +40,7 @@ int debug_status;
  */
 int InitT4KCommon(int debug_flags)
 {
-    printf("Initializing " PACKAGE_STRING "\n");
+    fprintf(stderr, "Initializing " PACKAGE_STRING "\n");
 
     /* Video: */
     if (SDL_Init(SDL_INIT_VIDEO) < 0)

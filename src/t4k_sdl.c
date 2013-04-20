@@ -382,9 +382,9 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 	// Check that both images have the same width dimension
 	if (S1->w != S2->w)
 	{
-	    printf("S1->w %d, S2->w %d;  S1->h %d, S2->h %d\n",
+	    fprintf(stderr, "S1->w %d, S2->w %d;  S1->h %d, S2->h %d\n",
 		    S1->w, S2->w, S1->h, S2->h);
-	    printf("Both images must have the same width dimensions\n");
+	    fprintf(stderr, "Both images must have the same width dimensions\n");
 	    return S1;
 	}
     }
