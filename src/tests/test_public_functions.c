@@ -66,15 +66,12 @@ void test_T4K_RemoveSlash(void)
 {
   char winpath[] = "C:\\my\\windows\\path\\";
   char unixpath[] = "/home/my/unix/path/";
-  //char * nopath = NULL;
+  char * nopath = NULL;
   
-  /*
-  //TODO: T4K_RemoveSlash should check first if path is not NULL
-  //      and then strlen(path) ! but it's the contrary for now
-  //      so this test make CUnit crash
+  //XXX: T4K_RemoveSlash should check first if path is not NULL,
+  //      before strlen(path) ! otherwise it crashes
   T4K_RemoveSlash(nopath);
   CU_ASSERT_PTR_NULL(nopath);
-  */
   
   T4K_RemoveSlash(winpath);
   CU_ASSERT_STRING_EQUAL(winpath, "C:\\my\\windows\\path");

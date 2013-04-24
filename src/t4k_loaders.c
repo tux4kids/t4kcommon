@@ -103,6 +103,9 @@ static char app_prefix_path[1][T4K_PATH_MAX];
 /* Remove trailing slash--STOLEN from tuxpaint */
 char *T4K_RemoveSlash(char *path)
 {
+    if (!path)
+    return NULL;
+    
     int len = strlen(path);
 
     if (!len)
