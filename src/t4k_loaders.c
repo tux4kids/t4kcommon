@@ -136,7 +136,8 @@ int T4K_CheckFile(const char* file)
 	fclose(fp);
 	return 1;
     }
-
+    
+    DEBUGMSG(debug_loaders, "fopen(): %s\n", strerror(errno));
     DEBUGMSG(debug_loaders, "T4K_CheckFile(): Unable to open '%s' as either FILE or DIR\n", file);
     return 0;
 }
@@ -214,6 +215,12 @@ sprite* load_svg_sprite(const char* file_name, int width, int height)
     }
 
     new_sprite = malloc(sizeof(sprite));
+    if (new_sprite == NULL)
+    {
+        DEBUGMSG(debug_loaders, "malloc(): can't allocate memory for a new sprite\n");
+        rsvg_term();
+        return NULL;
+    }
     new_sprite->default_img = render_svg_from_handle(file_handle, width, height, "#default");
 
     /* get number of frames from description */
@@ -792,6 +799,9 @@ sprite* load_sprite(const char* name, int mode, int w, int h, bool proportional)
 sprite* T4K_FlipSprite(sprite* in, int X, int Y)
 {
     sprite *out;
+    
+    if (in == NULL)
+        return NULL;
 
     out = malloc(sizeof(sprite));
     if (in->default_img != NULL)
