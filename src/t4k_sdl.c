@@ -758,7 +758,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 {
     int i, j, x1, x2, y1, y2;
     int step1, step2, step3, step4;
-    int frame;
+    //int frame;
     SDL_Rect src;
     SDL_Rect dst;
 
@@ -792,7 +792,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 
 
     T4K_ResetBlitQueue();
-    frame = 0;
+    //frame = 0;
 
     DEBUGVARX(debug_sdl, type);
 

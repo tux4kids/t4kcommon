@@ -234,33 +234,33 @@ MenuNode *menu_TranslateNode(xmlNode *node) {
 	tnode = create_empty_node();
 
 	for(current = node->properties; current; current = current->next) {
-	    if(xmlStrcasecmp(current->name, "title") == 0) {
-		tnode->title = strdup(current->children->content);
-	    } else if(xmlStrcasecmp(current->name, "run") == 0) {
-		if(strcmp(current->children->content, "RUN_MAIN_MENU") == 0)
+	    if(xmlStrcasecmp(current->name, (const xmlChar *)"title") == 0) {
+		tnode->title = strdup((const char *)current->children->content);
+	    } else if(xmlStrcasecmp(current->name, (const xmlChar *)"run") == 0) {
+		if(strcmp((const char *)current->children->content, "RUN_MAIN_MENU") == 0)
 		    tnode->activity = RUN_MAIN_MENU;
 		else
 		    for(i = 0; i < n_of_activities; i++)
-			if(strcasecmp(current->children->content, activities[i]) == 0)
+			if(strcasecmp((const char *)current->children->content, activities[i]) == 0)
 			    tnode->activity = i;
-	    } else if(xmlStrcasecmp(current->name, "param") == 0) {
-		tnode->param = atoi(current->children->content);
-	    } else if(xmlStrcasecmp(current->name, "desc") == 0) {
-		tnode->desc = strdup(current->children->content);
-	    } else if(xmlStrcasecmp(current->name, "sprite") == 0) {
-		tnode->icon_name = strdup(current->children->content);
-	    } else if(xmlStrcasecmp(current->name, "entries") == 0) {
+	    } else if(xmlStrcasecmp(current->name, (const xmlChar *)"param") == 0) {
+		tnode->param = atoi((const char *)current->children->content);
+	    } else if(xmlStrcasecmp(current->name, (const xmlChar *)"desc") == 0) {
+		tnode->desc = strdup((const char *)current->children->content);
+	    } else if(xmlStrcasecmp(current->name, (const xmlChar *)"sprite") == 0) {
+		tnode->icon_name = strdup((const char *)current->children->content);
+	    } else if(xmlStrcasecmp(current->name, (const xmlChar *)"entries") == 0) {
 		/* Prevent memory leaks in case of multiple entries attibutes */
 		if(tnode->submenu != NULL)
 		    free(tnode->submenu);
-		tnode->submenu_size = atoi(current->children->content);
+		tnode->submenu_size = atoi((const char *)current->children->content);
 		tnode->submenu = malloc(tnode->submenu_size * sizeof(MenuNode));
 	    }
 	}
 
 
 	/* Now add child nodes. */
-	if(xmlStrcasecmp(node->name, "menu") == 0) {
+	if(xmlStrcasecmp(node->name, (const xmlChar *)"menu") == 0) {
 	    i = 0;
 	    for(child = node->children; child; child = child->next) {
 		if(child->type == XML_ELEMENT_NODE) {
@@ -381,7 +381,7 @@ void T4K_LoadMenu(int index, const char* file_name)
     fn = find_file(temp);
     DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
 
-    menus[index] = menu_LoadFile(fn);
+    menus[index] = menu_LoadFile((char *)fn);
 }
 
 /* free all loaded menu trees */
@@ -888,7 +888,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			    char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
 			    T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
 			    //        desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
-			    if (desc != "")
+			    if (strcmp(desc, "") != 0)
 				desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
 			}
 

@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 #include <string.h>
 #include <iconv.h>
+#include <errno.h>
 
 #define UTF_BUF_LENGTH 1024
 
@@ -70,6 +71,14 @@ int T4K_ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_lengt
     bytes_converted = iconv(conv_descr,
 	    (char**)&UTF8_word, &in_length,
 	    (char**)&wchar_start, &out_length);
+    
+    if (bytes_converted == -1)
+    {
+        fprintf(stderr, "iconv(): %s\n", strerror(errno));
+        iconv_close(conv_descr);
+        return 0;
+    }
+    
     iconv_close(conv_descr);
     wcsncpy(wide_word, temp_wchar, max_length);
 
@@ -122,6 +131,14 @@ int T4K_ConvertToUTF8(const wchar_t* wide_word, char* UTF8_word, int max_length)
     bytes_converted = iconv(conv_descr,
 	    (char**)&wide_word, &in_length,
 	    (char**)&UTF8_Start, &out_length);
+    
+    if (bytes_converted == -1)
+    {
+        fprintf(stderr, "iconv(): %s\n", strerror(errno));
+        iconv_close(conv_descr);
+        return 0;
+    }
+    
     iconv_close(conv_descr);
     strncpy(UTF8_word, temp_UTF8, max_length);
 

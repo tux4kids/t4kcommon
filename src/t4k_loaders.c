@@ -852,12 +852,11 @@ void T4K_NextFrame(sprite* s)
 /* save SVG info */
 int saveSVGInfo(const char* fn,int w,int h)
 {
-    int ret = 0;
     strcpy(svg_info[numSVG].fn,fn);
     svg_info[numSVG].width=w;
     svg_info[numSVG].height=h;
 
-    ret = numSVG++;
+    numSVG++;
     numSVG %= SVGINFO_MAX;
 
     return numSVG-1;
