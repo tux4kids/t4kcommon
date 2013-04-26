@@ -72,12 +72,12 @@ int T4K_ConvertFromUTF8(wchar_t* wide_word, const char* UTF8_word, int max_lengt
 	    (char**)&UTF8_word, &in_length,
 	    (char**)&wchar_start, &out_length);
     
-    if (bytes_converted == -1)
+    /*if (bytes_converted == -1)
     {
         fprintf(stderr, "iconv(): %s\n", strerror(errno));
         iconv_close(conv_descr);
         return 0;
-    }
+    }*/
     
     iconv_close(conv_descr);
     wcsncpy(wide_word, temp_wchar, max_length);
@@ -132,12 +132,12 @@ int T4K_ConvertToUTF8(const wchar_t* wide_word, char* UTF8_word, int max_length)
 	    (char**)&wide_word, &in_length,
 	    (char**)&UTF8_Start, &out_length);
     
-    if (bytes_converted == -1)
+    /*if (bytes_converted == -1)
     {
         fprintf(stderr, "iconv(): %s\n", strerror(errno));
         iconv_close(conv_descr);
         return 0;
-    }
+    }*/
     
     iconv_close(conv_descr);
     strncpy(UTF8_word, temp_UTF8, max_length);
