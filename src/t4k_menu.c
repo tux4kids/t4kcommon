@@ -197,6 +197,11 @@ void T4K_SetMenuSpritePrefix(char* pref)
 MenuNode* create_empty_node()
 {
     MenuNode* new_node = malloc(sizeof(MenuNode));
+    if (new_node == NULL)
+    {
+        DEBUGMSG(debug_menu, "malloc(): Can't allocate memory for a new menu node.\n");
+        return NULL;
+    }
     new_node->parent = NULL;
     new_node->title = NULL;
     new_node->desc = NULL;
@@ -217,6 +222,12 @@ MenuNode* create_empty_node()
 MenuNode *menu_TranslateNode(xmlNode *node) {
     MenuNode *tnode = NULL;
     int i;
+    
+    if (node == NULL)
+    {
+        DEBUGMSG(debug_menu, "menu_TranslateNode(): NULL pointer, exiting !\n");
+        return NULL;
+    }
 
     if(node->type == XML_ELEMENT_NODE) {
 	xmlAttr *current, *child;
@@ -1201,7 +1212,13 @@ char* find_longest_text(MenuNode* menu, int* length)
     char *ret = NULL, *temp = NULL;
     int i;
     int w = 0;
-
+    
+    if (menu == NULL)
+    {
+        DEBUGMSG(debug_menu, "find_longest_text(): NULL pointer, exiting !\n");
+        return NULL;
+    }
+    
     DEBUGMSG(debug_menu, "Entering find_longest_text()\n");
     if(menu->submenu_size == 0) //"leaf" menu
     {
@@ -1238,6 +1255,12 @@ char* find_longest_text(MenuNode* menu, int* length)
 int find_longest_menu_page(MenuNode* menu)
 {
     int longest = 0, i;
+    
+    if (menu == NULL)
+    {
+        DEBUGMSG(debug_menu, "find_longest_menu_page(): NULL pointer, exiting !\n");
+        return NULL;
+    }
 
     if(menu->submenu_size <= MAX_PAGE_SIZE)
 	longest = menu->submenu_size;
@@ -1301,7 +1324,13 @@ void set_menu_font_size(MenuNode* menu)
     int length = 0, i, min_f, max_f;
     int w = 0, h = 0;
     char* longest=NULL;
-
+    
+    if (menu == NULL)
+    {
+        DEBUGMSG(debug_menu, "set_menu_font_size(): NULL pointer, exiting !\n");
+        return;
+    }
+    
     for(i = 0; i < menu->submenu_size; i++)
     {
 	size_text(_(menu->submenu[i]->title), 8, &w, &h);
