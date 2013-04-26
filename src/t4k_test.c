@@ -88,8 +88,11 @@ int main(int argc, char* argv[])
     }/* end of command-line args */
 
     fprintf(stderr, "Entering t4k_test (test program for t4k_common).\n");
-    InitT4KCommon(debug_all);
-    fprintf(stderr, "t4k_test exiting normally.\n");
+    if (InitT4KCommon(debug_all) != 1)
+        fprintf(stderr, "t4k_test exiting with errors.\n");
+    else
+        fprintf(stderr, "t4k_test exiting normally.\n");
+    
     return 0;
 }
 
