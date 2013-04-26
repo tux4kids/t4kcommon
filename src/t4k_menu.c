@@ -277,10 +277,11 @@ MenuNode *menu_LoadFile(char *file) {
     xmlDoc *menu;
     xmlNode *root;
 
-    /* TODO If we're debugging, we might want to see errors and warnings */
-    menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER |
-	    XML_PARSE_NOERROR |
-	    XML_PARSE_NOWARNING);
+    if ((debug_menu_parser) & debug_status)
+        menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER);
+    else
+        menu = xmlReadFile(file, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+    
     if(menu == NULL) {
 	DEBUGMSG(debug_menu_parser, "menu_LoadFile: Failed to parse and load file. (`%s`)\n", file);
 	return NULL;
@@ -1259,7 +1260,7 @@ int find_longest_menu_page(MenuNode* menu)
     if (menu == NULL)
     {
         DEBUGMSG(debug_menu, "find_longest_menu_page(): NULL pointer, exiting !\n");
-        return NULL;
+        return 0;
     }
 
     if(menu->submenu_size <= MAX_PAGE_SIZE)
