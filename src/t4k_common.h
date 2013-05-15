@@ -140,7 +140,7 @@ static const int debug_menu          = 1 << 1; //!< Debug menu code
 static const int debug_menu_parser   = 1 << 2; //!< Debug XML parsing for menus
 static const int debug_sdl           = 1 << 3; //!< Debug image txf and other support code 
 static const int debug_linewrap      = 1 << 4; //!< Debug for linewrap functions
-static const int debug_i18n	     = 1 << 5; //!< Debug for gettext and UTF conversions
+static const int debug_i18n          = 1 << 5; //!< Debug for gettext and UTF conversions
 static const int debug_all           = ~0;     //!< Enable all debugging output (messy!)
 
 extern int debug_status;
@@ -164,7 +164,7 @@ static const SDL_Color bright_green = {0x60, 0xff, 0x00, 0xff};
 //! const int debug_some_more_stuff   = 4 << START_CUSTOM_DEBUG;
 //! </pre></code>
 //!
-#define START_CUSTOM_DEBUG 4
+#define START_CUSTOM_DEBUG 6
 
 // FIXME: global vars such as screen should be hidden when all games
 // are using only getters (such as GetScreen() )
