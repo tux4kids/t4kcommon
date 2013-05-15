@@ -126,14 +126,6 @@ typedef enum
 bool;
 #endif
 
-// Debug macros
-#define DEBUGCODE(mask) if((mask) & debug_status)
-#define DEBUGMSG(mask, ...) \
-    if((mask) & debug_status) \
-{ \
-    fprintf(stderr, __VA_ARGS__); fflush(stderr); \
-}
-
 // These values have to match those used in games.
 static const int debug_loaders       = 1 << 0; //!< Debug image loading code
 static const int debug_menu          = 1 << 1; //!< Debug menu code
