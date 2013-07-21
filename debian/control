@@ -1,7 +1,13 @@
 Source: t4kcommon
 Priority: extra
 Maintainer: Holger Levsen <holger@debian.org>
-Build-Depends: debhelper (>= 7.0.50~), dh-autoreconf
+Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
+              ,librsvg2-dev
+              ,libsdl-pango-dev
+              ,libsdl-image1.2-dev
+              ,libsdl-mixer1.2-dev
+              ,libsdl-net1.2-dev
+              ,libxml2-dev
 Standards-Version: 3.9.3
 Section: libs
 Homepage: http://tux4kids.alioth.debian.org/
@@ -11,7 +17,11 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
 Package: libt4k-common0-dev
 Section: libdevel
 Architecture: any
-Depends: t4kcommon0 (= ${binary:Version})
+Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
+              ,librsvg2-dev
+              ,libsdl-pango-dev
+              ,libsdl-image1.2-dev
+              ,libxml2-dev
 Description: Common library for tux4kids - development files
  t4k_common is a library of code shared between tuxmath and tuxtype.
  . 
