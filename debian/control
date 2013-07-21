@@ -5,8 +5,8 @@ Build-Depends: debhelper (>= 7.0.50~), dh-autoreconf
 Standards-Version: 3.9.3
 Section: libs
 Homepage: http://tux4kids.alioth.debian.org/
-Vcs-Git: git://git.debian.org/git/tux4kids/t4kcommon.git
-#Vcs-Browser: http://git.debian.org/?p=tux4kids/t4kcommon.git;a=summary
+Vcs-Git: git://anonscm.debian.org/tux4kids/t4kcommon.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
 
 Package: libt4k-common0-dev
 Section: libdevel
