@@ -28,5 +28,10 @@ override_dh_installdocs: doxygen/html
 	dh_installdocs -p$(PKG)-dev --link-doc=$(PKG)
 	dh_installdocs
 
+override_dh_strip:
+	[ -d "$(CURDIR)/debian/$(PKG)-dbg" ] \
+        && dh_strip --dbg-package=$(PKG)-dbg \
+        || dh_strip
+
 override_dh_builddeb:
 	dh_builddeb -- -Zxz

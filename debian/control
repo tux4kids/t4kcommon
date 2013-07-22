@@ -51,3 +51,14 @@ Description: common library for tux4kids - development files
 # t4k_common is a library of code shared between tuxmath and tuxtype.
 # .
 # This package contains the HTML documentation.
+
+#Package: libt4k-common0-dbg
+#Section: debug
+#Priority: extra
+#Architecture: any
+#Multi-Arch: same
+#Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
+#Description: common library for tux4kids - debugging symbols
+# t4k_common is a library of code shared between tuxmath and tuxtype.
+# .
+# This package provides debugging symbols.
