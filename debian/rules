@@ -8,3 +8,6 @@ export DH_VERBOSE=1
 
 override_dh_installdocs:
 	dh_installdocs --link-doc=libt4k-common0
+
+override_dh_builddeb:
+	dh_builddeb -- -Zxz
