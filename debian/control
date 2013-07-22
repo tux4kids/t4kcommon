@@ -1,6 +1,6 @@
 Source: t4kcommon
 Section: libs
-Priority: extra
+Priority: optional
 Maintainer: Holger Levsen <holger@debian.org>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
               ,librsvg2-dev
