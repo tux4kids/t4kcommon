@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
               ,libsdl-mixer1.2-dev
               ,libsdl-net1.2-dev
               ,libxml2-dev
-Standards-Version: 3.9.3
+Standards-Version: 3.9.4
 Homepage: http://tux4kids.alioth.debian.org/
 Vcs-Git: git://anonscm.debian.org/tux4kids/t4kcommon.git
 Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
