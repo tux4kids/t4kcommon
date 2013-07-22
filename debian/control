@@ -17,7 +17,7 @@ Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
 Package: libt4k-common0
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Common library for tux4kids
+Description: common library for tux4kids
  t4k_common is a library of code shared between tuxmath and tuxtype.
 
 Package: libt4k-common0-dev
@@ -28,7 +28,7 @@ Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
               ,libsdl-pango-dev
               ,libsdl-image1.2-dev
               ,libxml2-dev
-Description: Common library for tux4kids - development files
+Description: common library for tux4kids - development files
  t4k_common is a library of code shared between tuxmath and tuxtype.
  .
  This package contains the development flies.
