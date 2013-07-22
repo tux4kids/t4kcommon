@@ -4,12 +4,15 @@ Priority: optional
 Maintainer: Holger Levsen <holger@debian.org>
 Uploaders: Dmitry Smirnov <onlyjob@debian.org>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
+              ,doxygen
               ,librsvg2-dev
               ,libsdl-pango-dev
               ,libsdl-image1.2-dev
               ,libsdl-mixer1.2-dev
               ,libsdl-net1.2-dev
               ,libxml2-dev
+# needed for de-duplication:
+              ,rdfind ,symlinks
 Standards-Version: 3.9.4
 Homepage: http://tux4kids.alioth.debian.org/
 Vcs-Git: git://anonscm.debian.org/tux4kids/t4kcommon.git
@@ -32,7 +35,19 @@ Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
               ,libsdl-pango-dev
               ,libsdl-image1.2-dev
               ,libxml2-dev
+#Suggests: libt4k-common0-doc
 Description: common library for tux4kids - development files
  t4k_common is a library of code shared between tuxmath and tuxtype.
  .
  This package contains the development flies.
+
+#Package: libt4k-common0-doc
+#Section: doc
+#Architecture: all
+#Multi-Arch: foreign
+#Depends: ${misc:Depends}, libjs-jquery
+#Suggests: libt4k-common0-dev
+#Description: common library for tux4kids - documentation
+# t4k_common is a library of code shared between tuxmath and tuxtype.
+# .
+# This package contains the HTML documentation.

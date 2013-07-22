@@ -1,0 +1,8 @@
+Document: libt4k-common0-doc
+Title: libt4k-common documentation
+Abstract: Reference manual for libt4k-common API.
+Section: Programming
+
+Format: HTML
+Index: /usr/share/doc/libt4k-common0-doc/html/index.html
+Files: /usr/share/doc/libt4k-common0-doc/html/*

@@ -3,6 +3,8 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+PKG=libt4k-common0
+
 # minimise needless linking
 export DEB_LDFLAGS_MAINT_APPEND= -Wl,--as-needed
 
@@ -12,8 +14,19 @@ export DEB_LDFLAGS_MAINT_APPEND= -Wl,--as-needed
 override_dh_autoreconf:
 	dh_autoreconf --as-needed
 
-override_dh_installdocs:
-	dh_installdocs --link-doc=libt4k-common0
+override_dh_auto_clean:
+	dh_auto_clean
+	$(RM) -r doxygen
+
+doxygen/html:
+	doxygen -u && doxygen
+	# De-duplication:
+	rdfind -outputname /dev/null -makesymlinks true doxygen
+	symlinks -rsc doxygen
+
+override_dh_installdocs: doxygen/html
+	dh_installdocs -p$(PKG)-dev --link-doc=$(PKG)
+	dh_installdocs
 
 override_dh_builddeb:
 	dh_builddeb -- -Zxz
