@@ -1,0 +1,64 @@
+Source: t4kcommon
+Section: libs
+Priority: optional
+Maintainer: Holger Levsen <holger@debian.org>
+Uploaders: Dmitry Smirnov <onlyjob@debian.org>
+Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
+              ,doxygen
+              ,librsvg2-dev
+              ,libsdl-pango-dev
+              ,libsdl-image1.2-dev
+              ,libsdl-mixer1.2-dev
+              ,libsdl-net1.2-dev
+              ,libxml2-dev
+# needed for de-duplication:
+              ,rdfind ,symlinks
+Standards-Version: 3.9.5
+Homepage: http://tux4kids.alioth.debian.org/
+Vcs-Git: git://anonscm.debian.org/tux4kids/t4kcommon.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
+
+Package: libt4k-common0
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: common library for tux4kids
+ t4k_common is a library of code shared between tuxmath and tuxtype.
+
+Package: libt4k-common0-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
+              ,librsvg2-dev
+              ,libsdl-pango-dev
+              ,libsdl-image1.2-dev
+              ,libxml2-dev
+#Suggests: libt4k-common0-doc
+Description: common library for tux4kids - development files
+ t4k_common is a library of code shared between tuxmath and tuxtype.
+ .
+ This package contains the development flies.
+
+#Package: libt4k-common0-doc
+#Section: doc
+#Architecture: all
+#Multi-Arch: foreign
+#Depends: ${misc:Depends}, libjs-jquery
+#Suggests: libt4k-common0-dev
+#Description: common library for tux4kids - documentation
+# t4k_common is a library of code shared between tuxmath and tuxtype.
+# .
+# This package contains the HTML documentation.
+
+#Package: libt4k-common0-dbg
+#Section: debug
+#Priority: extra
+#Architecture: any
+#Multi-Arch: same
+#Depends: ${misc:Depends}, libt4k-common0 (= ${binary:Version})
+#Description: common library for tux4kids - debugging symbols
+# t4k_common is a library of code shared between tuxmath and tuxtype.
+# .
+# This package provides debugging symbols.

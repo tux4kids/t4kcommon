@@ -1,0 +1,10 @@
+t4kcommon (0.1.1-1) unstable; urgency=low
+
+  [ Dmitry Smirnov ]
+  * Preparing for release (Closes: #718631).
+
+  [ Holger Levsen ]
+  * Initial release, needed for new tuxmath version. Will in future also
+    be used for tuxtype.
+
+ -- Dmitry Smirnov <onlyjob@debian.org>  Wed, 20 Nov 2013 13:14:21 +1100
