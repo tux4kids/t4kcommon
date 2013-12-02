@@ -1,0 +1,23 @@
+# Process with configure script to generate t4k_common.pc file for pkg-config
+# NOTE: we rely heavily on substituted output variables from Autoconf
+# or Cmake to generate a t4k_common.pc that reflects conditional build
+# with optional libraries.
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: @PACKAGE_NAME@
+Description: Tux4Kids common routines
+Version: @VERSION@
+
+# List needed libs that have *.pc files in "Requires:"
+Requires: @DEP_PKGS@ 
+# List libs "by hand" that don't have .pc files:
+Libs: -l@PACKAGE_TARNAME@ -L${libdir} @DEP_LIBS@
+Cflags: -I${includedir}
+
+# List secondary dependencies of libs that don't have *.pc files
+# (needed for static linking) 
+Libs.private: @DEP_LIBS_PRIVATE@

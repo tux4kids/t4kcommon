@@ -1,0 +1,82 @@
+09 Apr 2011 - for t4k_common 0.1.1
+
+t4kcommon - library of code shared by tuxmath, tuxtype, and
+possibly other tux4kids apps in the future.
+
+Git repository: git://git.debian.org/git/tux4kids/t4kcommon.git
+
+Required libraries:
+	SDL
+	SDL_mixer
+	SDL_image
+	SDL_Pango (preferred) or SDL_ttf
+	SDL_net (optional)
+	rsvg2 (optional)
+	cairo (optional)
+	png
+	xml2
+	m (i.e. math libary)
+
+
+## To build and install from autotools-created tarball
+## (e.g. t4kcommon-0.1.0.tar.gz):
+
+tar xzf t4kcommon-0.1.0.tar.gz
+cd t4kcommon-0.1.0.tar.gz
+./configure
+make
+sudo make install
+
+(NOTE - it should also be possible to build with cmake from this tarball).
+
+## To build and install from git repository using GNU Autotools:
+## (requires Autoconf; Automake; libtool; gettext >= 0.18)
+## (from top-level directory, assumes use of separate build dir)
+
+mkdir build
+cd build
+autoreconf -if ..
+../configure
+make
+sudo make install
+
+
+## To build and install from git repository using CMake:
+## (from top-level directory, assumes use of separate build_cmake dir)
+
+mkdir build_cmake
+cd build_cmake
+cmake ..
+make
+sudo make install
+
+## NOTE FOR DEVELOPERS: The Autotools build is better tested and maintained
+than the CMake build, although they are intended to be equivalent.  If subtle
+problems appear when working on t4k_common or TuxMath with CMake, first see if
+the same issue occurs when building with Autotools.  If you are a CMake maven,
+assistance with these difficulties would be greatly appreciated.
+
+Also, it is highly recommended that you build from a separate build/ directory
+as illustrated above, to keep the source directory less cluttered. This is
+particularly important if you are testing both cmake and autotools builds, as
+they will create slightly different files that will cause subtle build
+problems.  Using e.g. "build/" and "build_cmake/" keeps them properly isolated.
+
+## IMPORTANT - after any of above, you may need to run ldconfig to update the
+paths searched by the linker.  From what I can tell, libtool is supposed to do
+this when you run "sudo make install", but I and others have encountered issues
+with this.  As a result, when you try to build and run e.g.  tuxmath, you may
+get errors saying that the library was not found. By default, t4k_common will
+be installed under /usr/local/lib.  At least on Debian-based systems as of this
+writing, /usr/local/lib is not in the linker's default path, but can be added
+to it simply by running "sudo ldconfig" with no arguments.  This only has to be
+done once, no matter how many times t4k_common is installed or uninstalled.
+
+If you install t4k_common to a non-standard location, you may need to run
+ldconfig to tell the linker about it.  I think the "right" way is probably to
+create an entry under /etc/ld.so.conf.d, then re-run "sudo ldconfig".  Or, you
+could just run "sudo lconfig -n WHEREVER_YOU_PUT_THE_LIB", See "man ldconfig"
+for further details.
+
+Again, none of this is *supposed* to be necessary - it should get taken care of
+automatically with "sudo make install".
