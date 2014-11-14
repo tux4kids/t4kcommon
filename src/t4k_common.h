@@ -62,6 +62,11 @@
 #include "SDL_image.h"
 #include "SDL_mixer.h"
 
+//TTS Macros
+#define DEFAULT_VALUE 30
+#define INTERRUPT 0
+#define APPEND 1
+
 //==============================================================================
 // Debugging macros
 //
@@ -243,6 +248,29 @@ MFStrategy;
 static char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrapped lines.
 
 //TODO separate headers for different areas a la SDL?
+
+
+//==============================================================================
+// Structure used to pass arguments for T4K_Tts_say() 
+typedef struct
+{
+	int mode;
+	wchar_t text[10000];
+}tts_argument;
+
+
+//==============================================================================
+//                  Public Definitions in t4k_tts.c
+//==============================================================================
+int T4K_Tts_init();
+int T4K_Tts_set_voice(char voice_name[]);
+void T4K_Tts_set_volume(int volume);
+void T4K_Tts_set_rate(int rate);
+void T4K_Tts_set_pitch(int pitch);
+void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
+
+
+
 
 //==============================================================================
 //                     Public Definitions in t4k_main.c                       

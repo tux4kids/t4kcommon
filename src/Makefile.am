@@ -24,7 +24,8 @@ libt4k_common_la_SOURCES = \
 			   t4k_pixels.c	\
 			   t4k_sdl.c       \
 			   t4k_throttle.c	\
-			   t4k_replacements.c
+			   t4k_replacements.c	\
+			   t4k_tts.c
 
 include_HEADERS = t4k_common.h \
 		  t4k_alphasort.h \

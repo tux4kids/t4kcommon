@@ -271,6 +271,15 @@ AC_CHECK_LIB([m],
 	[AC_MSG_ERROR([Math library not found - functions in <math.h> may not be available.])])
 
 
+dnl Check for espeak functions -------------------------------------------------------------------
+
+AC_CHECK_LIB([espeak],
+	[espeak_Cancel],
+	,
+	[AC_MSG_ERROR([Espeak development Library not found!])])
+CFLAGS="$CFLAGS-I/usr/include/espeak/"
+
+
 
 dnl Output substitutions needed for t4k_common.pc.in:
 dnl (these are used by the subsequent build process of a program using t4k_common,
