@@ -17,7 +17,7 @@ Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
 Standards-Version: 3.9.5
 Homepage: http://tux4kids.alioth.debian.org/
 Vcs-Git: git://anonscm.debian.org/tux4kids/t4kcommon.git
-Vcs-Browser: http://anonscm.debian.org/gitweb/?p=tux4kids/t4kcommon.git
+Vcs-Browser: https://anonscm.debian.org/cgit/tux4kids/t4kcommon.git
 
 Package: libt4k-common0
 Architecture: any
