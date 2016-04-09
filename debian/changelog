@@ -1,3 +1,12 @@
+t4kcommon (0.1.1-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix "FTBFS against new libpng1.6 API. Patch from BTS (Closes: #743388)
+  * Add explicit B-D against libpng-dev (to avoid that we miss it again the
+    next transition)
+
+ -- Tobias Frost <tobi@debian.org>  Thu, 07 Apr 2016 21:11:17 +0200
+
 t4kcommon (0.1.1-1) unstable; urgency=low
 
   [ Dmitry Smirnov ]

@@ -5,6 +5,7 @@ Maintainer: Holger Levsen <holger@debian.org>
 Uploaders: Dmitry Smirnov <onlyjob@debian.org>
 Build-Depends: debhelper (>= 9), dh-autoreconf, autopoint
               ,doxygen
+              ,libpng-dev
               ,librsvg2-dev
               ,libsdl-pango-dev
               ,libsdl-image1.2-dev
