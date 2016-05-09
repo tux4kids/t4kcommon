@@ -271,15 +271,52 @@ AC_CHECK_LIB([m],
 	[AC_MSG_ERROR([Math library not found - functions in <math.h> may not be available.])])
 
 
-dnl Check for espeak functions -------------------------------------------------------------------
 
+
+
+TTS_CFLAGS=""
 AC_CHECK_LIB([espeak],
 	[espeak_Cancel],
-	,
-	[AC_MSG_ERROR([Espeak development Library not found!])])
-CFLAGS="$CFLAGS -I/usr/include/espeak/"
+	[ AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak]) ESPEAK_TTS_CFLAGS=" -I/usr/include/espeak/ -lespeak" TTS_CFLAGS=" -I/usr/include/espeak/ -lespeak"],
+	[],[])
+
+AC_CHECK_LIB([speechd],
+	[spd_say],
+	[ AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak]) SPEECHD_TTS_CFLAGS=" -lspeechd" TTS_CFLAGS=" -lspeechd"],
+	[],[])
 
 
+
+
+if test -z "$TTS_CFLAGS"  ; then
+	AC_MSG_ERROR([Text To Speech development Library not found! (ESPEAK/SPEECHD) ])
+fi
+
+
+AC_ARG_WITH([speech-dispatcher],[AS_HELP_STRING([--with-speech-dispatcher])],
+[
+	if test -n "$SPEECHD_TTS_CFLAGS" ; then
+		TTS_CFLAGS="$SPEECHD_TTS_CFLAGS"
+		AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak])
+	else
+		AC_MSG_ERROR([speechd development Library not found!])
+	fi
+	
+],[])
+
+AC_ARG_WITH([espeak],[AS_HELP_STRING([--with-espeak])],
+[
+	if test -n "$ESPEAK_TTS_CFLAGS" ; then
+		TTS_CFLAGS="$ESPEAK_TTS_CFLAGS"
+		AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])	
+	else
+		AC_MSG_ERROR([espeak development Library not found!])
+	fi
+	
+],[])
+
+AC_MSG_NOTICE([TTS CFLAGS$TTS_CFLAGS ])
+CFLAGS="$CFLAGS $TTS_CFLAGS"
 
 dnl Output substitutions needed for t4k_common.pc.in:
 dnl (these are used by the subsequent build process of a program using t4k_common,

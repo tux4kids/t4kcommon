@@ -27,10 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_globals.h"
 #include "t4k_common.h"
 
-#include <speak_lib.h>
+
 #include "SDL_thread.h"
 
 
+#if WITH_ESPEAK == 1
+
+#include <speak_lib.h>
 /* TTS annoncement should be in thread otherwise 
  * it will freez the game till announcemrnt finishes */
 int tts_thread_func(void *arg)
@@ -148,3 +151,168 @@ void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
 	tts_thread = SDL_CreateThread(tts_thread_func, &data_to_pass);
 	}
 }	
+
+
+
+
+
+#else
+
+#include <libspeechd.h>
+
+
+SPDConnection *spd_connection;
+int text_to_speech_speaking;
+
+/* TTS annoncement should be in thread otherwise 
+ * it will freez the game till announcemrnt finishes */
+int tts_thread_func(void *arg)
+{
+	tts_argument recived = *((tts_argument*)(arg));
+	fprintf(stderr,"\nSPD : %s - %d",recived.text,recived.mode);
+	
+	text_to_speech_speaking = 0;
+	
+	if (recived.mode == INTERRUPT)
+	{	
+		T4K_Tts_cancel();
+		spd_say(spd_connection, 1, recived.text);
+	}
+	else
+	{
+
+		
+		spd_say(spd_connection, 1, recived.text);
+		
+	}
+	
+		printf("\nWaiting");
+		T4K_Tts_wait();
+		printf("\nWaiting over");	
+
+	return 1;
+}
+
+
+//terminate the current speech
+void T4K_Tts_cancel()
+{
+	spd_cancel(spd_connection);
+}
+
+//wait till current text is spoken
+void T4K_Tts_wait()
+{
+
+	while(text_to_speech_speaking == 0)
+	{
+		SDL_Delay(1);
+	};
+	 
+	text_to_speech_speaking = 1;
+}
+
+/* Callback for Speech Dispatcher notifications */
+void end_of_speech(size_t msg_id, size_t client_id, SPDNotificationType type)
+{
+	text_to_speech_speaking = type;
+}
+
+
+//This function should be called at begining 
+int T4K_Tts_init()
+{
+	if (text_to_speech_status)
+	{
+		spd_connection = spd_open("linux-client221", "linux connection","user_name", SPD_MODE_THREADED);
+		text_to_speech_speaking = 1;
+		spd_connection->callback_end = end_of_speech;
+		spd_set_notification_on(spd_connection, SPD_END);
+		return 1;
+	}
+}
+
+/*Used to set person in TTS. in the case of espeak we will set 
+ * language by this. return False if language is not available  */
+int T4K_Tts_set_voice(char voice_name[]){
+	if (text_to_speech_status)
+	{
+		spd_set_synthesis_voice(spd_connection,voice_name);
+	}
+	return 1;
+	
+}
+
+
+//Stop the speech if it is speaking
+void T4K_Tts_stop(){
+	extern SDL_Thread *tts_thread;
+	if (tts_thread)
+	{
+		SDL_KillThread(tts_thread);
+		tts_thread = NULL;
+		spd_cancel(spd_connection);
+		text_to_speech_speaking = 1;
+	}
+}
+
+
+//TTS Parameters
+void T4K_Tts_set_volume(int volume){
+	if (text_to_speech_status)
+	{
+		spd_set_volume(spd_connection,volume);
+	}
+}
+
+
+void T4K_Tts_set_rate(int rate){
+	if (text_to_speech_status)
+	{
+		spd_set_voice_rate(spd_connection,rate);
+	}
+
+}
+
+void T4K_Tts_set_pitch(int pitch){
+	if (text_to_speech_status)
+	{
+		spd_set_voice_pitch(spd_connection,pitch);
+	}
+}
+
+/* Function used to read a text
+ * 
+ * DEFAULT_VALUE (30) can be passed for rate and pitch
+ * 
+ * if mode = INTERRUPT then terminate the currently speaking 
+ * text and read the new text.
+ * 
+ * if mode = APPEND then wait till speaking is finished 
+ * then read the new text */
+void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
+	extern SDL_Thread *tts_thread;
+	tts_argument data_to_pass;
+	
+	
+	if (text_to_speech_status){
+	
+	T4K_Tts_set_rate(rate);
+    T4K_Tts_set_pitch(pitch);
+
+	//Getting the formated text
+	va_list list;
+	va_start(list,text);
+	vsprintf(data_to_pass.text,text,list);
+	va_end(list);
+	
+	//Passing mode
+	data_to_pass.mode = mode;
+	
+	//Calling threded function to say.	
+	tts_thread = SDL_CreateThread(tts_thread_func, &data_to_pass);
+	}
+}	
+
+
+#endif
