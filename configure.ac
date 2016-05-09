@@ -277,7 +277,7 @@ AC_CHECK_LIB([espeak],
 	[espeak_Cancel],
 	,
 	[AC_MSG_ERROR([Espeak development Library not found!])])
-CFLAGS="$CFLAGS-I/usr/include/espeak/"
+CFLAGS="$CFLAGS -I/usr/include/espeak/"
 
 
 
