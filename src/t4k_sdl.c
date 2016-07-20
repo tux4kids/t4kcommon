@@ -1725,7 +1725,7 @@ static TTF_Font* get_font(int size)
 static TTF_Font* load_font(const char* font_name, int font_size)
 {
     TTF_Font* f;
-    char fontfile[PATH_MAX];
+    char fontfile[T4K_PATH_MAX];
     sprintf(fontfile, "%s/fonts/%s", COMMON_DATA_PREFIX, font_name);
 
     f = TTF_OpenFont(fontfile, font_size);
