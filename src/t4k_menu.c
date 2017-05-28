@@ -863,11 +863,16 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			SDL_UpdateRect(T4K_GetScreen(), tmp_rect.x, tmp_rect.y, tmp_rect.w, tmp_rect.h);
 		    }
 
-		    //Announce the menu item
-		    if (menu->submenu[loc + menu->first_entry]->desc != NULL)
-			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
-		    else
-			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",_(menu->submenu[loc + menu->first_entry]->title));
+		    /* Announce the menu item if index is not out of bonds */
+		    if(loc + menu->first_entry >= 0 && loc <= items)
+		    {
+				if (menu->submenu[loc + menu->first_entry]->desc == NULL)
+					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",
+					_(menu->submenu[loc + menu->first_entry]->title));
+				else
+					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
+					_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+			}
 
 		    if(loc >= 0 && loc < items)
 		    {
@@ -972,10 +977,6 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			    }
 			    stop = true;
 			}
-			if (menu->submenu[loc + menu->first_entry]->desc != NULL)
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
-			else
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",_(menu->submenu[loc + menu->first_entry]->title));
 			break;
 
 		    case STOP_ESC:
@@ -1008,9 +1009,37 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
 	    }  // End of SDL_PollEvent while loop
 
-	    if(stop)
-		/* whole menu will be redrawn so there is no need to draw anything now */
-		break;
+		if(stop)
+		{
+			/* Set and render new description text when menu is scrolled - Nalin */
+			if(action == PAGEUP || action == PAGEDOWN)
+			{
+				char *desc = _(menu->submenu[loc + menu->first_entry]->desc);
+				char out[256];
+				int char_width;
+				// Clear old rendered text:
+				SDL_FreeSurface(desc_prerendered);
+				desc_prerendered = NULL;
+				if(desc == NULL)
+				desc = "";
+				char_width = desc_chars_per_line(T4K_TOOLTIP_FONTSIZE);
+				T4K_LineWrapInsBreaks(desc, out, char_width, 64, 64);
+				//        desc_prerendered = T4K_SimpleText(out, T4K_TOOLTIP_FONTSIZE, &yellow);
+				if (strcmp(desc, "") != 0)
+				desc_prerendered = T4K_BlackOutline(out, T4K_TOOLTIP_FONTSIZE, &yellow);
+			}
+
+			/* Announce the item again when page is scrolled or mouse hover*/
+			if (menu->submenu[loc + menu->first_entry]->desc == NULL)
+				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",
+				_(menu->submenu[loc + menu->first_entry]->title));
+			else
+				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
+				_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+
+			/* whole menu will be redrawn so there is no need to draw anything now */
+			break;
+		}
 
 	    /* handle icon animation of selected button */
 	    if(!stop && frame_counter % 5 == 0 && loc >= 0 && loc < items)
