@@ -749,7 +749,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				    {
 					if(snd_hover)
 					    T4K_PlaySound(snd_hover);
-					if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen))
+					if (loc + 1 < min(menu->submenu_size, menu->entries_per_screen) && loc+1 < menu->submenu_size-menu->first_entry)
 					    loc++;
 					else if (menu->submenu_size <= menu->entries_per_screen) 
 					    loc = 0;  // wrap around if only 1 T4K_GetScreen()
@@ -866,12 +866,14 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 		    /* Announce the menu item if index is not out of bonds */
 		    if(loc + menu->first_entry >= 0 && loc <= items)
 		    {
+
 				if (menu->submenu[loc + menu->first_entry]->desc == NULL)
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",
 					_(menu->submenu[loc + menu->first_entry]->title));
 				else
 					T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
 					_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+
 			}
 
 		    if(loc >= 0 && loc < items)
