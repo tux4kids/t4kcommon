@@ -1041,12 +1041,10 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 	    {
 		png_init_io(png_ptr, fi);
 
-		info_ptr->width = surf->w;
-		info_ptr->height = surf->h;
-		info_ptr->bit_depth = 8;
-		info_ptr->color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-		info_ptr->interlace_type = 1;
-		info_ptr->valid = 0;	/* will be updated by various png_set_FOO() functions */
+	png_set_IHDR(png_ptr, info_ptr, surf->w, surf->h, 8,
+		PNG_COLOR_TYPE_RGB_ALPHA,  PNG_INTERLACE_NONE,
+                PNG_COMPRESSION_TYPE_DEFAULT, PNG_FILTER_TYPE_DEFAULT);
+
 
 		png_set_sRGB_gAMA_and_cHRM(png_ptr, info_ptr,
 			PNG_sRGB_INTENT_PERCEPTUAL);
