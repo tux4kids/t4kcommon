@@ -282,7 +282,7 @@ AC_CHECK_LIB([espeak],
 
 AC_CHECK_LIB([speechd],
 	[spd_say],
-	[ AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak]) SPEECHD_TTS_CFLAGS=" -lspeechd" TTS_CFLAGS=" -lspeechd"],
+	[ AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak]) SPEECHD_TTS_CFLAGS=" -I/usr/include/speech-dispatcher -lspeechd" TTS_CFLAGS=" -lspeechd"],
 	[],[])
 
 
