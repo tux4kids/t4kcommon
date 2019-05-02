@@ -41,6 +41,8 @@ static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of th
 #ifdef HAVE_RSVG
 #include<librsvg/rsvg.h>
 #include<librsvg/rsvg-cairo.h>
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 #endif
 
 #define SOUNDS_DIR "sounds"
@@ -49,6 +51,7 @@ static void savePNG(SDL_Surface* surf,char* fn); //TODO this could be part of th
 /* local functions */
 
 #ifdef HAVE_RSVG
+int             get_number_of_frames_from_svg(const char *file_name);
 SDL_Surface*    load_svg(const char* file_name, int width, int height, const char* layer_name);
 sprite*         load_svg_sprite(const char* file_name, int width, int height);
 SDL_Surface*    render_svg_from_handle(RsvgHandle* file_handle, int width, int height, const char* layer_name);
@@ -165,6 +168,45 @@ const char* find_file(const char* base_name)
 }
 #ifdef HAVE_RSVG
 
+int get_number_of_frames_from_svg(const char* file_name) {
+    xmlDocPtr svgFile;
+    xmlNodePtr svgNode = NULL, nodeIterator = NULL;
+    int number_of_frames = 0, found = 0;
+
+    svgFile = xmlReadFile(file_name, NULL, XML_PARSE_RECOVER | XML_PARSE_NOERROR | XML_PARSE_NOWARNING);
+
+    /* If it's null something's really wrong because we're trying to load a sprite that doesn't exist */
+    if(svgFile == NULL) {
+        DEBUGMSG(debug_loaders, "get_number_of_frames_from_svg: couldn't load svgFile: %s\n", file_name);
+        return 0;
+    }
+
+    svgNode = xmlDocGetRootElement(svgFile);
+
+    /* If it's null then something's really wrong because there should be a root in every svg file... */
+    if(svgNode == NULL) {
+        DEBUGMSG(debug_loaders, "get_number_of_frames_from_svg: couldn't load the root from the svgFile: %s", file_name);
+        xmlFreeDoc(svgFile); /* be clean */
+        return 0;
+    }
+
+    nodeIterator = svgNode->children;
+    while(nodeIterator) {
+        if(xmlStrcasecmp(nodeIterator->name, (const xmlChar*)"desc") == 0) {
+            sscanf((const char*)xmlNodeGetContent(nodeIterator), "%d", &number_of_frames);
+            xmlFreeDoc(svgFile);
+            return number_of_frames;
+        }
+        nodeIterator = nodeIterator->next;
+    }
+
+    /* if we get here we had no description, which means something's really wrong */
+    DEBUGMSG(debug_loaders, "get_number_of_frames_from_svg: couldn't find the description frame number count from svgFile: %s", file_name);
+    xmlFreeDoc(svgFile);
+    return 0;
+}
+
+
 /* Load a layer of SVG file and resize it to given dimensions.
    If width or height is negative no resizing is applied.
    If layer = NULL then the whole image is loaded.
@@ -225,7 +267,7 @@ sprite* load_svg_sprite(const char* file_name, int width, int height)
     new_sprite->default_img = render_svg_from_handle(file_handle, width, height, "#default");
 
     /* get number of frames from description */
-    sscanf(rsvg_handle_get_desc(file_handle), "%d", &new_sprite->num_frames);
+    new_sprite->num_frames = get_number_of_frames_from_svg(file_name);
     DEBUGMSG(debug_loaders, "load_svg_sprite(): loading %d frames\n", new_sprite->num_frames);
 
     for(i = 0; i < new_sprite->num_frames; i++)
@@ -1163,4 +1205,3 @@ Mix_Music* T4K_LoadMusic(char *datafile )
     }
     return tempMusic;
 }
-
