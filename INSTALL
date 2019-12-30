@@ -16,6 +16,7 @@ Required libraries:
 	png
 	xml2
 	m (i.e. math libary)
+	eSpeak
 
 
 ## To build and install from autotools-created tarball
