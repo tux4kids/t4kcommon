@@ -271,52 +271,34 @@ AC_CHECK_LIB([m],
 	[AC_MSG_ERROR([Math library not found - functions in <math.h> may not be available.])])
 
 
+dnl One or other of espeak or speech-dispatcher is required
+AC_ARG_WITH([espeak],[AS_HELP_STRING([--without-espeak], [Do not use espeak even if available])])
+AC_ARG_WITH([speech-dispatcher],[AS_HELP_STRING([--without-speech-dispatcher], [Do not use speech-dispatcher even if available])])
 
+AS_IF([test "x$with_espeak" != "xno"],
+	[AC_CHECK_LIB([espeak],
+		[espeak_Cancel],
+		[ESPEAK_TTS_CFLAGS="-I/usr/include/espeak/"
+		 ESPEAK_TTS_LIBS="-lespeak"
+		 have_espeak=yes],
+		[have_espeak=no])])
 
+AS_IF([test "x$with_speech_dispatcher" != "xno"],
+	[PKG_CHECK_MODULES([SPEECHD_TTS],
+		 [speech-dispatcher],
+		 [have_speechd=yes],
+		 [have_speechd=no])])
 
-TTS_CFLAGS=""
-AC_CHECK_LIB([espeak],
-	[espeak_Cancel],
-	[ AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak]) ESPEAK_TTS_CFLAGS=" -I/usr/include/espeak/ -lespeak" TTS_CFLAGS=" -I/usr/include/espeak/ -lespeak"],
-	[],[])
+AS_IF([test "x$have_espeak" = "xyes"],  [
+       TTS_CFLAGS="$ESPEAK_TTS_CFLAGS" TTS_LIBS="$ESPEAK_TTS_LIBS"
+       AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])],
+      [test "x$have_speechd" = "xyes"], [
+       TTS_CFLAGS="$SPEECHD_TTS_CFLAGS" TTS_LIBS="$SPEECHD_TTS_LIBS"
+       AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak])],
+      AC_MSG_ERROR([Neither espeak nor speech-dispatcher text-to-speech library found]))
 
-AC_CHECK_LIB([speechd],
-	[spd_say],
-	[ AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak]) SPEECHD_TTS_CFLAGS=" -I/usr/include/speech-dispatcher -lspeechd" TTS_CFLAGS=" -lspeechd"],
-	[],[])
-
-
-
-
-if test -z "$TTS_CFLAGS"  ; then
-	AC_MSG_ERROR([Text To Speech development Library not found! (ESPEAK/SPEECHD) ])
-fi
-
-
-AC_ARG_WITH([speech-dispatcher],[AS_HELP_STRING([--with-speech-dispatcher])],
-[
-	if test -n "$SPEECHD_TTS_CFLAGS" ; then
-		TTS_CFLAGS="$SPEECHD_TTS_CFLAGS"
-		AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak])
-	else
-		AC_MSG_ERROR([speechd development Library not found!])
-	fi
-	
-],[])
-
-AC_ARG_WITH([espeak],[AS_HELP_STRING([--with-espeak])],
-[
-	if test -n "$ESPEAK_TTS_CFLAGS" ; then
-		TTS_CFLAGS="$ESPEAK_TTS_CFLAGS"
-		AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])	
-	else
-		AC_MSG_ERROR([espeak development Library not found!])
-	fi
-	
-],[])
-
-AC_MSG_NOTICE([TTS CFLAGS$TTS_CFLAGS ])
 CFLAGS="$CFLAGS $TTS_CFLAGS"
+LIBS="$LIBS $TTS_LIBS"
 
 dnl Output substitutions needed for t4k_common.pc.in:
 dnl (these are used by the subsequent build process of a program using t4k_common,
