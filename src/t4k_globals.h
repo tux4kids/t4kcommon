@@ -49,8 +49,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define T4K_TOOLTIP_FONTSIZE 18
 
 //TTS Thread
-SDL_Thread *tts_thread;
-int text_to_speech_status;
+extern SDL_Thread *tts_thread;
+extern int text_to_speech_status;
 
 
 extern int debug_status;
