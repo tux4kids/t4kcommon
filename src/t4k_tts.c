@@ -35,7 +35,12 @@ int text_to_speech_status;
 
 #if WITH_ESPEAK == 1
 
-#include <speak_lib.h>
+#if WITH_ESPEAK_NG
+# include <espeak-ng/speak_lib.h>
+#else
+# include <speak_lib.h>
+#endif
+
 /* TTS annoncement should be in thread otherwise 
  * it will freez the game till announcemrnt finishes */
 int tts_thread_func(void *arg)
