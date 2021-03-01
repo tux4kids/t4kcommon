@@ -271,8 +271,9 @@ AC_CHECK_LIB([m],
 	[AC_MSG_ERROR([Math library not found - functions in <math.h> may not be available.])])
 
 
-dnl One or other of espeak or speech-dispatcher is required
+dnl One of espeak, espeak-ng, or speech-dispatcher is required
 AC_ARG_WITH([espeak],[AS_HELP_STRING([--without-espeak], [Do not use espeak even if available])])
+AC_ARG_WITH([espeak-ng],[AS_HELP_STRING([--without-espeak-ng], [Do not use espeak-ng even if available])])
 AC_ARG_WITH([speech-dispatcher],[AS_HELP_STRING([--without-speech-dispatcher], [Do not use speech-dispatcher even if available])])
 
 AS_IF([test "x$with_espeak" != "xno"],
@@ -283,19 +284,29 @@ AS_IF([test "x$with_espeak" != "xno"],
 		 have_espeak=yes],
 		[have_espeak=no])])
 
+AS_IF([test "x$with_espeak_ng" != "xno"],
+	[PKG_CHECK_MODULES([ESPEAK_NG_TTS],
+		 [espeak-ng],
+		 [have_espeak_ng=yes],
+		 [have_espeak_ng=no])])
+
 AS_IF([test "x$with_speech_dispatcher" != "xno"],
 	[PKG_CHECK_MODULES([SPEECHD_TTS],
 		 [speech-dispatcher],
 		 [have_speechd=yes],
 		 [have_speechd=no])])
 
-AS_IF([test "x$have_espeak" = "xyes"],  [
+AS_IF([test "x$have_espeak" = "xyes"], [
        TTS_CFLAGS="$ESPEAK_TTS_CFLAGS" TTS_LIBS="$ESPEAK_TTS_LIBS"
        AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])],
+      [test "x$have_espeak_ng" = "xyes"], [
+       TTS_CFLAGS="$ESPEAK_NG_TTS_CFLAGS" TTS_LIBS="$ESPEAK_NG_TTS_LIBS"
+       AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])
+       AC_DEFINE([WITH_ESPEAK_NG],[1],[Use espeak-ng fork])],
       [test "x$have_speechd" = "xyes"], [
        TTS_CFLAGS="$SPEECHD_TTS_CFLAGS" TTS_LIBS="$SPEECHD_TTS_LIBS"
        AC_DEFINE([WITH_ESPEAK],[0],[Compile with espeak])],
-      AC_MSG_ERROR([Neither espeak nor speech-dispatcher text-to-speech library found]))
+      AC_MSG_ERROR([No text-to-speech library found]))
 
 CFLAGS="$CFLAGS $TTS_CFLAGS"
 LIBS="$LIBS $TTS_LIBS"
