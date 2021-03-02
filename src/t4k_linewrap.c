@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include <stdio.h>
 
 static char wrapped_lines0[MAX_LINES][MAX_LINEWIDTH];  // for internal storage
-//char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; // publicly available!
+extern char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; // publicly available!
 
 
 

@@ -30,10 +30,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
 #include "SDL_thread.h"
 
+SDL_Thread *tts_thread;
+int text_to_speech_status;
 
 #if WITH_ESPEAK == 1
 
-#include <speak_lib.h>
+#if WITH_ESPEAK_NG
+# include <espeak-ng/speak_lib.h>
+#else
+# include <speak_lib.h>
+#endif
+
 /* TTS annoncement should be in thread otherwise 
  * it will freez the game till announcemrnt finishes */
 int tts_thread_func(void *arg)
@@ -91,7 +98,6 @@ int T4K_Tts_set_voice(char voice_name[]){
 
 //Stop the speech if it is speaking
 void T4K_Tts_stop(){
-	extern SDL_Thread *tts_thread;
 	if (tts_thread)
 	{
 		SDL_KillThread(tts_thread);
@@ -129,7 +135,6 @@ espeak_SetParameter(espeakPITCH,pitch,0);
  * if mode = APPEND then wait till speaking is finished 
  * then read the new text */
 void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
-	extern SDL_Thread *tts_thread;
 	tts_argument data_to_pass;
 	
 	
@@ -246,7 +251,6 @@ int T4K_Tts_set_voice(char voice_name[]){
 
 //Stop the speech if it is speaking
 void T4K_Tts_stop(){
-	extern SDL_Thread *tts_thread;
 	if (tts_thread)
 	{
 		SDL_KillThread(tts_thread);
@@ -291,7 +295,6 @@ void T4K_Tts_set_pitch(int pitch){
  * if mode = APPEND then wait till speaking is finished 
  * then read the new text */
 void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
-	extern SDL_Thread *tts_thread;
 	tts_argument data_to_pass;
 	
 	

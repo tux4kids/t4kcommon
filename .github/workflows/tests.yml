@@ -1,0 +1,37 @@
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    name: Build
+    strategy:
+      matrix:
+        tts: [espeak, espeak-ng, speech-dispatcher]
+    steps:
+      - name: System dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            autopoint \
+            doxygen  \
+            libespeak-dev \
+            libespeak-ng-dev \
+            libpng-dev \
+            librsvg2-dev \
+            libsdl-image1.2-dev \
+            libsdl-mixer1.2-dev \
+            libsdl-net1.2-dev \
+            libsdl-pango-dev \
+            libspeechd-dev \
+            libxml2-dev
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          autoreconf -i
+          # Disable all, enable just the
+          ./configure --without-espeak --without-espeak-ng --without-speech-dispatcher --with-${{ matrix.tts }}
+          # TODO: wire up src/tests to main build system
+          make check
