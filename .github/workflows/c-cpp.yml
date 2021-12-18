@@ -1,0 +1,31 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+    - "**"
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron: '0 6 20 * *'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install autopoint autoconf-archive libsdl-pango-dev libsdl-image1.2-dev \
+                                libsdl1.2-dev libxml2-dev libespeak-dev doxygen libsdl-mixer1.2-dev \
+                                libsdl-net1.2-dev
+    - name: configure and make distcheck
+      run: |
+        autoreconf -ivf
+        mkdir build
+        cd build
+        ../configure --without-rsvg
+        make distcheck

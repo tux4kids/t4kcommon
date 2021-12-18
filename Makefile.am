@@ -7,7 +7,6 @@ SUBDIRS = data \
 
 EXTRA_DIST = CMakeLists.txt \
 	     config.h.cmake \
-             aminclude.am \
              cmake-modules/ConfigureChecks.cmake \
              cmake-modules/ConfigureChecksIntl.cmake \
              cmake-modules/FindRSVG.cmake \
@@ -21,10 +20,10 @@ ACLOCAL_AMFLAGS = -I m4
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = t4k_common.pc
 
-## For Doxygen support:
-include aminclude.am
+# include Doxygen rules (requires autoconf-archive >2016-03-20)
+@DX_RULES@
 
-# If using AX_PREFIX_CONFIG_H, distclean leaves some files so get rid of them 
+# If using AX_PREFIX_CONFIG_H, distclean leaves some files so get rid of them
 # with custom rule:
 #distclean-local: distclean-ax-prefix-config-h
 #distclean-ax-prefix-config-h:

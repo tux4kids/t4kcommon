@@ -28,6 +28,8 @@ missing
 *.m4
 libtool
 ltmain.sh
+ABOUT-NLS
+compile
 
 # Don't ignore auxiliary m4 macros for Doxygen:
 !ax_prog_doxygen.m4

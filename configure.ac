@@ -5,12 +5,12 @@ AC_INIT([Tux4Kids-Common],[1.0.0],[tuxmath-devel@lists.sourceforge.net],[t4k_com
 AC_CONFIG_SRCDIR([src/t4k_audio.c])
 AC_CONFIG_MACRO_DIR([m4])
 
-AC_PREREQ([2.63])
+AC_PREREQ([2.69])
 AC_CANONICAL_HOST
 AC_CANONICAL_BUILD
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE(foreign)
+AM_INIT_AUTOMAKE(foreign subdir-objects)
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADER([config.h])
 
@@ -21,7 +21,7 @@ AC_DEFINE_UNQUOTED([PROGRAM_NAME], "$PACKAGE", [Tux4Kids-Common])
 AC_SUBST(NAME_VERSION)
 
 # Needed for gettext:
-AC_GNU_SOURCE
+AC_USE_SYSTEM_EXTENSIONS
 AM_GNU_GETTEXT_VERSION([0.18.1])
 AM_GNU_GETTEXT([external])
 
@@ -38,7 +38,7 @@ AC_PROG_AWK
 AC_PROG_CPP
 AC_PROG_MKDIR_P
 AC_PROG_YACC
-AC_PROG_LIBTOOL
+LT_INIT
 
 
 # -----------------------------------------------------------------------
@@ -70,7 +70,7 @@ PKG_CHECK_MODULES([SDL],
 	 AM_PATH_SDL($SDL_VERSION, :,
 		AC_MSG_ERROR([SDL version $SDL_VERSION not found! http://www.libsdl.org]))])
 
-CFLAGS="$CFLAGS $SDL_CFLAGS" 
+CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
 DEP_PKGS="$DEP_PKGS sdl >= 1.2.0"
 
@@ -301,18 +301,18 @@ AC_ARG_WITH([speech-dispatcher],[AS_HELP_STRING([--with-speech-dispatcher])],
 	else
 		AC_MSG_ERROR([speechd development Library not found!])
 	fi
-	
+
 ],[])
 
 AC_ARG_WITH([espeak],[AS_HELP_STRING([--with-espeak])],
 [
 	if test -n "$ESPEAK_TTS_CFLAGS" ; then
 		TTS_CFLAGS="$ESPEAK_TTS_CFLAGS"
-		AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])	
+		AC_DEFINE([WITH_ESPEAK],[1],[Compile with espeak])
 	else
 		AC_MSG_ERROR([espeak development Library not found!])
 	fi
-	
+
 ],[])
 
 AC_MSG_NOTICE([TTS CFLAGS$TTS_CFLAGS ])
@@ -388,7 +388,7 @@ AC_MSG_RESULT([$native_win32])
 
 AM_CONDITIONAL(BUILD_MINGW32, test $native_win32 = yes)
 
-# Set the 
+# Set the
 MINGW32_PACKAGE_DATA_DIR="data"
 AC_SUBST(MINGW32_PACKAGE_DATA_DIR)
 
