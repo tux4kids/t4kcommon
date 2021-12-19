@@ -23,7 +23,7 @@ t4k_include_definition(HAVE_ICONV)
 # project.  For that reason, we need to examine whether certain settings
 # have been made before, or not.
 
-# Removed the conditional since ConfigureChecksIntl 
+# Removed the conditional since ConfigureChecksIntl
 # guards itself with INTL_CHECKS_DONE, is that okay? -BML
 include(ConfigureChecksIntl)
 t4k_gentle_set(LINEBREAK_BINARY_DIR ${CMAKE_BINARY_DIR})
@@ -42,26 +42,20 @@ add_definitions(
     -Drelocate=liblinebreak_relocate
     -DDEPENDS_ON_LIBICONV=1
     )
-    
+
 if (APPLE)
-set_directory_properties(PROPERTIES COMPILE_DEFINITIONS
-	LOCALEDIR='\"${LOCALE_DIR}\"'        	
-	LOCALE_ALIAS_PATH='\"${LOCALE_DIR}\"'
-	LIBDIR='\"${TOP_SRC_DIR}\"'
-	INSTALLDIR='\"${PREFIX}\"' 
-	)
 add_definitions(
-		-DLOCALEDIR='\"${LOCALE_DIR}\"' 
+		-DLOCALEDIR='\"${LOCALE_DIR}\"'
 		-DLOCALE_ALIAS_PATH='\"${LOCALE_DIR}\"'
 		-DLIBDIR='\"${TOP_SRC_DIR}\"'
-		-DINSTALLDIR='\"${PREFIX}\"' 
+		-DINSTALLDIR='\"${PREFIX}\"'
 		)
 else (APPLE)
 add_definitions(
-		-DLOCALEDIR=\\"${LOCALE_DIR}\\" 
-		-DLOCALE_ALIAS_PATH=\\"${LOCALE_DIR}\\"
-		-DLIBDIR=\\"${TOP_SRC_DIR}\\"
-		-DINSTALLDIR=\\"${PREFIX}\\" 
+		-DLOCALEDIR=\"${LOCALE_DIR}\"
+		-DLOCALE_ALIAS_PATH=\"${LOCALE_DIR}\"
+		-DLIBDIR=\"${TOP_SRC_DIR}\"
+		-DINSTALLDIR=\"${PREFIX}\"
 		)
 endif (APPLE)
 
@@ -69,10 +63,10 @@ file(GLOB_RECURSE LINEBREAK_HEADERS ${LINEBREAK_SOURCE_DIR} *.h)
 file(GLOB_RECURSE LINEBREAK_SOURCES ${LINEBREAK_SOURCE_DIR} *.c)
 
 include_directories(
-  ${LINEBREAK_BINARY_DIR} 
-  ${LINEBREAK_SOURCE_DIR} 
+  ${LINEBREAK_BINARY_DIR}
+  ${LINEBREAK_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR})
-  
+
 if (ICONV_FOUND)
   include_directories(${ICONV_INCLUDE_DIR})
   target_link_libraries(linebreak ${ICONV_LIBRARY})

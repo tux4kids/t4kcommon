@@ -1,5 +1,5 @@
 #This script was sloppily frankensteined from a handful of tux4kids'
-#other CMakeLists.txt and is not safe for human consumption. 
+#other CMakeLists.txt and is not safe for human consumption.
 #Please hack responsibly.
 
 # TODO - add cmake build support for t4k_test program - DSB
@@ -39,10 +39,10 @@ t4k_include_directory(RSVG)
 
 set( T4K_COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 if(T4K_DEVELOPER_WARNINGS)
-    list(APPEND CMAKE_C_FLAGS -Wall) 
+    list(APPEND CMAKE_C_FLAGS -Wall)
 endif()
 
-#Declare the library as a SO 
+#Declare the library as a SO
 add_library( ${LIB_NAME} SHARED
     ${T4K_COMMON_SOURCES} ${T4K_COMMON_HEADERS} )
 
@@ -66,17 +66,21 @@ target_link_libraries(${LIB_NAME}
 
 t4k_include_definition(HAVE_LIBSDL_PANGO)
 t4k_include_definition(HAVE_LIBPNG)
-set_target_properties (${LIB_NAME} PROPERTIES 
+set_target_properties (${LIB_NAME} PROPERTIES
     COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
-    COMPILE_DEFINITIONS
-    "COMMON_DATA_PREFIX=\"${DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_NAME}\""
     LINK_INTERFACE_LIBRARIES ""
     )
+
+target_compile_definitions(${LIB_NAME} PUBLIC
+    COMMON_DATA_PREFIX=\"${DATA_PREFIX}\"
+    PACKAGE_STRING=\"${PACKAGE_NAME}\"
+    USE_T4K_PREFIX=1
+)
 
 add_dependencies(${LIB_NAME} linebreak)
 
 install( TARGETS ${LIB_NAME}
-    DESTINATION lib ) 
+    DESTINATION lib )
 install(FILES ${T4K_COMMON_SOURCE_DIR}/t4k_common.h
     ${T4K_COMMON_SOURCE_DIR}/t4k_alphasort.h
     ${T4K_COMMON_SOURCE_DIR}/t4k_scandir.h
