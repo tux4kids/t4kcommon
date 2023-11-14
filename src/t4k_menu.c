@@ -151,7 +151,7 @@ SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
 char*           find_title_length(MenuNode* menu, int* length);
 char*           find_longest_text(MenuNode* menu, int* length);
 int             find_longest_menu_page(MenuNode* menu);
-void            set_font_size();
+void            set_font_size(bool uniform);
 void            prerender_menu(MenuNode* menu);
 int		min(int a, int b);
 int		max(int a, int b);
@@ -383,6 +383,28 @@ void T4K_LoadMenu(int index, const char* file_name)
 
     menus[index] = menu_LoadFile((char *)fn);
 }
+
+void T4K_LoadMenuArbitraryDirectory(int index, const char *directory, const char* file_name)
+{
+    const char* fn = NULL;
+    char temp[T4K_PATH_MAX];
+
+    if(file_name == NULL)
+	return;
+
+    if(menus[index])
+    {
+	free_menu(menus[index]);
+	menus[index] = NULL;
+    }
+
+    snprintf(temp, T4K_PATH_MAX, "%s/%s", directory, file_name);
+    fn = find_file(temp);
+    DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
+
+    menus[index] = menu_LoadFile((char *)fn);
+}
+
 
 /* free all loaded menu trees */
 void T4K_UnloadMenus(void)
