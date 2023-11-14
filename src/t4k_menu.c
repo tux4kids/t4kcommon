@@ -1032,13 +1032,15 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 			}
 
 			/* Announce the item again when page is scrolled or mouse hover*/
-			if (menu->submenu[loc + menu->first_entry]->desc == NULL)
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",
-				_(menu->submenu[loc + menu->first_entry]->title));
-			else
-				T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
-				_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
-
+		    if(loc >= 0 && loc < items)
+            {
+    			if (menu->submenu[loc + menu->first_entry]->desc == NULL)
+	    			T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s",
+		    		_(menu->submenu[loc + menu->first_entry]->title));
+			    else
+				    T4K_Tts_say(DEFAULT_VALUE,DEFAULT_VALUE,INTERRUPT,"%s. %s",
+    				_(menu->submenu[loc + menu->first_entry]->title),_(menu->submenu[loc + menu->first_entry]->desc));
+            }
 			/* whole menu will be redrawn so there is no need to draw anything now */
 			break;
 		}
