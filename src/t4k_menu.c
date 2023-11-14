@@ -384,26 +384,6 @@ void T4K_LoadMenu(int index, const char* file_name)
     menus[index] = menu_LoadFile((char *)fn);
 }
 
-void T4K_LoadMenuArbitraryDirectory(int index, const char *directory, const char* file_name)
-{
-    const char* fn = NULL;
-    char temp[T4K_PATH_MAX];
-
-    if(file_name == NULL)
-	return;
-
-    if(menus[index])
-    {
-	free_menu(menus[index]);
-	menus[index] = NULL;
-    }
-
-    snprintf(temp, T4K_PATH_MAX, "%s/%s", directory, file_name);
-    fn = find_file(temp);
-    DEBUGMSG(debug_loaders|debug_menu, "T4K_Loadmenu(): looking in %s\n", fn);
-
-    menus[index] = menu_LoadFile((char *)fn);
-}
 
 
 /* free all loaded menu trees */
