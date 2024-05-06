@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 //#include "c-ctype.h"
 #include "ctype.h"
 #include "xsize.h"
+#define GNULIB_UNISTR_U8_MBTOUC_UNSAFE
 #include "unistr.h"
 #include "uniwidth.h"
 #include "uniwidth/cjk.h"
