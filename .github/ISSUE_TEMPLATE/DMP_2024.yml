@@ -1,17 +1,26 @@
-name: DMP 2024 Project Template
-description: List a new project for Dedicated Mentoring Program (DMP) 2024 
-title: "[DMP 2024]: "
-labels: ["DMP 2024"]
+name: Add visual impaired accessibility to Tuxmath and Tuxtype
+description: Integrate accessibility features for visually impaired users in Tuxmath and Tuxtype
+title: "[DMP 2024]: Accessibility extension for Tuxmath and Tuxtype"
+labels:
+  [
+    "DMP 2024",
+    "Accessibility",
+    "Tuxmath",
+    "Tuxtype",
+    "C",
+    "SDL",
+    "Game Development",
+  ]
 body:
   - type: textarea
     id: ticket-description
     validations:
       required: true
     attributes:
-      label: Ticket Contents
+      label: Integrate accessibility into Tuxmath and Tuxtype
       value: |
         ## Description
-        [Provide a brief description of the feature, including why it is needed and what it will accomplish.]
+        This project aims to integrate accessibility features for visually impaired users in Tuxmath and Tuxtype. The project will involve adding features such as screen readers, keyboard navigation, and voice commands to make the games more accessible to visually impaired users. The project will also involve testing the accessibility features with visually impaired users to ensure that they are effective and user-friendly.
 
   - type: textarea
     id: ticket-goals
@@ -19,32 +28,32 @@ body:
       required: true
     attributes:
       label: Goals & Mid-Point Milestone
-      description: List the goals of the feature. Please add the goals that must be achieved by Mid-point check-in i.e 1.5 months into the coding period.
+      description: List the goals of the feature.
       value: |
         ## Goals
-        - [ ] [Goal 1]
-        - [ ] [Goal 2]
-        - [ ] [Goal 3]
-        - [ ] [Goal 4]
-        - [ ] [Goals Achieved By Mid-point Milestone]
+        - [ ] Integrate accessibility library into t4kcommon
+        - [ ] Expose accessibility features in Tuxmath and Tuxtype
+        - [ ] Add game setting options for accessibility features in Tuxmath
+        - [ ] Add game setting options for accessibility features in Tuxtype
+        - [ ] Test accessibility features with visually impaired users
 
   - type: textarea
     id: ticket-setup
     attributes:
-      label: Setup/Installation 
+      label: Setup/Installation
       description: Please list or link setup or installation guide (if any)
 
   - type: textarea
     id: ticket-expected-outcome
     attributes:
       label: Expected Outcome
-      description: Describe in detail what the final product or result should look like and how it should behave.
+      description: Accessibility feature in Tuxmath and Tuxtype that allows visually impaired users to play the games with ease.
 
   - type: textarea
     id: ticket-acceptance-criteria
     attributes:
       label: Acceptance Criteria
-      description: List the acceptance criteria for this feature.
+      description: New option menu in Tuxmath and Tuxtype that allows users to enable accessibility features. The menu should include options for screen readers, keyboard navigation, and voice commands, and should be easy to use and navigate.
 
   - type: textarea
     id: ticket-implementation-details
@@ -52,7 +61,7 @@ body:
       required: true
     attributes:
       label: Implementation Details
-      description: List any technical details about the proposed implementation, including any specific technologies that will be used.
+      description: Tuxmath and Tuxtype are written in C and use the SDL library for graphics. The accessibility features will need to be integrated into the existing codebase and tested to ensure compatibility with the games. t4common is a shared library between Tuxmath and Tuxtype, so the accessibility features will need to be added inside it and new menu options will need to be added to the games to enable the features.
 
   - type: textarea
     id: ticket-mockups
@@ -108,11 +117,11 @@ body:
     attributes:
       label: Domain
       options:
-        - ⁠Healthcare 
+        - ⁠Healthcare
         - ⁠Education
         - Financial Inclusion
         - ⁠Livelihoods
-        - ⁠Skilling 
+        - ⁠Skilling
         - ⁠Learning & Development
         - ⁠Agriculture
         - ⁠Service Delivery
@@ -120,7 +129,6 @@ body:
         - Water
     validations:
       required: true
-
 
   - type: dropdown
     id: ticket-technical-skills-required
@@ -136,6 +144,7 @@ body:
         - AWS
         - Babel
         - Bootstrap
+        - C
         - C#
         - Chart.js
         - CI/CD
@@ -192,6 +201,7 @@ body:
         - Ruby on Rails
         - Rust
         - Scala
+        - SDL
         - Security
         - Selenium
         - SEO
@@ -224,7 +234,7 @@ body:
 
   - type: dropdown
     id: ticket-category
-    attributes: 
+    attributes:
       label: Category
       description: Choose the categories that best describe your ticket
       multiple: true
@@ -260,5 +270,3 @@ body:
         - Other
     validations:
       required: true
-
-  
