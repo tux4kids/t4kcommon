@@ -1401,7 +1401,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     /* Use color key for eventual transparency: */
     color_key = SDL_MapRGB(bg->format, 30, 30, 30);
     SDL_FillRect(bg, NULL, color_key);
-
+    SDL_SetColorKey(bg, SDL_SRCCOLORKEY | SDL_RLEACCEL, color_key);
     /* Now draw black outline/shadow 2 pixels on each side: */
     dstrect.w = black_letters->w;
     dstrect.h = black_letters->h;
@@ -1445,8 +1445,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     SDL_FreeSurface(white_letters);
 
     /* --- Convert to the screen format for quicker blits --- */
-    SDL_SetColorKey(bg, SDL_SRCCOLORKEY|SDL_RLEACCEL, color_key);
-    out = SDL_DisplayFormatAlpha(bg);
+    out = SDL_DisplayFormat(bg);
     SDL_FreeSurface(bg);
 
     DEBUGMSG(debug_sdl, "\nLeaving T4K_BlackOutline(): \n");
