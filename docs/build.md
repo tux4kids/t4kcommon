@@ -21,7 +21,7 @@ Once you have installed these libraries, you can use the following commands to b
 
 1. `mkdir build`
 2. `cd build`
-3. `autoconf -if ..`
+3. `autoreconf -if ..`
 4. `../configure`
 5. `make`
 6. `sudo make install`
