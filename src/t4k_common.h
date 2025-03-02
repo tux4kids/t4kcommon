@@ -54,6 +54,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdbool.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -123,12 +124,14 @@
 #endif
 
 #ifndef bool
+#if __STDC_VERSION__ <= 201710L
 typedef enum
 {
     false, 
     true
 }
 bool;
+#endif
 #endif
 
 // These values have to match those used in games.
