@@ -261,6 +261,15 @@ CFLAGS="$CFLAGS $XML2_CFLAGS"
 LIBS="$LIBS $XML2_LIBS"
 DEP_PKGS="$DEP_PKGS libxml-2.0"
 
+dnl Bundled gnulib unistr feature gates. The prototypes in
+dnl src/linebreak/unistr.h are #ifdef'd on these macros; without them
+dnl callers see implicit-function-declaration errors under gcc 14+.
+AC_DEFINE([GNULIB_UNISTR_U8_MBTOUC],        [1], [Bundled gnulib unistr u8_mbtouc])
+AC_DEFINE([GNULIB_UNISTR_U8_MBTOUC_UNSAFE], [1], [Bundled gnulib unistr u8_mbtouc_unsafe])
+AC_DEFINE([GNULIB_UNISTR_U16_MBTOUC],       [1], [Bundled gnulib unistr u16_mbtouc])
+AC_DEFINE([GNULIB_UNISTR_U16_MBTOUC_UNSAFE],[1], [Bundled gnulib unistr u16_mbtouc_unsafe])
+AC_DEFINE([GNULIB_UNISTR_U8_UCTOMB],        [1], [Bundled gnulib unistr u8_uctomb])
+
 
 
 dnl Check for math functions - needed for SDL_extras: --------------------------------------------
