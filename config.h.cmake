@@ -7,6 +7,8 @@
 #cmakedefine HAVE_RSVG 1
 #cmakedefine HAVE_LIBPNG 1
 #cmakedefine HAVE_LIBSDL_NET 1
+#cmakedefine01 WITH_ESPEAK
+#cmakedefine01 WITH_ESPEAK_NG
 #cmakedefine PACKAGE_STRING t4k_common
 
 /* Stuff needed for linewrap */

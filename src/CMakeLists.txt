@@ -18,6 +18,7 @@ find_package(LibXml2 REQUIRED)
 #Look here for headers
 include_directories(
     ${LIBXML2_INCLUDE_DIR}
+    ${TTS_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/gettext
     ${CMAKE_BINARY_DIR}
     ${CMAKE_BINARY_DIR}/src
@@ -49,6 +50,7 @@ target_link_libraries(${LIB_NAME}
     ${LIBXML2_LIBRARIES}
     ${RSVG_LIBRARIES}
     ${CAIRO_LIBRARIES}
+    ${TTS_LIBRARIES}
     ${LINEBREAK_BINARY_DIR}/liblinebreak.a
     )
 

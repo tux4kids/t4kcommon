@@ -32,6 +32,37 @@ set(HAVE_LIBPNG PNG_FOUND)
 find_package(SDL3_net CONFIG)
 set(HAVE_LIBSDL_NET SDL3_net_FOUND)
 
+# Text-to-speech backend - one of espeak, espeak-ng, or speech-dispatcher
+# is required (matches configure.ac). Prefer espeak-ng.
+find_package(PkgConfig)
+if(PKG_CONFIG_FOUND)
+    pkg_check_modules(ESPEAK_NG espeak-ng)
+endif()
+if(ESPEAK_NG_FOUND)
+    set(WITH_ESPEAK 1)
+    set(WITH_ESPEAK_NG 1)
+    set(TTS_LIBRARIES ${ESPEAK_NG_LIBRARIES})
+    set(TTS_INCLUDE_DIRS ${ESPEAK_NG_INCLUDE_DIRS})
+else()
+    find_library(ESPEAK_LIBRARY NAMES espeak)
+    find_path(ESPEAK_INCLUDE_DIR speak_lib.h PATH_SUFFIXES espeak)
+    if(ESPEAK_LIBRARY AND ESPEAK_INCLUDE_DIR)
+        set(WITH_ESPEAK 1)
+        set(TTS_LIBRARIES ${ESPEAK_LIBRARY})
+        set(TTS_INCLUDE_DIRS ${ESPEAK_INCLUDE_DIR})
+    elseif(PKG_CONFIG_FOUND)
+        pkg_check_modules(SPEECHD speech-dispatcher)
+        if(SPEECHD_FOUND)
+            set(WITH_ESPEAK 0)
+            set(TTS_LIBRARIES ${SPEECHD_LIBRARIES})
+            set(TTS_INCLUDE_DIRS ${SPEECHD_INCLUDE_DIRS})
+        endif()
+    endif()
+endif()
+if(NOT DEFINED WITH_ESPEAK)
+    message(FATAL_ERROR "No text-to-speech library found (need espeak, espeak-ng, or speech-dispatcher)")
+endif()
+
 
 
 # based on tuxmath's CMakeLists.txt
