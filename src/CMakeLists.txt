@@ -47,6 +47,8 @@ target_link_libraries(${LIB_NAME}
     SDL3_image::SDL3_image
     SDL3_ttf::SDL3_ttf
     ${LIBXML2_LIBRARIES}
+    ${RSVG_LIBRARIES}
+    ${CAIRO_LIBRARIES}
     ${LINEBREAK_BINARY_DIR}/liblinebreak.a
     )
 
