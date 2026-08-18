@@ -59,9 +59,9 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <wchar.h>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_mixer.h"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 //TTS Macros
 #define DEFAULT_VALUE 30
@@ -569,8 +569,50 @@ void T4K_UnloadMenus( void );
 //!
 SDL_Surface* T4K_GetScreen( void );
 
+//==============================================================================
+//
+//  T4K_GetWindow / T4K_GetRenderer
+//
+//! \brief
+//!     Return the SDL3 window/renderer backing the screen surface, for
+//!     games that need to call SDL3 window or renderer functions directly
+//!     (e.g. setting the window title, icon, or mouse grab).
+//!
+//! \return
+//!     The SDL_Window*/SDL_Renderer*, or NULL if T4K_SetScreenMode() has
+//!     not yet been called successfully.
+//!
+SDL_Window* T4K_GetWindow( void );
+SDL_Renderer* T4K_GetRenderer( void );
 
-//============================================================================== 
+//==============================================================================
+//
+//  T4K_SetScreenMode
+//
+//! \brief
+//!     Create (or resize) the game window and its backing "screen"
+//!     surface. This replaces the SDL1/2 SDL_SetVideoMode() call - SDL3
+//!     has no video-surface concept, so games should call this instead of
+//!     creating their own window/surface.
+//!
+//! \param
+//!     width       - Desired window/screen width.
+//! \param
+//!     height      - Desired window/screen height.
+//! \param
+//!     fullscreen  - Nonzero to create/switch to a fullscreen window.
+//!
+//! \return
+//!     The new screen surface (same as T4K_GetScreen() would return),
+//!     or NULL on failure, in which case the previous screen is untouched.
+//!
+SDL_Surface* T4K_SetScreenMode( int width,
+                                 int height,
+                                 int fullscreen
+                               );
+
+
+//==============================================================================
 //
 //  T4K_GetResolutions
 //
@@ -945,16 +987,19 @@ void T4K_OnResolutionSwitch( ResSwitchCallback callback );
 //  T4K_WaitForEvent
 //
 //! \brief
-//!     Block application until SDL receives an appropriate event.
+//!     Block application until SDL receives one of the given event types.
 //!     Use sparingly.
 //!
 //! \param
-//!     events        - A single or OR'd combination of event masks.
-//! 
-//! \return 
+//!     event_types   - Array of SDL event type codes to wait for
+//!                     (e.g. SDL_EVENT_KEY_DOWN).
+//! \param
+//!     num_types     - Number of entries in event_types.
+//!
+//! \return
 //!     The event type received.
 //!
-SDL_EventType T4K_WaitForEvent( SDL_EventMask events );
+Uint32 T4K_WaitForEvent( const Uint32* event_types, int num_types );
 
 //==============================================================================
 //
@@ -1963,14 +2008,14 @@ void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
 //! /param
 //!     loop_msec     - The desired loop duration, in msec
 //! /param
-//!     last_t        - The valid location of a Uint32 where timing can be
+//!     last_t        - The valid location of a Uint64 where timing can be
 //!                     stored between invocations of this function.
 //!
 //! /return
 //!     None
 //!
 void T4K_Throttle( int     loop_msec,
-                   Uint32* last_t
+                   Uint64* last_t
                  );
 
 

@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #define N_(String) gettext_noop (String)
 
 #include "t4k_common.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #define REG_RGBA 16,16,96,96
 #define SEL_RGBA 16,16,128,128

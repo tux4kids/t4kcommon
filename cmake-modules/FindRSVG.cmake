@@ -52,9 +52,4 @@ if(HAVE_RSVG)
   set(_rsvg_def "-DHAVE_RSVG=1")
 endif(HAVE_RSVG)
 
-set(_pango_def "")
-if (SDLPANGO_FOUND)
-  set(_pango_def "-DHAVE_LIBSDL_PANGO=1")
-endif (SDLPANGO_FOUND)
-
 

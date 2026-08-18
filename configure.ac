@@ -59,114 +59,66 @@ dnl check for it with the pkg-config/autoconf macros?
 
 DEP_PKGS=""
 DEP_LIBS=""
-DEP_LIBS_PRIVATE="-mwindows -lmikmod -lsmpeg -lstdc++ -lmingw32 -lSDLmain -liconv -luser32 -lgdi32 -lwinmm -ldxguid -lSDL -lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype"
+DEP_LIBS_PRIVATE="-lpthread -lvorbisfile -lvorbis -lm -logg -lfreetype"
 
 
-dnl Check for SDL
+dnl Check for SDL3
 PKG_CHECK_MODULES([SDL],
-	[sdl >= 1.2.0],
+	[sdl3 >= 3.0.0],
 	[],
-	[SDL_VERSION=1.2.0
-	 AM_PATH_SDL($SDL_VERSION, :,
-		AC_MSG_ERROR([SDL version $SDL_VERSION not found! http://www.libsdl.org]))])
+	[AC_MSG_ERROR([SDL3 not found! http://www.libsdl.org])])
 
-CFLAGS="$CFLAGS $SDL_CFLAGS" 
+CFLAGS="$CFLAGS $SDL_CFLAGS"
 LIBS="$LIBS $SDL_LIBS"
-DEP_PKGS="$DEP_PKGS sdl >= 1.2.0"
+DEP_PKGS="$DEP_PKGS sdl3 >= 3.0.0"
 
 
 
-dnl Check for SDL_image: ------------------------------------------------------
+dnl Check for SDL3_image: ------------------------------------------------------
 
 PKG_CHECK_MODULES([SDL_IMAGE],
-	[SDL_image],
+	[sdl3-image],
 	[],
-	[AC_MSG_NOTICE([SDL_image not located by pkg-config, checking with AC CHECK LIB:])
-	 AC_CHECK_LIB([SDL_image],
-		[IMG_Load],
-		[],
-		[AC_MSG_ERROR([SDL_image not found! http://www.libsdl.org/projects/SDL_image])])])
+	[AC_MSG_ERROR([SDL3_image not found! http://www.libsdl.org/projects/SDL_image])])
 
-AC_DEFINE([HAVE_LIBSDL_IMAGE],[1],[Define to 1 if you have the 'SDL_image' library])
-CFLAGS="$CFLAGS $SDL_IMAGE"
+AC_DEFINE([HAVE_LIBSDL_IMAGE],[1],[Define to 1 if you have the 'SDL3_image' library])
+CFLAGS="$CFLAGS $SDL_IMAGE_CFLAGS"
 LIBS="$LIBS $SDL_IMAGE_LIBS"
-DEP_PKGS="$DEP_PKGS SDL_image"
+DEP_PKGS="$DEP_PKGS sdl3-image"
 
-dnl Check for SDL_mixer: --------------------------------------------------------
+dnl Check for SDL3_mixer: --------------------------------------------------------
 
 PKG_CHECK_MODULES([SDL_MIXER],
-	[SDL_mixer],
+	[sdl3-mixer],
 	[],
-	[AC_MSG_NOTICE([SDL_mixer not located by pkg-config, checking with AC CHECK LIB:])
-	 AC_CHECK_LIB([SDL_mixer],
-		[Mix_OpenAudio],
-		[],
-		[AC_MSG_ERROR([SDL_mixer not found! http://www.libsdl.org/projects/SDL_mixer])])])
+	[AC_MSG_ERROR([SDL3_mixer not found! http://www.libsdl.org/projects/SDL_mixer])])
 
-AC_DEFINE([HAVE_LIBSDL_MIXER],[1],[Define to 1 if you have the 'SDL_mixer' library])
+AC_DEFINE([HAVE_LIBSDL_MIXER],[1],[Define to 1 if you have the 'SDL3_mixer' library])
 CFLAGS="$CFLAGS $SDL_MIXER_CFLAGS"
 LIBS="$LIBS $SDL_MIXER_LIBS"
-DEP_LIBS="$DEP_LIBS -lSDL_mixer"
+DEP_LIBS="$DEP_LIBS -lSDL3_mixer"
 
 
-dnl Check for SDL_Pango: --------------------------------------------------------
+dnl Check for SDL3_ttf: --------------------------------------------------------
+dnl SDL_Pango has no SDL3 port, so SDL3_ttf is now the only text backend.
 
-dnl SDL_Pango is enabled by default.
-dnl If SDL_Pango disabled at configure time, or if we can't find it,
-dnl we look for SDL_ttf:
-
-AC_ARG_WITH([sdlpango],
-	[AS_HELP_STRING([--without-sdlpango],
-	[Do not use SDL_Pango even if available])],
-	[],
-	[with_sdlpango=yes])
-
-
-if test "x$with_sdlpango" != xno; then
-
-PKG_CHECK_MODULES([SDL_PANGO],
-	[SDL_Pango],
-	[],
-	[AC_MSG_NOTICE([SDL_Pango not located by pkg-config, checking with AC CHECK LIB:])
-	 AC_CHECK_LIB([SDL_Pango],
-		[SDLPango_Init],
-		[],
-		[AC_MSG_FAILURE([SDL_Pango test failed (--without-sdlpango to disable)])])])
-
-AC_DEFINE([HAVE_LIBSDL_PANGO],[1],[Define to 1 if you have the `SDL_Pango` library])
-CFLAGS="$CFLAGS $SDL_PANGO_CFLAGS"
-LIBS="$LIBS $SDL_PANGO_LIBS"
-DEP_PKGS="$DEP_PKGS SDL_Pango"
-
-fi
-
-
-
-dnl We only use SDL_ttf if SDL_Pango disabled: --------------------------------------
-
-if [test "x$with_sdlpango" = xno]; then
 dnl Add freetype link "by hand" until mingw-cross-env takes care
 dnl of this automatically
 LIBS="-lfreetype $LIBS"
 
 PKG_CHECK_MODULES([SDL_ttf],
-	[SDL_ttf],
+	[sdl3-ttf],
 	[],
-	[AC_MSG_NOTICE([SDL_ttf not located by pkg-config, checking with AC CHECK LIB:])
-	 AC_CHECK_LIB([SDL_ttf],
-		[TTF_Init],
-		[],
-		[AC_MSG_ERROR([SDL_ttf not found! http://www.libsdl.org/projects/SDL_ttf])])])
+	[AC_MSG_ERROR([SDL3_ttf not found! http://www.libsdl.org/projects/SDL_ttf])])
 
-AC_DEFINE([HAVE_LIBSDL_TTF],[1],[Define to 1 if you have the `SDL_ttf` library])
-CFLAGS="$CFLAGS $SDL_TTF_CFLAGS"
-LIBS="$LIBS $SDL_TTF_LIBS"
-DEP_LIBS="$DEP_LIBS -lSDL_ttf"
-fi
+AC_DEFINE([HAVE_LIBSDL_TTF],[1],[Define to 1 if you have the `SDL3_ttf` library])
+CFLAGS="$CFLAGS $SDL_ttf_CFLAGS"
+LIBS="$LIBS $SDL_ttf_LIBS"
+DEP_LIBS="$DEP_LIBS -lSDL3_ttf"
 
 
 
-dnl Check for SDL_net: --------------------------------------------------------
+dnl Check for SDL3_net: --------------------------------------------------------
 
 dnl SDL_net is enabled by default.
 
@@ -186,18 +138,14 @@ AC_CHECK_LIB([ws2_32],
 
 
 PKG_CHECK_MODULES([SDL_NET],
-	[SDL_net],
+	[sdl3-net],
 	[],
-	[AC_MSG_NOTICE([SDL_net not located by pkg-config, checking with AC CHECK LIB:])
-	 AC_CHECK_LIB([SDL_net],
-		[SDLNet_Init],
-		[],
-		[AC_MSG_FAILURE([SDL_net test failed (--without-sdlnet to disable)])])])
+	[AC_MSG_FAILURE([SDL3_net test failed (--without-sdlnet to disable)])])
 
-AC_DEFINE([HAVE_LIBSDL_NET],[1],[Define to 1 if you have the 'SDL_net' library])
+AC_DEFINE([HAVE_LIBSDL_NET],[1],[Define to 1 if you have the 'SDL3_net' library])
 CFLAGS="$CFLAGS $SDL_NET_CFLAGS"
 LIBS="$LIBS $SDL_NET_LIBS"
-DEP_LIBS="$DEP_LIBS -lSDL_net"
+DEP_LIBS="$DEP_LIBS -lSDL3_net"
 fi
 
 
