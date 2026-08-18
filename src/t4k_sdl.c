@@ -87,6 +87,11 @@ SDL_Renderer* T4K_GetRenderer(void)
     return renderer;
 }
 
+bool T4K_IsFullscreen(void)
+{
+    return screen_fullscreen;
+}
+
 /* Upload the software "screen" surface to the display and present it. */
 static void present_screen(void)
 {

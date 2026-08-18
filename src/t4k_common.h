@@ -284,6 +284,9 @@ void T4K_Tts_set_volume(int volume);
 void T4K_Tts_set_rate(int rate);
 void T4K_Tts_set_pitch(int pitch);
 void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
+void T4K_Tts_wait(void);
+void T4K_Tts_stop(void);
+void T4K_Tts_cancel(void);
 
 
 
@@ -597,6 +600,17 @@ SDL_Surface* T4K_GetScreen( void );
 //!
 SDL_Window* T4K_GetWindow( void );
 SDL_Renderer* T4K_GetRenderer( void );
+
+//==============================================================================
+//
+//  T4K_IsFullscreen
+//
+//! \brief
+//!     Whether the screen is currently in fullscreen mode. SDL3 has no
+//!     per-surface fullscreen flag (unlike SDL1's screen->flags &
+//!     SDL_FULLSCREEN), so games should use this instead.
+//!
+bool T4K_IsFullscreen( void );
 
 //==============================================================================
 //
