@@ -73,11 +73,18 @@ include_directories(
   ${LINEBREAK_SOURCE_DIR} 
   ${CMAKE_CURRENT_BINARY_DIR})
   
+add_library(linebreak STATIC ${LINEBREAK_SOURCES} ${LINEBREAK_HEADERS})
+# This bundled gnulib snippet calls unistr.h functions whose prototypes are
+# gated behind GNULIB_UNISTR_* macros that gnulib-tool would normally define;
+# this build never wires those up, so the prototypes are invisible even
+# though the functions are compiled in below. Older GCC only warned about
+# the resulting implicit declarations; newer GCC defaults to an error.
+target_compile_options(linebreak PRIVATE -Wno-implicit-function-declaration)
+
 if (ICONV_FOUND)
   include_directories(${ICONV_INCLUDE_DIR})
   target_link_libraries(linebreak ${ICONV_LIBRARY})
 endif (ICONV_FOUND)
-add_library(linebreak STATIC ${LINEBREAK_SOURCES} ${LINEBREAK_HEADERS})
 
 #project_source_group("${GROUP_CODE}" LINEBREAK_SOURCES LINEBREAK_HEADERS)
 

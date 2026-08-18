@@ -76,9 +76,9 @@ int InitT4KCommon(int debug_flags)
 
 #ifdef HAVE_LIBSDL_NET
     /* Networking: */
-    if (!SDLNet_Init())
+    if (!NET_Init())
     {
-        fprintf(stderr, "SDLNet_Init: %s\n", SDL_GetError());
+        fprintf(stderr, "NET_Init: %s\n", SDL_GetError());
 	return 0;
     }
 #endif
@@ -93,21 +93,16 @@ int InitT4KCommon(int debug_flags)
 
 void CleanupT4KCommon(void)
 {
-    int frequency, channels;
-    SDL_AudioFormat format;
-
     // Close the audio mixer, if it's open.
-    if (Mix_QuerySpec(&frequency, &format, &channels))
-	Mix_CloseAudio();
-
+    T4K_AudioClose();
 
     T4K_UnloadMenus();
-    // Unload SDL_Pango or SDL_ttf:
+    // Unload SDL_ttf:
     T4K_Cleanup_SDL_Text();
     
 #ifdef HAVE_LIBSDL_NET
     /* Quit networking if appropriate: */
-    SDLNet_Quit();
+    NET_Quit();
 #endif
 
     // Finally, quit SDL

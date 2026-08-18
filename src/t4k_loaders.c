@@ -1164,7 +1164,7 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
     char fn[T4K_PATH_MAX];
 
     sprintf(fn, SOUNDS_DIR "/%s", datafile);
-    tempChunk = Mix_LoadWAV(fn);
+    tempChunk = MIX_LoadAudio(T4K_GetMixer(), fn, true);
     if (!tempChunk)
     {
 	fprintf(stderr, "T4K_LoadSound(): %s not found\n\n", fn);
@@ -1189,12 +1189,12 @@ Mix_Music* T4K_LoadMusic(char *datafile )
 	return NULL;
     }
 
-    tempMusic = Mix_LoadMUS(fn);
+    tempMusic = MIX_LoadAudio(T4K_GetMixer(), fn, false);
 
     if (!tempMusic)
     {
 	fprintf(stderr, "T4K_LoadMusic(): %s not loaded successfully\n", fn);
-	printf("Error was: %s\n\n", Mix_GetError());
+	printf("Error was: %s\n\n", SDL_GetError());
     }
     return tempMusic;
 }

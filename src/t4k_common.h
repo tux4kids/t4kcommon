@@ -52,6 +52,12 @@
 #ifndef TUX4KIDS_COMMON_H
 #define TUX4KIDS_COMMON_H
 
+/* SDL1's SDL.h used to pull in <stdio.h>/<stdlib.h> transitively, and a lot
+   of code in this codebase (and in tuxmath) relies on that instead of
+   including them directly. SDL3 no longer does this, so include them here
+   since t4k_common.h is included nearly everywhere. */
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdbool.h>
@@ -62,6 +68,13 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_mixer/SDL_mixer.h>
+
+/* SDL3_mixer replaced the old Mix_Chunk/Mix_Music types (and channel-based
+   playback) with a unified MIX_Audio type played through MIX_Track
+   objects. These aliases let existing code that stores/passes Mix_Chunk
+   or Mix_Music pointers keep compiling unchanged. */
+typedef MIX_Audio Mix_Chunk;
+typedef MIX_Audio Mix_Music;
 
 //TTS Macros
 #define DEFAULT_VALUE 30
@@ -1833,6 +1846,16 @@ void T4K_AudioMusicUnload( void );
 bool T4K_IsPlayingMusic( void );
 
 //==============================================================================
+//
+//  T4K_AudioMusicPause / T4K_AudioMusicResume
+//
+//! \brief
+//!     Pause/resume the currently-loaded music track without unloading it.
+//!
+void T4K_AudioMusicPause( void );
+void T4K_AudioMusicResume( void );
+
+//==============================================================================
 // 
 //  T4K_AudioMusicPlay
 //
@@ -1882,6 +1905,55 @@ void T4K_AudioEnable( bool enabled );
 //!     None
 //!
 void T4K_AudioToggle( void );
+
+//==============================================================================
+//
+//  T4K_AudioOpen / T4K_AudioClose
+//
+//! \brief
+//!     Open/close the audio mixer device. This replaces the SDL1/2-era
+//!     direct Mix_OpenAudio()/Mix_CloseAudio() calls - SDL3_mixer's
+//!     mixer is an object (MIX_Mixer) that t4k_common owns internally.
+//!
+//! \param
+//!     frequency    - Desired output sample rate, e.g. MIX_DEFAULT_FREQUENCY.
+//! \param
+//!     channels     - Number of output channels (2 for stereo).
+//!
+//! \return
+//!     1 if successful, 0 otherwise (T4K_AudioOpen only).
+//!
+int T4K_AudioOpen( int frequency, int channels );
+void T4K_AudioClose( void );
+
+//==============================================================================
+//
+//  T4K_GetMixer
+//
+//! \brief
+//!     Return the underlying MIX_Mixer, for games that need to call
+//!     SDL3_mixer functions directly (e.g. loading audio with a
+//!     non-default predecode setting).
+//!
+//! \return
+//!     The MIX_Mixer*, or NULL if T4K_AudioOpen() has not been called
+//!     successfully.
+//!
+MIX_Mixer* T4K_GetMixer( void );
+
+//==============================================================================
+//
+//  T4K_AudioGetSoundVolume / T4K_AudioSetSoundVolume
+//  T4K_AudioGetMusicVolume / T4K_AudioSetMusicVolume
+//
+//! \brief
+//!     Get/set sound-effect and music volume, on the same 0-128 scale
+//!     used by the old SDL1/2-era Mix_Volume()/Mix_VolumeMusic().
+//!
+int  T4K_AudioGetSoundVolume( void );
+void T4K_AudioSetSoundVolume( int volume );
+int  T4K_AudioGetMusicVolume( void );
+void T4K_AudioSetMusicVolume( int volume );
 
 
 //=============================================================================

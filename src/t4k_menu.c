@@ -151,8 +151,9 @@ SDL_Surface**   render_buttons(MenuNode* menu, bool selected);
 char*           find_title_length(MenuNode* menu, int* length);
 char*           find_longest_text(MenuNode* menu, int* length);
 int             find_longest_menu_page(MenuNode* menu);
-void            set_font_size();
+void            set_font_size(bool uniform);
 void            prerender_menu(MenuNode* menu);
+static void     prerender_all_on_switch(int resx, int resy);
 int		min(int a, int b);
 int		max(int a, int b);
 void            prerender_panel();
@@ -230,7 +231,8 @@ MenuNode *menu_TranslateNode(xmlNode *node) {
     }
 
     if(node->type == XML_ELEMENT_NODE) {
-	xmlAttr *current, *child;
+	xmlAttr *current;
+	xmlNode *child;
 	tnode = create_empty_node();
 
 	for(current = node->properties; current; current = current->next) {
@@ -421,6 +423,16 @@ void T4K_UnloadMenus(void)
 }
 
 
+/* T4K_PrerenderAll() takes no arguments, but internal_res_switch_handler()
+   expects a ResSwitchCallback (which takes the new resx/resy) - this shim
+   bridges the two. */
+static void prerender_all_on_switch(int resx, int resy)
+{
+    (void)resx;
+    (void)resy;
+    T4K_PrerenderAll();
+}
+
 /*
    RunMenu - main function to display the menu and run the event loop
    if return_choice = true then return chosen value instead of
@@ -455,7 +467,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
     int click_flag = 1;
     int using_scroll = 0;
 
-    internal_res_switch_handler(&T4K_PrerenderAll);
+    internal_res_switch_handler(&prerender_all_on_switch);
 
     for(;;) /* one loop body execution for one menu page */
     {
@@ -706,7 +718,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				    /* Go to previous page, if present: */
 				case SDLK_LEFT:
 				case SDLK_PAGEUP:
-				case SDLK_h:   //(Vim-like, see also below.)
+				case SDLK_H:   //(Vim-like, see also below.)
 				    {
 					if(snd_click)
 					    T4K_PlaySound(snd_click);
@@ -718,7 +730,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				    /* Go to next page, if present: */
 				case SDLK_RIGHT:
 				case SDLK_PAGEDOWN:
-				case SDLK_l:
+				case SDLK_L:
 				    {
 					if(snd_click)
 					    T4K_PlaySound(snd_click);
@@ -729,7 +741,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 
 				    /* Go up one entry, if present: */
 				case SDLK_UP:
-				case SDLK_k:    // For grade-school Vim users
+				case SDLK_K:    // For grade-school Vim users
 				    {
 					if(snd_hover)
 					    T4K_PlaySound(snd_hover);
@@ -746,7 +758,7 @@ int T4K_RunMenu(int index, bool return_choice, void (*draw_background)(), int (*
 				    }
 
 				case SDLK_DOWN:
-				case SDLK_j:    // For grade-school Vim users
+				case SDLK_J:    // For grade-school Vim users
 				    {
 					if(snd_hover)
 					    T4K_PlaySound(snd_hover);
