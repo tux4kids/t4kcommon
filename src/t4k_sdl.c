@@ -139,7 +139,20 @@ SDL_Surface* T4K_SetScreenMode(int width, int height, int fullscreen)
 	    SDL_SetWindowSize(window, width, height);
     }
 
-    new_screen = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
+    /* Mouse events are reported in the window's logical coordinate
+       space, which on a HiDPI/scaled display is smaller than the
+       physical pixel dimensions we may have just requested (e.g. for
+       fullscreen, where width/height came from the desktop's pixel
+       resolution). Size the "screen" surface/texture to match the
+       window's logical size rather than the requested pixel size, so
+       that mouse coordinates and button-hit-testing coordinates stay
+       in the same space; SDL_RenderTexture() still stretches this up
+       to the full physical output when presenting. */
+    SDL_SyncWindow(window);
+    int logical_w = width, logical_h = height;
+    SDL_GetWindowSize(window, &logical_w, &logical_h);
+
+    new_screen = SDL_CreateSurface(logical_w, logical_h, SDL_PIXELFORMAT_RGBA32);
     if (!new_screen)
     {
 	fprintf(stderr, "\nError: Could not create screen surface.\n%s\n\n", SDL_GetError());
@@ -147,7 +160,7 @@ SDL_Surface* T4K_SetScreenMode(int width, int height, int fullscreen)
     }
 
     new_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
-	    SDL_TEXTUREACCESS_STREAMING, width, height);
+	    SDL_TEXTUREACCESS_STREAMING, logical_w, logical_h);
     if (!new_texture)
     {
 	fprintf(stderr, "\nError: Could not create screen texture.\n%s\n\n", SDL_GetError());
