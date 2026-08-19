@@ -177,6 +177,25 @@ SDL_Surface* T4K_SetScreenMode(int width, int height, int fullscreen)
     screen_texture = new_texture;
     screen_fullscreen = fullscreen ? true : false;
 
+    /* Keep the resolutions T4K_GetResolutions() reports in sync with
+       the surface we actually created, not whatever pixel dimensions
+       the caller originally requested (which, for fullscreen, is
+       usually the desktop's physical resolution - larger than
+       logical_w/h on a HiDPI/scaled display). Callers that pre-scale
+       assets via T4K_GetResolutions()/T4K_LoadBothBkgds() need this
+       to match screen->w/h or their fullscreen art comes out
+       undersized relative to the actual screen. */
+    if (fullscreen)
+    {
+	fs_res_x = logical_w;
+	fs_res_y = logical_h;
+    }
+    else
+    {
+	win_res_x = logical_w;
+	win_res_y = logical_h;
+    }
+
     return screen;
 }
 
