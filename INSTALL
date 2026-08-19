@@ -1,22 +1,37 @@
-09 Apr 2011 - for t4k_common 0.1.1
-
 t4kcommon - library of code shared by tuxmath, tuxtype, and
 possibly other tux4kids apps in the future.
 
 Git repository: git://git.debian.org/git/tux4kids/t4kcommon.git
 
+As of the SDL3 migration, this library targets SDL3. There is no SDL3
+port of SDL_Pango, so text rendering now always goes through SDL3_ttf.
+
 Required libraries:
-	SDL
-	SDL_mixer
-	SDL_image
-	SDL_Pango (preferred) or SDL_ttf
-	SDL_net (optional)
+	SDL3
+	SDL3_mixer
+	SDL3_image
+	SDL3_ttf
+	SDL3_net (optional - only needed for LAN multiplayer support)
 	rsvg2 (optional)
 	cairo (optional)
 	png
 	xml2
 	m (i.e. math libary)
-	eSpeak
+	espeak-ng (optional - only needed for the TTS/accessibility feature;
+	           the plain "espeak" or "speech-dispatcher" libraries also
+	           work as fallbacks)
+
+Note: SDL3_mixer and SDL3_net are not yet packaged by most Linux
+distributions as of this writing. If "sdl3-mixer"/"sdl3-net" (pkg-config)
+or libsdl3-mixer-dev/libsdl3-net-dev (apt) aren't available, you will
+need to build them from source - see the stable release tags at:
+
+	https://github.com/libsdl-org/SDL_mixer
+	https://github.com/libsdl-org/SDL_net
+
+and install them (e.g. to a scratch --prefix) before building
+t4k_common. SDL3 and SDL3_image are commonly packaged already
+(libsdl3-dev, libsdl3-image-dev on Debian/Ubuntu).
 
 
 ## To build and install from autotools-created tarball
