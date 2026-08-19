@@ -1307,7 +1307,11 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
 /* no SDL3 port, so it is no longer supported as a backend.             */
 /************************************************************************/
 
-#define MAX_FONT_SIZE 40
+/* Games scale font sizes up proportionally to the fullscreen
+   resolution (e.g. tuxmath's get_scale()), so this needs enough
+   headroom for large/HiDPI displays, not just the ~640x480 baseline
+   this cap was originally tuned for. */
+#define MAX_FONT_SIZE 128
 #define DEFAULT_FONT_SIZE 10
 
 #include "SDL3_ttf/SDL_ttf.h"
