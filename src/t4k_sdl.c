@@ -1335,7 +1335,6 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     SDL_Surface* white_letters = NULL;
     SDL_Surface* bg = NULL;
     SDL_Rect dstrect;
-    Uint32 color_key;
 
     /* Make sure everything is sane before we proceed: */
     TTF_Font* font = get_font(size);
@@ -1372,9 +1371,12 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 	    (black_letters->w) + 5,
 	    (black_letters->h) + 5,
 	    SDL_PIXELFORMAT_RGBA32);
-    /* Use color key for eventual transparency: */
-    color_key = SDL_MapRGB(SDL_GetPixelFormatDetails(bg->format), NULL, 30, 30, 30);
-    SDL_FillSurfaceRect(bg, NULL, color_key);
+    /* Start fully transparent; the glyph blits below build up the
+       per-pixel alpha channel via normal alpha compositing. (SDL3's
+       blitter gives an RGBA surface's own alpha channel priority over
+       colorkey, so the old colorkey-based transparency trick no
+       longer works here.) */
+    SDL_FillSurfaceRect(bg, NULL, 0);
 
     /* Now draw black outline/shadow 2 pixels on each side: */
     dstrect.w = black_letters->w;
@@ -1402,8 +1404,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     SDL_BlitSurface(white_letters, NULL, bg, &dstrect);
     SDL_DestroySurface(white_letters);
 
-    /* --- Set up transparency via colorkey --- */
-    SDL_SetSurfaceColorKey(bg, true, color_key);
+    SDL_SetSurfaceBlendMode(bg, SDL_BLENDMODE_BLEND);
     SDL_SetSurfaceRLE(bg, true);
     out = bg;
 
