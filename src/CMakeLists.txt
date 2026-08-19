@@ -4,7 +4,7 @@
 
 # TODO - add cmake build support for t4k_test program - DSB
 
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.10)
 
 include(ConfigureChecks)
 configure_file(${CMAKE_SOURCE_DIR}/config.h.cmake ${CMAKE_BINARY_DIR}/config.h)
@@ -17,10 +17,8 @@ find_package(LibXml2 REQUIRED)
 
 #Look here for headers
 include_directories(
-    ${SDL_INCLUDE_DIR}
-    ${SDLIMAGE_INCLUDE_DIR}
-    ${SDLMIXER_INCLUDE_DIR}
     ${LIBXML2_INCLUDE_DIR}
+    ${TTS_INCLUDE_DIRS}
     ${CMAKE_SOURCE_DIR}/gettext
     ${CMAKE_BINARY_DIR}
     ${CMAKE_BINARY_DIR}/src
@@ -30,8 +28,6 @@ include_directories(
     )
 
 #Look here for optional headers
-t4k_include_directory(SDLPANGO)
-t4k_include_directory(SDLTTF)
 t4k_include_directory(PNG)
 t4k_include_directory(RSVG)
 
@@ -42,32 +38,25 @@ if(T4K_DEVELOPER_WARNINGS)
     list(APPEND CMAKE_C_FLAGS -Wall) 
 endif()
 
-#Declare the library as a SO 
+#Declare the library as a SO
 add_library( ${LIB_NAME} SHARED
     ${T4K_COMMON_SOURCES} ${T4K_COMMON_HEADERS} )
 
-#Avoid linking to both libraries
-if(SDLPANGO_FOUND)
-    set(SDLTTF_LIBRARY "")
-else()
-    set(SDLPANGO_LIBRARY "")
-endif()
-
-#Depend on these libraries. For Pango or TTF, whichever is found will be used
 target_link_libraries(${LIB_NAME}
-    ${SDL_LIBRARY}
-    ${SDLMIXER_LIBRARY}
-    ${SDLIMAGE_LIBRARY}
-    ${SDLPANGO_LIBRARY}
-    ${SDLTTF_LIBRARY}
+    SDL3::SDL3
+    SDL3_mixer::SDL3_mixer
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
     ${LIBXML2_LIBRARIES}
+    ${RSVG_LIBRARIES}
+    ${CAIRO_LIBRARIES}
+    ${TTS_LIBRARIES}
     ${LINEBREAK_BINARY_DIR}/liblinebreak.a
     )
 
-t4k_include_definition(HAVE_LIBSDL_PANGO)
 t4k_include_definition(HAVE_LIBPNG)
 set_target_properties (${LIB_NAME} PROPERTIES 
-    COMPILE_FLAGS "${_rsvg_def} ${_pango_def} ${_rsvg_cflags} ${_cairo_cflags}"
+    COMPILE_FLAGS "${_rsvg_def} ${_rsvg_cflags} ${_cairo_cflags}"
     COMPILE_DEFINITIONS
     "COMMON_DATA_PREFIX=\"${DATA_PREFIX}\";USE_T4K_PREFIX=1;PACKAGE_STRING=\"${PACKAGE_NAME}\""
     LINK_INTERFACE_LIBRARIES ""
@@ -92,13 +81,14 @@ set(T4K_TESTAPP t4k_test)
 add_executable(${T4K_TESTAPP} ${T4K_TEST_SOURCES})
 TARGET_LINK_LIBRARIES(${T4K_TESTAPP}
     ${LIB_NAME}
-    ${SDL_LIBRARY}
-    ${SDLMIX_LIBRARY}
-    ${SDLIMAGE_LIBRARY}
-    ${SDLNET_LIBRARY}
-    ${SDLPANGO_LIBRARY}
-    ${SDLTTF_LIBRARY}
+    SDL3::SDL3
+    SDL3_mixer::SDL3_mixer
+    SDL3_image::SDL3_image
+    SDL3_ttf::SDL3_ttf
     ${LIBXML2_LIBRARIES}
     ${RSVG_LIBRARIES}
     ${LINEBREAK_BINARY_DIR}/liblinebreak.a
     )
+if(SDL3_net_FOUND)
+    target_link_libraries(${T4K_TESTAPP} SDL3_net::SDL3_net)
+endif()

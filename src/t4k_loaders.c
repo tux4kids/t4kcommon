@@ -291,7 +291,6 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
     cairo_t* context;
     SDL_Surface* dest;
     float scale_x, scale_y;
-    Uint32 Rmask, Gmask, Bmask, Amask;
 
     rsvg_handle_get_dimensions(file_handle, &dimensions);
 
@@ -309,21 +308,7 @@ SDL_Surface* render_svg_from_handle(RsvgHandle* file_handle, int width, int heig
 	scale_y = (float)height / dimensions.height;
     }
 
-    /* set color masks */
-    Rmask = T4K_GetScreen()->format->Rmask;
-    Gmask = T4K_GetScreen()->format->Gmask;
-    Bmask = T4K_GetScreen()->format->Bmask;
-    if(T4K_GetScreen()->format->Amask == 0)
-	/* find a free byte to use for Amask */
-	Amask = ~(Rmask | Gmask | Bmask);
-    else
-	Amask = T4K_GetScreen()->format->Amask;
-
-    DEBUGMSG(debug_loaders, "render_svg_from_handle(): color masks: R=%u, G=%u, B=%u, A=%u\n",
-	    Rmask, Gmask, Bmask, Amask);
-
-    dest = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA,
-	    width, height, T4K_GetScreen()->format->BitsPerPixel, Rmask, Gmask, Bmask, Amask);
+    dest = SDL_CreateSurface(width, height, SDL_PIXELFORMAT_RGBA32);
 
     SDL_LockSurface(dest);
     temp_surf = cairo_image_surface_create_for_data(dest->pixels,
@@ -587,13 +572,13 @@ SDL_Surface* load_image(const char* file_name, int mode, int w, int h, bool prop
 	    height = h;
 	}
 	final_pic = T4K_zoom(loaded_pic, width, height);
-	SDL_FreeSurface(loaded_pic);
+	SDL_DestroySurface(loaded_pic);
 	loaded_pic = final_pic;
 	final_pic = NULL;
     }
 
     final_pic = set_format(loaded_pic, mode);
-    SDL_FreeSurface(loaded_pic);
+    SDL_DestroySurface(loaded_pic);
     DEBUGMSG(debug_loaders, "Leaving load_image()\n\n");
 
     return final_pic;
@@ -616,27 +601,36 @@ void fit_in_rectangle(int* width, int* height, int max_width, int max_height)
 
 SDL_Surface* set_format(SDL_Surface* img, int mode)
 {
+    SDL_Surface* converted;
+
     switch (mode & IMG_MODES)
     {
 	case IMG_REGULAR:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_REGULAR mode.\n");
-		return SDL_DisplayFormat(img);
+		converted = SDL_ConvertSurface(img, SDL_PIXELFORMAT_RGBA32);
+		if (converted)
+		    SDL_SetSurfaceBlendMode(converted, SDL_BLENDMODE_NONE);
+		return converted;
 	    }
 
 	case IMG_ALPHA:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_ALPHA mode.\n");
-		return SDL_DisplayFormatAlpha(img);
+		return SDL_ConvertSurface(img, SDL_PIXELFORMAT_RGBA32);
 	    }
 
 	case IMG_COLORKEY:
 	    {
 		DEBUGMSG(debug_loaders, "set_format(): handling IMG_COLORKEY mode.\n");
-		SDL_LockSurface(img);
-		SDL_SetColorKey(img, (SDL_SRCCOLORKEY | SDL_RLEACCEL),
-			SDL_MapRGB(img->format, 255, 255, 0));
-		return SDL_DisplayFormat(img);
+		converted = SDL_ConvertSurface(img, SDL_PIXELFORMAT_RGBA32);
+		if (converted)
+		{
+		    SDL_SetSurfaceColorKey(converted, true,
+			    SDL_MapRGB(SDL_GetPixelFormatDetails(converted->format), NULL, 255, 255, 0));
+		    SDL_SetSurfaceRLE(converted, true);
+		}
+		return converted;
 	    }
 
 	default:
@@ -654,7 +648,6 @@ SDL_Surface* set_format(SDL_Surface* img, int mode)
 SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height)
 {
     SDL_Surface* orig = NULL;
-    SDL_Surface* final_pic = NULL;
 
     orig = T4K_LoadScaledImage(file_name, IMG_REGULAR, width, height);
 
@@ -666,11 +659,10 @@ SDL_Surface* T4K_LoadBkgd(const char* file_name, int width, int height)
     }
 
     /* turn off transparency, since it's the background */
-    SDL_SetAlpha(orig, SDL_RLEACCEL, SDL_ALPHA_OPAQUE);
-    final_pic = SDL_DisplayFormat(orig); /* optimize the format */
-    SDL_FreeSurface(orig);
+    SDL_SetSurfaceBlendMode(orig, SDL_BLENDMODE_NONE);
+    SDL_SetSurfaceRLE(orig, true);
 
-    return final_pic;
+    return orig;
 }
 
 /* T4K_LoadBothBkgds() : loads two scaled images: one for the fullscreen mode
@@ -869,14 +861,14 @@ void T4K_FreeSprite(sprite* gfx)
 	DEBUGMSG(debug_loaders, ".");
 	if (gfx->frame[x])
 	{
-	    SDL_FreeSurface(gfx->frame[x]);
+	    SDL_DestroySurface(gfx->frame[x]);
 	    gfx->frame[x] = NULL;
 	}
     }
 
     if (gfx->default_img)
     {
-	SDL_FreeSurface(gfx->default_img);
+	SDL_DestroySurface(gfx->default_img);
 	gfx->default_img = NULL;
     }
 
@@ -1045,8 +1037,9 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
     unsigned char **png_rows;
     Uint8 r, g, b, a;
     int x, y, count;
+    const SDL_PixelFormatDetails* surf_fmt = SDL_GetPixelFormatDetails(surf->format);
     Uint32(*getpixel) (SDL_Surface *, int, int) =
-	getpixels[surf->format->BytesPerPixel];
+	getpixels[surf_fmt->bytes_per_pixel];
 
 
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -1127,7 +1120,7 @@ static int do_png_save(FILE * fi, const char *const fname, SDL_Surface * surf)
 
 		    for (x = 0; x < surf->w; x++)
 		    {
-			SDL_GetRGBA(getpixel(surf, x, y), surf->format, &r, &g, &b, &a);
+			SDL_GetRGBA(getpixel(surf, x, y), surf_fmt, NULL, &r, &g, &b, &a);
 
 			png_rows[y][x * 4 + 0] = r;
 			png_rows[y][x * 4 + 1] = g;
@@ -1171,7 +1164,7 @@ Mix_Chunk* T4K_LoadSound( char *datafile )
     char fn[T4K_PATH_MAX];
 
     sprintf(fn, SOUNDS_DIR "/%s", datafile);
-    tempChunk = Mix_LoadWAV(fn);
+    tempChunk = MIX_LoadAudio(T4K_GetMixer(), fn, true);
     if (!tempChunk)
     {
 	fprintf(stderr, "T4K_LoadSound(): %s not found\n\n", fn);
@@ -1196,12 +1189,12 @@ Mix_Music* T4K_LoadMusic(char *datafile )
 	return NULL;
     }
 
-    tempMusic = Mix_LoadMUS(fn);
+    tempMusic = MIX_LoadAudio(T4K_GetMixer(), fn, false);
 
     if (!tempMusic)
     {
 	fprintf(stderr, "T4K_LoadMusic(): %s not loaded successfully\n", fn);
-	printf("Error was: %s\n\n", Mix_GetError());
+	printf("Error was: %s\n\n", SDL_GetError());
     }
     return tempMusic;
 }

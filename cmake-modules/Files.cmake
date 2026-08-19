@@ -14,6 +14,7 @@ set(T4K_COMMON_SOURCES
     ${T4K_SRC_ROOT}/t4k_replacements.c
     ${T4K_SRC_ROOT}/t4k_sdl.c
     ${T4K_SRC_ROOT}/t4k_throttle.c
+    ${T4K_SRC_ROOT}/t4k_tts.c
     )
 
 #Header files for T4K_Common library

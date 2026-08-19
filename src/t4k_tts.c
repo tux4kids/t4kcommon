@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_common.h"
 
 
-#include "SDL_thread.h"
+#include <SDL3/SDL_thread.h>
 
 SDL_Thread *tts_thread;
 int text_to_speech_status;
@@ -100,7 +100,7 @@ int T4K_Tts_set_voice(char voice_name[]){
 void T4K_Tts_stop(){
 	if (tts_thread)
 	{
-		SDL_KillThread(tts_thread);
+		SDL_DetachThread(tts_thread);
 		tts_thread = NULL;
 		espeak_Cancel();
 	}
@@ -153,7 +153,7 @@ void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
 	data_to_pass.mode = mode;
 	
 	//Calling threded function to say.	
-	tts_thread = SDL_CreateThread(tts_thread_func, &data_to_pass);
+	tts_thread = SDL_CreateThread(tts_thread_func, "tts_thread", &data_to_pass);
 	}
 }	
 
@@ -253,7 +253,7 @@ int T4K_Tts_set_voice(char voice_name[]){
 void T4K_Tts_stop(){
 	if (tts_thread)
 	{
-		SDL_KillThread(tts_thread);
+		SDL_DetachThread(tts_thread);
 		tts_thread = NULL;
 		spd_cancel(spd_connection);
 		text_to_speech_speaking = 1;
@@ -313,7 +313,7 @@ void T4K_Tts_say(int rate,int pitch,int mode, const char* text, ...){
 	data_to_pass.mode = mode;
 	
 	//Calling threded function to say.	
-	tts_thread = SDL_CreateThread(tts_thread_func, &data_to_pass);
+	tts_thread = SDL_CreateThread(tts_thread_func, "tts_thread", &data_to_pass);
 	}
 }	
 

@@ -52,6 +52,12 @@
 #ifndef TUX4KIDS_COMMON_H
 #define TUX4KIDS_COMMON_H
 
+/* SDL1's SDL.h used to pull in <stdio.h>/<stdlib.h> transitively, and a lot
+   of code in this codebase (and in tuxmath) relies on that instead of
+   including them directly. SDL3 no longer does this, so include them here
+   since t4k_common.h is included nearly everywhere. */
+#include <stdio.h>
+#include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdbool.h>
@@ -59,9 +65,16 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <wchar.h>
-#include "SDL.h"
-#include "SDL_image.h"
-#include "SDL_mixer.h"
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <SDL3_mixer/SDL_mixer.h>
+
+/* SDL3_mixer replaced the old Mix_Chunk/Mix_Music types (and channel-based
+   playback) with a unified MIX_Audio type played through MIX_Track
+   objects. These aliases let existing code that stores/passes Mix_Chunk
+   or Mix_Music pointers keep compiling unchanged. */
+typedef MIX_Audio Mix_Chunk;
+typedef MIX_Audio Mix_Music;
 
 //TTS Macros
 #define DEFAULT_VALUE 30
@@ -258,7 +271,7 @@ extern char wrapped_lines[MAX_LINES][MAX_LINEWIDTH]; //!< Global buffer for wrap
 typedef struct
 {
 	int mode;
-	wchar_t text[10000];
+	char text[10000];
 }tts_argument;
 
 
@@ -271,6 +284,9 @@ void T4K_Tts_set_volume(int volume);
 void T4K_Tts_set_rate(int rate);
 void T4K_Tts_set_pitch(int pitch);
 void T4K_Tts_say(int rate,int pitch, int mode, const char* text, ...);
+void T4K_Tts_wait(void);
+void T4K_Tts_stop(void);
+void T4K_Tts_cancel(void);
 
 
 
@@ -569,8 +585,61 @@ void T4K_UnloadMenus( void );
 //!
 SDL_Surface* T4K_GetScreen( void );
 
+//==============================================================================
+//
+//  T4K_GetWindow / T4K_GetRenderer
+//
+//! \brief
+//!     Return the SDL3 window/renderer backing the screen surface, for
+//!     games that need to call SDL3 window or renderer functions directly
+//!     (e.g. setting the window title, icon, or mouse grab).
+//!
+//! \return
+//!     The SDL_Window*/SDL_Renderer*, or NULL if T4K_SetScreenMode() has
+//!     not yet been called successfully.
+//!
+SDL_Window* T4K_GetWindow( void );
+SDL_Renderer* T4K_GetRenderer( void );
 
-//============================================================================== 
+//==============================================================================
+//
+//  T4K_IsFullscreen
+//
+//! \brief
+//!     Whether the screen is currently in fullscreen mode. SDL3 has no
+//!     per-surface fullscreen flag (unlike SDL1's screen->flags &
+//!     SDL_FULLSCREEN), so games should use this instead.
+//!
+bool T4K_IsFullscreen( void );
+
+//==============================================================================
+//
+//  T4K_SetScreenMode
+//
+//! \brief
+//!     Create (or resize) the game window and its backing "screen"
+//!     surface. This replaces the SDL1/2 SDL_SetVideoMode() call - SDL3
+//!     has no video-surface concept, so games should call this instead of
+//!     creating their own window/surface.
+//!
+//! \param
+//!     width       - Desired window/screen width.
+//! \param
+//!     height      - Desired window/screen height.
+//! \param
+//!     fullscreen  - Nonzero to create/switch to a fullscreen window.
+//!
+//! \return
+//!     The new screen surface (same as T4K_GetScreen() would return),
+//!     or NULL on failure, in which case the previous screen is untouched.
+//!
+SDL_Surface* T4K_SetScreenMode( int width,
+                                 int height,
+                                 int fullscreen
+                               );
+
+
+//==============================================================================
 //
 //  T4K_GetResolutions
 //
@@ -945,16 +1014,19 @@ void T4K_OnResolutionSwitch( ResSwitchCallback callback );
 //  T4K_WaitForEvent
 //
 //! \brief
-//!     Block application until SDL receives an appropriate event.
+//!     Block application until SDL receives one of the given event types.
 //!     Use sparingly.
 //!
 //! \param
-//!     events        - A single or OR'd combination of event masks.
-//! 
-//! \return 
+//!     event_types   - Array of SDL event type codes to wait for
+//!                     (e.g. SDL_EVENT_KEY_DOWN).
+//! \param
+//!     num_types     - Number of entries in event_types.
+//!
+//! \return
 //!     The event type received.
 //!
-SDL_EventType T4K_WaitForEvent( SDL_EventMask events );
+Uint32 T4K_WaitForEvent( const Uint32* event_types, int num_types );
 
 //==============================================================================
 //
@@ -1788,6 +1860,16 @@ void T4K_AudioMusicUnload( void );
 bool T4K_IsPlayingMusic( void );
 
 //==============================================================================
+//
+//  T4K_AudioMusicPause / T4K_AudioMusicResume
+//
+//! \brief
+//!     Pause/resume the currently-loaded music track without unloading it.
+//!
+void T4K_AudioMusicPause( void );
+void T4K_AudioMusicResume( void );
+
+//==============================================================================
 // 
 //  T4K_AudioMusicPlay
 //
@@ -1837,6 +1919,55 @@ void T4K_AudioEnable( bool enabled );
 //!     None
 //!
 void T4K_AudioToggle( void );
+
+//==============================================================================
+//
+//  T4K_AudioOpen / T4K_AudioClose
+//
+//! \brief
+//!     Open/close the audio mixer device. This replaces the SDL1/2-era
+//!     direct Mix_OpenAudio()/Mix_CloseAudio() calls - SDL3_mixer's
+//!     mixer is an object (MIX_Mixer) that t4k_common owns internally.
+//!
+//! \param
+//!     frequency    - Desired output sample rate, e.g. MIX_DEFAULT_FREQUENCY.
+//! \param
+//!     channels     - Number of output channels (2 for stereo).
+//!
+//! \return
+//!     1 if successful, 0 otherwise (T4K_AudioOpen only).
+//!
+int T4K_AudioOpen( int frequency, int channels );
+void T4K_AudioClose( void );
+
+//==============================================================================
+//
+//  T4K_GetMixer
+//
+//! \brief
+//!     Return the underlying MIX_Mixer, for games that need to call
+//!     SDL3_mixer functions directly (e.g. loading audio with a
+//!     non-default predecode setting).
+//!
+//! \return
+//!     The MIX_Mixer*, or NULL if T4K_AudioOpen() has not been called
+//!     successfully.
+//!
+MIX_Mixer* T4K_GetMixer( void );
+
+//==============================================================================
+//
+//  T4K_AudioGetSoundVolume / T4K_AudioSetSoundVolume
+//  T4K_AudioGetMusicVolume / T4K_AudioSetMusicVolume
+//
+//! \brief
+//!     Get/set sound-effect and music volume, on the same 0-128 scale
+//!     used by the old SDL1/2-era Mix_Volume()/Mix_VolumeMusic().
+//!
+int  T4K_AudioGetSoundVolume( void );
+void T4K_AudioSetSoundVolume( int volume );
+int  T4K_AudioGetMusicVolume( void );
+void T4K_AudioSetMusicVolume( int volume );
 
 
 //=============================================================================
@@ -1963,14 +2094,14 @@ void T4K_LineWrapList( const char input[MAX_LINES][MAX_LINEWIDTH],
 //! /param
 //!     loop_msec     - The desired loop duration, in msec
 //! /param
-//!     last_t        - The valid location of a Uint32 where timing can be
+//!     last_t        - The valid location of a Uint64 where timing can be
 //!                     stored between invocations of this function.
 //!
 //! /return
 //!     None
 //!
 void T4K_Throttle( int     loop_msec,
-                   Uint32* last_t
+                   Uint64* last_t
                  );
 
 

@@ -32,7 +32,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 #include "t4k_common.h"
 #include "t4k_globals.h"
 
+/* SDL3 has no "video surface" concept: a window is presented via a
+   renderer and textures. To keep the large amount of existing code
+   that blits directly into a "screen" SDL_Surface working unchanged,
+   we keep a software surface as the "screen", and upload it to a
+   streaming texture for presentation whenever the game asks us to
+   update the display (T4K_UpdateRect(), T4K_UpdateScreen(), or the
+   old SDL_Flip() call sites in TransWipe()). */
 SDL_Surface* screen = NULL;
+
+static SDL_Window* window = NULL;
+static SDL_Renderer* renderer = NULL;
+static SDL_Texture* screen_texture = NULL;
+static bool screen_fullscreen = false;
 
 static ResSwitchCallback res_switch_callback = NULL;
 static ResSwitchCallback internal_res_switch_callback = NULL;
@@ -58,24 +70,138 @@ const char* T4K_AskFontName()
     return _font_name;
 }
 
-/*
-   Return a pointer to the screen we're using, as an alternative to making screen
-   global. Not sure what is involved performance-wise in SDL_GetVideoSurface,
-   or if this check is even necessary -Cheez
-   */
+/* Return a pointer to the screen we're using, as an alternative to
+   making screen a global variable. */
 SDL_Surface* T4K_GetScreen()
 {
-    if (screen != SDL_GetVideoSurface() )
+    return screen;
+}
+
+SDL_Window* T4K_GetWindow(void)
+{
+    return window;
+}
+
+SDL_Renderer* T4K_GetRenderer(void)
+{
+    return renderer;
+}
+
+bool T4K_IsFullscreen(void)
+{
+    return screen_fullscreen;
+}
+
+/* Upload the software "screen" surface to the display and present it. */
+static void present_screen(void)
+{
+    if (!renderer || !screen_texture || !screen)
+	return;
+
+    SDL_UpdateTexture(screen_texture, NULL, screen->pixels, screen->pitch);
+    SDL_RenderClear(renderer);
+    SDL_RenderTexture(renderer, screen_texture, NULL, NULL);
+    SDL_RenderPresent(renderer);
+}
+
+/* Create (or resize) the window, renderer, and backing software surface.
+   This replaces the old SDL_SetVideoMode() call - games should call this
+   instead of creating a window/surface themselves. Returns the new
+   "screen" surface, or NULL on failure (in which case the previous
+   screen, window and renderer are left untouched). */
+SDL_Surface* T4K_SetScreenMode(int width, int height, int fullscreen)
+{
+    SDL_Surface* new_screen;
+    SDL_Texture* new_texture;
+
+    if (!window)
     {
-	fprintf(stderr, "Video Surface changed from outside of SDL_Extras!\n");
-	screen = SDL_GetVideoSurface();
+	Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+	window = SDL_CreateWindow(PACKAGE_STRING, width, height, flags);
+	if (!window)
+	{
+	    fprintf(stderr, "\nError: Could not create window.\n%s\n\n", SDL_GetError());
+	    return NULL;
+	}
+	renderer = SDL_CreateRenderer(window, NULL);
+	if (!renderer)
+	{
+	    fprintf(stderr, "\nError: Could not create renderer.\n%s\n\n", SDL_GetError());
+	    SDL_DestroyWindow(window);
+	    window = NULL;
+	    return NULL;
+	}
     }
+    else
+    {
+	SDL_SetWindowFullscreen(window, fullscreen ? true : false);
+	if (!fullscreen)
+	    SDL_SetWindowSize(window, width, height);
+    }
+
+    /* Mouse events are reported in the window's logical coordinate
+       space, which on a HiDPI/scaled display is smaller than the
+       physical pixel dimensions we may have just requested (e.g. for
+       fullscreen, where width/height came from the desktop's pixel
+       resolution). Size the "screen" surface/texture to match the
+       window's logical size rather than the requested pixel size, so
+       that mouse coordinates and button-hit-testing coordinates stay
+       in the same space; SDL_RenderTexture() still stretches this up
+       to the full physical output when presenting. */
+    SDL_SyncWindow(window);
+    int logical_w = width, logical_h = height;
+    SDL_GetWindowSize(window, &logical_w, &logical_h);
+
+    new_screen = SDL_CreateSurface(logical_w, logical_h, SDL_PIXELFORMAT_RGBA32);
+    if (!new_screen)
+    {
+	fprintf(stderr, "\nError: Could not create screen surface.\n%s\n\n", SDL_GetError());
+	return NULL;
+    }
+
+    new_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA32,
+	    SDL_TEXTUREACCESS_STREAMING, logical_w, logical_h);
+    if (!new_texture)
+    {
+	fprintf(stderr, "\nError: Could not create screen texture.\n%s\n\n", SDL_GetError());
+	SDL_DestroySurface(new_screen);
+	return NULL;
+    }
+
+    if (screen)
+	SDL_DestroySurface(screen);
+    if (screen_texture)
+	SDL_DestroyTexture(screen_texture);
+
+    screen = new_screen;
+    screen_texture = new_texture;
+    screen_fullscreen = fullscreen ? true : false;
+
+    /* Keep the resolutions T4K_GetResolutions() reports in sync with
+       the surface we actually created, not whatever pixel dimensions
+       the caller originally requested (which, for fullscreen, is
+       usually the desktop's physical resolution - larger than
+       logical_w/h on a HiDPI/scaled display). Callers that pre-scale
+       assets via T4K_GetResolutions()/T4K_LoadBothBkgds() need this
+       to match screen->w/h or their fullscreen art comes out
+       undersized relative to the actual screen. */
+    if (fullscreen)
+    {
+	fs_res_x = logical_w;
+	fs_res_y = logical_h;
+    }
+    else
+    {
+	win_res_x = logical_w;
+	win_res_y = logical_h;
+    }
+
     return screen;
 }
 
 
 /*
- * T4K_GetResolutions() takes int pointer args for the windowed and 
+ * T4K_GetResolutions() takes int pointer args for the windowed and
  * fullscreen resolutions and fills them in with the current values.
  * Returns 1 if successful, 0 otherwise.
  */
@@ -85,8 +211,8 @@ int T4K_GetResolutions(int* win_x, int* win_y, int* full_x, int* full_y)
     if(!win_x || !win_y || !full_x || !full_y)
     {
 	fprintf(stderr, "T4K_GetResolutions() - invalid pointer arg");
-	return 0;  
-    }	  
+	return 0;
+    }
 
     *win_x = win_res_x;
     *win_y = win_res_y;
@@ -115,7 +241,7 @@ void T4K_DrawButtonOn(SDL_Surface* target,
     SDL_Surface* tmp_surf = T4K_CreateButton(target_rect->w, target_rect->h,
 	    radius, r, g, b, a);
     SDL_BlitSurface(tmp_surf, NULL, target, target_rect);
-    SDL_FreeSurface(tmp_surf);
+    SDL_DestroySurface(tmp_surf);
 }
 
 
@@ -125,16 +251,9 @@ void T4K_DrawButtonOn(SDL_Surface* target,
 SDL_Surface* T4K_CreateButton(int w, int h, int radius,
 	Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
-    /* NOTE - we use a 32-bit temp surface even if we have a 16-bit */
-    /* screen - it gets converted during blitting.                  */
-    SDL_Surface* tmp_surf = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA,
-	    w,
-	    h,
-	    32,
-	    rmask, gmask, bmask, amask);
-
-    Uint32 color = SDL_MapRGBA(tmp_surf->format, r, g, b, a);
-    SDL_FillRect(tmp_surf, NULL, color);
+    SDL_Surface* tmp_surf = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_RGBA32);
+    Uint32 color = SDL_MapRGBA(SDL_GetPixelFormatDetails(tmp_surf->format), NULL, r, g, b, a);
+    SDL_FillSurfaceRect(tmp_surf, NULL, color);
     T4K_RoundCorners(tmp_surf, radius);
     return tmp_surf;
 }
@@ -147,15 +266,20 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
     Uint32* p = NULL;
     Uint32 alpha_mask;
     int bytes_per_pix;
+    const SDL_PixelFormatDetails* fmt;
 
     if (!s)
 	return;
-    if (SDL_LockSurface(s) == -1)
+    if (!SDL_LockSurface(s))
 	return;
 
-    bytes_per_pix = s->format->BytesPerPixel;
+    fmt = SDL_GetPixelFormatDetails(s->format);
+    bytes_per_pix = fmt->bytes_per_pixel;
     if (bytes_per_pix != 4)
+    {
+	SDL_UnlockSurface(s);
 	return;
+    }
 
     /* radius cannot be more than half of width or height: */
     if (radius > (s->w)/2)
@@ -164,13 +288,13 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
 	radius = (s->h)/2;
 
 
-    alpha_mask = s->format->Amask;
+    alpha_mask = fmt->Amask;
 
     /* Now round off corners: */
     /* upper left:            */
     for (y = 0; y < radius; y++)
     {
-	p = (Uint32*)(s->pixels + (y * s->pitch));
+	p = (Uint32*)((Uint8*)s->pixels + (y * s->pitch));
 	x_dist = radius;
 	y_dist = radius - y;
 
@@ -187,7 +311,7 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
     for (y = 0; y < radius; y++)
     {
 	/* start at end of top row: */
-	p = (Uint32*)(s->pixels + ((y + 1) * s->pitch) - bytes_per_pix);
+	p = (Uint32*)((Uint8*)s->pixels + ((y + 1) * s->pitch) - bytes_per_pix);
 
 	x_dist = radius;
 	y_dist = radius - y;
@@ -205,7 +329,7 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
     for (y = (s->h - 1); y > (s->h - radius); y--)
     {
 	/* start at beginning of bottom row */
-	p = (Uint32*)(s->pixels + (y * s->pitch));
+	p = (Uint32*)((Uint8*)s->pixels + (y * s->pitch));
 	x_dist = radius;
 	y_dist = y - (s->h - radius);
 
@@ -222,7 +346,7 @@ void T4K_RoundCorners(SDL_Surface* s, Uint16 radius)
     for (y = (s->h - 1); y > (s->h - radius); y--)
     {
 	/* start at end of bottom row */
-	p = (Uint32*)(s->pixels + ((y + 1) * s->pitch) - bytes_per_pix);
+	p = (Uint32*)((Uint8*)s->pixels + ((y + 1) * s->pitch) - bytes_per_pix);
 	x_dist = radius;
 	y_dist = y - (s->h - radius);
 
@@ -248,33 +372,22 @@ if y is a nonzero value, then flip vertically
 note: you can have it flip both
  **********************/
 SDL_Surface* T4K_Flip( SDL_Surface *in, int x, int y ) {
-    SDL_Surface *out, *tmp;
+    SDL_Surface *out;
     SDL_Rect from_rect, to_rect;
-    Uint32        flags;
-    Uint32  colorkey=0;
+    bool has_colorkey;
+    Uint32 colorkey = 0;
+    SDL_BlendMode blend_mode = SDL_BLENDMODE_NONE;
 
     /* --- grab the settings for the incoming pixmap --- */
 
-    SDL_LockSurface(in);
-    flags = in->flags;
-
-    /* --- change in's flags so ignore colorkey & alpha --- */
-
-    if (flags & SDL_SRCCOLORKEY) {
-	in->flags &= ~SDL_SRCCOLORKEY;
-	colorkey = in->format->colorkey;
-    }
-    if (flags & SDL_SRCALPHA) {
-	in->flags &= ~SDL_SRCALPHA;
-    }
-
-    SDL_UnlockSurface(in);
+    has_colorkey = SDL_SurfaceHasColorKey(in);
+    if (has_colorkey)
+	SDL_GetSurfaceColorKey(in, &colorkey);
+    SDL_GetSurfaceBlendMode(in, &blend_mode);
 
     /* --- create our new surface --- */
 
-    out = SDL_CreateRGBSurface(
-	    SDL_SWSURFACE,
-	    in->w, in->h, 32, rmask, gmask, bmask, amask);
+    out = SDL_CreateSurface(in->w, in->h, SDL_PIXELFORMAT_RGBA32);
 
     /* --- flip horizontally if requested --- */
 
@@ -308,30 +421,14 @@ SDL_Surface* T4K_Flip( SDL_Surface *in, int x, int y ) {
 	} while (to_rect.y >= 0);
     }
 
-    /* --- restore colorkey & alpha on in and setup out the same --- */
+    /* --- carry colorkey & blend mode over onto out --- */
 
-    SDL_LockSurface(in);
-
-    if (flags & SDL_SRCCOLORKEY) {
-	in->flags |= SDL_SRCCOLORKEY;
-	in->format->colorkey = colorkey;
-	tmp = SDL_DisplayFormat(out);
-	SDL_FreeSurface(out);
-	out = tmp;
-	out->flags |= SDL_SRCCOLORKEY;
-	out->format->colorkey = colorkey;
-    } else if (flags & SDL_SRCALPHA) {
-	in->flags |= SDL_SRCALPHA;
-	tmp = SDL_DisplayFormatAlpha(out);
-	SDL_FreeSurface(out);
-	out = tmp;
-    } else {
-	tmp = SDL_DisplayFormat(out);
-	SDL_FreeSurface(out);
-	out = tmp;
+    if (has_colorkey)
+    {
+	SDL_SetSurfaceColorKey(out, true, colorkey);
+	SDL_SetSurfaceRLE(out, true);
     }
-
-    SDL_UnlockSurface(in);
+    SDL_SetSurfaceBlendMode(out, blend_mode);
 
     return out;
 }
@@ -345,7 +442,7 @@ SDL_Surface* T4K_Flip( SDL_Surface *in, int x, int y ) {
    generalized to other image types. */
 SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 {
-    SDL_PixelFormat *fmt1, *fmt2;
+    const SDL_PixelFormatDetails *fmt1, *fmt2;
     Uint8 r1, r2, g1, g2, b1, b2, a1, a2;
     SDL_Surface *tmpS, *ret;
     Uint32 *cpix1, *epix1, *cpix2, *epix2;
@@ -364,17 +461,17 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 	exit(0);
     }
 
-    fmt1 = S1->format;
+    fmt1 = SDL_GetPixelFormatDetails(S1->format);
 
-    if (fmt1 && fmt1->BitsPerPixel != 32)
+    if (fmt1 && fmt1->bits_per_pixel != 32)
     {
 	perror("This works only with RGBA images");
 	return S1;
     }
     if (S2 != NULL)
     {
-	fmt2 = S2->format;
-	if (fmt2->BitsPerPixel != 32)
+	fmt2 = SDL_GetPixelFormatDetails(S2->format);
+	if (fmt2->bits_per_pixel != 32)
 	{
 	    perror("This works only with RGBA images");
 	    return S1;
@@ -389,13 +486,13 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 	}
     }
 
-    tmpS = SDL_ConvertSurface(S1, fmt1, SDL_SWSURFACE);
+    tmpS = SDL_DuplicateSurface(S1);
     if (tmpS == NULL)
     {
-	perror("SDL_ConvertSurface() failed");
+	perror("SDL_DuplicateSurface() failed");
 	return S1;
     }
-    if (-1 == SDL_LockSurface(tmpS))
+    if (!SDL_LockSurface(tmpS))
     {
 	perror("SDL_LockSurface() failed");
 	return S1;
@@ -409,7 +506,7 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
     epix1 = (Uint32*) tmpS->pixels - 1;
     cpix1 = epix1 + tmpS->w * tmpS->h;
     if (S2 != NULL
-	    && (SDL_LockSurface(S2) != -1))
+	    && SDL_LockSurface(S2))
     {
 	epix2 = (Uint32*) S2->pixels - 1;
 	cpix2 = epix2 + S2->w * S2->h;
@@ -422,17 +519,17 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
 
     for (; cpix1 > epix1; cpix1--, cpix2--)
     {
-	SDL_GetRGBA(*cpix1, fmt1, &r1, &g1, &b1, &a1);
+	SDL_GetRGBA(*cpix1, fmt1, NULL, &r1, &g1, &b1, &a1);
 	a1 = gamma * a1;
 	if (S2 != NULL && cpix2 > epix2)
 	{
-	    SDL_GetRGBA(*cpix2, fmt2, &r2, &g2, &b2, &a2);
+	    SDL_GetRGBA(*cpix2, fmt2, NULL, &r2, &g2, &b2, &a2);
 	    r1 = gamma * r1 + gamflip * r2;
 	    g1 = gamma * g1 + gamflip * g2;
 	    b1 = gamma * b1 + gamflip * b2;
 	    a1 += gamflip * a2;
 	}
-	*cpix1 = SDL_MapRGBA(fmt1,r1,g1,b1,a1);
+	*cpix1 = SDL_MapRGBA(fmt1, NULL, r1, g1, b1, a1);
     }
 
     SDL_UnlockSurface(tmpS);
@@ -440,8 +537,7 @@ SDL_Surface* T4K_Blend(SDL_Surface *S1, SDL_Surface *S2, float gamma)
     if (S2 != NULL)
 	SDL_UnlockSurface(S2);
 
-    ret = SDL_DisplayFormatAlpha(tmpS);
-    SDL_FreeSurface(tmpS);
+    ret = tmpS;
 
     return ret;
 }
@@ -457,7 +553,7 @@ void T4K_FreeSurfaceArray(SDL_Surface** surfs, int length)
 
     for(i = 0; i < length; i++)
 	if(surfs[i] != NULL)
-	    SDL_FreeSurface(surfs[i]);
+	    SDL_DestroySurface(surfs[i]);
     free(surfs);
 }
 
@@ -469,7 +565,9 @@ int T4K_inRect( SDL_Rect r, int x, int y) {
 
 void T4K_UpdateRect(SDL_Surface* surf, SDL_Rect* rect)
 {
-    SDL_UpdateRect(surf, rect->x, rect->y, rect->w, rect->h);
+    (void)surf;
+    (void)rect;
+    present_screen();
 }
 
 void T4K_SetRect(SDL_Rect* rect, const float* pos)
@@ -483,17 +581,11 @@ void T4K_SetRect(SDL_Rect* rect, const float* pos)
 /* Darkens the screen by a factor of 2^bits */
 void T4K_DarkenScreen(Uint8 bits)
 {
-#if PIXEL_BITS == 32
     Uint32* p;
-#elif PIXEL_BITS == 16
-    Uint16* p;
-#else
-    Uint16* p;
-    return;
-#endif
-    Uint32 rm = screen->format->Rmask;
-    Uint32 gm = screen->format->Gmask;
-    Uint32 bm = screen->format->Bmask;
+    const SDL_PixelFormatDetails* fmt = SDL_GetPixelFormatDetails(screen->format);
+    Uint32 rm = fmt->Rmask;
+    Uint32 gm = fmt->Gmask;
+    Uint32 bm = fmt->Bmask;
 
 
     int x, y;
@@ -519,70 +611,53 @@ void T4K_DarkenScreen(Uint8 bits)
 /* change window size (works only in windowed mode) */
 void T4K_ChangeWindowSize(int new_res_x, int new_res_y)
 {
-    SDL_Surface* oldscreen = screen;
-
-    if(!(screen->flags & SDL_FULLSCREEN))
+    if (screen_fullscreen)
     {
-	screen = SDL_SetVideoMode(new_res_x,
-		new_res_y,
-		PIXEL_BITS,
-		SDL_SWSURFACE|SDL_HWPALETTE);
-
-	if(screen == NULL)
-	{
-	    fprintf(stderr,
-		    "\nError: I could not change screen mode into %d x %d.\n",
-		    new_res_x, new_res_y);
-	    screen = oldscreen;
-	}
-	else
-	{
-	    DEBUGMSG(debug_sdl, "T4K_ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
-	    oldscreen = NULL;
-	    win_res_x = screen->w;
-	    win_res_y = screen->h;
-	    if (res_switch_callback)
-		res_switch_callback(win_res_x, win_res_y);
-	    SDL_UpdateRect(screen, 0, 0, 0, 0);
-	}
-    }
-    else
 	DEBUGMSG(debug_sdl, "T4K_ChangeWindowSize() can be run only in windowed mode !");
+	return;
+    }
+
+    if (!T4K_SetScreenMode(new_res_x, new_res_y, 0))
+    {
+	fprintf(stderr,
+		"\nError: I could not change screen mode into %d x %d.\n",
+		new_res_x, new_res_y);
+	return;
+    }
+
+    DEBUGMSG(debug_sdl, "T4K_ChangeWindowSize(): Changed window size to %d x %d\n", screen->w, screen->h);
+    win_res_x = screen->w;
+    win_res_y = screen->h;
+    if (res_switch_callback)
+	res_switch_callback(win_res_x, win_res_y);
+    present_screen();
 }
 
 /* switch between fullscreen and windowed mode */
 void T4K_SwitchScreenMode(void)
 {
-    int window = (screen->flags & SDL_FULLSCREEN);
-    SDL_Surface* oldscreen = screen;
+    int going_windowed = screen_fullscreen;
 
-    screen = SDL_SetVideoMode(window ? win_res_x : fs_res_x,
-	    window ? win_res_y : fs_res_y,
-	    PIXEL_BITS,
-	    screen->flags ^ SDL_FULLSCREEN);
-
-    if (screen == NULL)
+    if (!T4K_SetScreenMode(going_windowed ? win_res_x : fs_res_x,
+		going_windowed ? win_res_y : fs_res_y,
+		!going_windowed))
     {
 	fprintf(stderr,
 		"\nError: I could not switch to %s mode.\n"
 		"The Simple DirectMedia error that occured was:\n"
 		"%s\n\n",
-		window ? "windowed" : "fullscreen",
+		going_windowed ? "windowed" : "fullscreen",
 		SDL_GetError());
-	screen = oldscreen;
+	return;
     }
-    else
-    {
-	//success, no need to free the old video surface
-	DEBUGMSG(debug_sdl, "Switched screen mode to %s\n", window ? "windowed" : "fullscreen");
-	oldscreen = NULL;
-	if (res_switch_callback)
-	    res_switch_callback(screen->w, screen->h);
-	if (internal_res_switch_callback)
-	    internal_res_switch_callback(screen->w, screen->h);
 
-	SDL_UpdateRect(screen, 0, 0, 0, 0);
-    }
+    DEBUGMSG(debug_sdl, "Switched screen mode to %s\n", going_windowed ? "windowed" : "fullscreen");
+    if (res_switch_callback)
+	res_switch_callback(screen->w, screen->h);
+    if (internal_res_switch_callback)
+	internal_res_switch_callback(screen->w, screen->h);
+
+    present_screen();
 }
 
 void internal_res_switch_handler(ResSwitchCallback callback)
@@ -596,21 +671,23 @@ void T4K_OnResolutionSwitch (ResSwitchCallback callback)
 }
 
 /*
-   Block application until SDL receives an appropriate event. Events can be
-   a single or OR'd combination of event masks.
-   e.g. e = T4K_WaitForEvent(SDL_KEYDOWNMASK | SDL_QUITMASK)
+   Block application until SDL receives one of the given event types.
+   e.g. e = T4K_WaitForEvent((Uint32[]){SDL_EVENT_KEY_DOWN, SDL_EVENT_QUIT}, 2)
    */
-SDL_EventType T4K_WaitForEvent(SDL_EventMask events)
+Uint32 T4K_WaitForEvent(const Uint32* event_types, int num_types)
 {
     SDL_Event evt;
+    int i;
     while (1)
     {
 	while (SDL_PollEvent(&evt) )
 	{
-	    if (SDL_EVENTMASK(evt.type) & events)
-		return evt.type;
-	    else
-		SDL_Delay(50);
+	    for (i = 0; i < num_types; i++)
+	    {
+		if (evt.type == event_types[i])
+		    return evt.type;
+	    }
+	    SDL_Delay(50);
 	}
     }
 }
@@ -628,6 +705,7 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
     void (*putpixel) (SDL_Surface*, int, int, Uint32);
     Uint32(*getpixel) (SDL_Surface*, int, int);
 
+    const SDL_PixelFormatDetails *src_fmt, *s_fmt;
     float xscale, yscale;
     int x, y;
     int floor_x, ceil_x,
@@ -643,14 +721,9 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 
     DEBUGMSG(debug_sdl, "Entering T4K_zoom():\n");
 
-    /* Create surface for zoom: */
+    /* Create surface for zoom, matching the source's pixel format: */
 
-    s = SDL_CreateRGBSurface(src->flags,        /* SDL_SWSURFACE, */
-	    new_w, new_h, src->format->BitsPerPixel,
-	    src->format->Rmask,
-	    src->format->Gmask,
-	    src->format->Bmask,
-	    src->format->Amask);
+    s = SDL_CreateSurface(new_w, new_h, src->format);
 
     if (s == NULL)
     {
@@ -662,15 +735,18 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	//    exit(1);
     }
 
+    src_fmt = SDL_GetPixelFormatDetails(src->format);
+    s_fmt = SDL_GetPixelFormatDetails(s->format);
+
     DEBUGMSG(debug_sdl, "T4K_zoom(): orig surface %dx%d, %d bytes per pixel\n",
-	    src->w, src->h, src->format->BytesPerPixel);
+	    src->w, src->h, src_fmt->bytes_per_pixel);
     DEBUGMSG(debug_sdl, "T4K_zoom(): new surface %dx%d, %d bytes per pixel\n",
-	    s->w, s->h, s->format->BytesPerPixel);
+	    s->w, s->h, s_fmt->bytes_per_pixel);
 
     /* Now assign function pointers to correct functions based */
     /* on data format of original and zoomed surfaces:         */
-    getpixel = getpixels[src->format->BytesPerPixel];
-    putpixel = putpixels[s->format->BytesPerPixel];
+    getpixel = getpixels[src_fmt->bytes_per_pixel];
+    putpixel = putpixels[s_fmt->bytes_per_pixel];
 
     SDL_LockSurface(src);
     SDL_LockSurface(s);
@@ -704,13 +780,13 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	    one_minus_y = 1.0 - fraction_y;
 
 	    /* Grab their values:  */
-	    SDL_GetRGBA(getpixel(src, floor_x, floor_y), src->format,
+	    SDL_GetRGBA(getpixel(src, floor_x, floor_y), src_fmt, NULL,
 		    &r1, &g1, &b1, &a1);
-	    SDL_GetRGBA(getpixel(src, ceil_x,  floor_y), src->format,
+	    SDL_GetRGBA(getpixel(src, ceil_x,  floor_y), src_fmt, NULL,
 		    &r2, &g2, &b2, &a2);
-	    SDL_GetRGBA(getpixel(src, floor_x, ceil_y),  src->format,
+	    SDL_GetRGBA(getpixel(src, floor_x, ceil_y), src_fmt, NULL,
 		    &r3, &g3, &b3, &a3);
-	    SDL_GetRGBA(getpixel(src, ceil_x,  ceil_y),  src->format,
+	    SDL_GetRGBA(getpixel(src, ceil_x,  ceil_y), src_fmt, NULL,
 		    &r4, &g4, &b4, &a4);
 
 	    /* Create the weighted averages: */
@@ -731,7 +807,7 @@ SDL_Surface* T4K_zoom(SDL_Surface* src, int new_w, int new_h)
 	    a = (one_minus_y * n1 + fraction_y * n2);
 
 	    /* and put them into our new surface: */
-	    putpixel(s, x, y, SDL_MapRGBA(s->format, r, g, b, a));
+	    putpixel(s, x, y, SDL_MapRGBA(s_fmt, NULL, r, g, b, a));
 
 	}
     }
@@ -824,7 +900,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    SDL_Flip(screen);
+		    present_screen();
 		    SDL_Delay(10);
 		}
 
@@ -833,7 +909,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		SDL_Flip(screen);
+		present_screen();
 
 		break;
 	    }
@@ -864,7 +940,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    SDL_Flip(screen);
+		    present_screen();
 		    SDL_Delay(10);
 		}
 
@@ -873,7 +949,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		SDL_Flip(screen);
+		present_screen();
 
 		break;
 	    }
@@ -917,7 +993,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 			T4K_AddRect(&src, &src);
 			T4K_AddRect(&dst, &dst);
 		    }
-		    SDL_Flip(screen);
+		    present_screen();
 		    SDL_Delay(10);
 		}
 
@@ -926,7 +1002,7 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
 		src.w = screen->w;
 		src.h = screen->h;
 		SDL_BlitSurface((SDL_Surface*)newbkg, NULL, screen, &src);
-		SDL_Flip(screen);
+		present_screen();
 
 		break;
 	    }
@@ -935,8 +1011,6 @@ int T4K_TransWipe(const SDL_Surface* newbkg, WipeStyle type, int segments, int d
     }
     return 1;
 }
-
-
 
 
 
@@ -1114,46 +1188,21 @@ void T4K_UpdateScreen(int* frame)
     {
 	if (blits[i].type == 'E')
 	{
-	    //       DEBUGCODE(debug_sdl)
-	    //       {
-	    //         fprintf(stderr, "Erasing blits[%d]\n", i);
-	    //         fprintf(stderr, "srcrect->x = %d\t srcrect->y = %d\t srcrect->w = %d\t srcrect->h = %d\n",
-	    //               blits[i].srcrect->x, blits[i].srcrect->y, blits[i].srcrect->w, blits[i].srcrect->h);
-	    //         fprintf(stderr, "dstrect->x = %d\t dstrect->y = %d\t dstrect->w = %d\t dstrect->h = %d\n",
-	    //               blits[i].dstrect->x, blits[i].dstrect->y, blits[i].dstrect->w, blits[i].dstrect->h);
-	    //       }
-
-	    SDL_LowerBlit(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
+	    SDL_BlitSurfaceUnchecked(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
 	}
     }
-
-    //  SNOW_erase();
 
     /* -- then draw -- */
     for (i = 0; i < numupdates; i++)
     {
 	if (blits[i].type == 'D')
 	{
-	    //       DEBUGCODE(debug_sdl)
-	    //       {
-	    //         fprintf(stderr, "drawing blits[%d]\n", i);
-	    //         fprintf(stderr, "srcrect->x = %d\t srcrect->y = %d\t srcrect->w = %d\t srcrect->h = %d\n",
-	    //               blits[i].srcrect->x, blits[i].srcrect->y, blits[i].srcrect->w, blits[i].srcrect->h);
-	    //         fprintf(stderr, "dstrect->x = %d\t dstrect->y = %d\t dstrect->w = %d\t dstrect->h = %d\n",
-	    //               blits[i].dstrect->x, blits[i].dstrect->y, blits[i].dstrect->w, blits[i].dstrect->h);
-	    //       }
-
 	    SDL_BlitSurface(blits[i].src, blits[i].srcrect, screen, blits[i].dstrect);
 	}
     }
 
-    //  SNOW_draw();
-
-    /* -- update the screen only where we need to! -- */
-    //  if (SNOW_on)
-    //    SDL_UpdateRects(screen, SNOW_add( (SDL_Rect*)&dstupdate, numupdates ), SNOW_rects);
-    //  else
-    SDL_UpdateRects(screen, numupdates, dstupdate);
+    /* -- update the screen -- */
+    present_screen();
 
     numupdates = 0;
     *frame = *frame + 1;
@@ -1249,87 +1298,51 @@ int T4K_EraseObject(SDL_Surface* surf, SDL_Surface* curr_bkgd, int x, int y)
     return 1;
 }
 
-//#if 0
 
 /************************************************************************/
 /*                                                                      */
 /*        Begin text drawing functions                                  */
 /*                                                                      */
-/* These functions support text drawing using either SDL_Pango          */
-/* or SDL_ttf. SDL_Pango is preferable but is not available on all      */
-/* platforms. Code outside of this file does not have to worry about    */
-/* which library is used to do the actual rendering.                    */
+/* These functions support text drawing using SDL3_ttf. SDL_Pango has   */
+/* no SDL3 port, so it is no longer supported as a backend.             */
 /************************************************************************/
 
-#define MAX_FONT_SIZE 40
+/* Games scale font sizes up proportionally to the fullscreen
+   resolution (e.g. tuxmath's get_scale()), so this needs enough
+   headroom for large/HiDPI displays, not just the ~640x480 baseline
+   this cap was originally tuned for. */
+#define MAX_FONT_SIZE 128
 #define DEFAULT_FONT_SIZE 10
 
-//NOTE to test program with SDL_ttf, do "./configure --without-sdlpango"
-
-
-/*-- file-scope variables and local file prototypes for SDL_Pango-based code: */
-#if HAVE_LIBSDL_PANGO
-#include "SDL_Pango.h"
-SDLPango_Context* context = NULL;
-static SDLPango_Matrix* SDL_Colour_to_SDLPango_Matrix(const SDL_Color* cl);
-static int Set_SDL_Pango_Font_Size(int size);
-
-/*-- file-scope variables and local file prototypes for SDL_ttf-based code: */
-#else
-#include "SDL_ttf.h"
+#include "SDL3_ttf/SDL_ttf.h"
 /* We cache fonts here once loaded to improve performance: */
 TTF_Font* font_list[MAX_FONT_SIZE + 1] = {NULL};
 static void free_font_list(void);
 static TTF_Font* get_font(int size);
 static TTF_Font* load_font(const char* font_name, int font_size);
-#endif
 
 
-/* "Public" functions called from other files that use either */
-/*SDL_Pango or SDL_ttf:                                       */
+/* "Public" functions called from other files: */
 
 
-/* For setup, we either initialize SDL_Pango and set its context, */
-/* or we initialize SDL_ttf:                                      */
 int T4K_Setup_SDL_Text(void)
 {
-#if HAVE_LIBSDL_PANGO
-
-    DEBUGMSG(debug_sdl, "T4K_Setup_SDL_Text() - using SDL_Pango\n");
-
-    SDLPango_Init();
-    if (!Set_SDL_Pango_Font_Size(DEFAULT_FONT_SIZE))
-    {
-	fprintf(stderr, "\nError: I could not set SDL_Pango context\n");
-	return 0;
-    }
-    return 1;
-
-#else
-    /* using SDL_ttf: */
     DEBUGMSG(debug_sdl, "T4K_Setup_SDL_Text() - using SDL_ttf\n");
 
-    if (TTF_Init() < 0)
+    if (!TTF_Init())
     {
 	fprintf(stderr, "\nError: I could not initialize SDL_ttf\n");
 	return 0;
     }
     return 1;
-#endif
 }
 
 
 
 void T4K_Cleanup_SDL_Text(void)
 {
-#if HAVE_LIBSDL_PANGO
-    if(context != NULL)
-	SDLPango_FreeContext(context);
-    context = NULL;
-#else
     free_font_list();
     TTF_Quit();
-#endif
 }
 
 
@@ -1345,23 +1358,14 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     SDL_Surface* white_letters = NULL;
     SDL_Surface* bg = NULL;
     SDL_Rect dstrect;
-    Uint32 color_key;
 
     /* Make sure everything is sane before we proceed: */
-#if HAVE_LIBSDL_PANGO
-    if (!context)
-    {
-	fprintf(stderr, "T4K_BlackOutline(): invalid SDL_Pango context - returning.\n");
-	return NULL;
-    }
-#else
     TTF_Font* font = get_font(size);
     if (!font)
     {
 	fprintf(stderr, "T4K_BlackOutline(): could not load needed font - returning.\n");
 	return NULL;
     }
-#endif
 
     if (!t || !c)
     {
@@ -1378,14 +1382,7 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     DEBUGMSG(debug_sdl, "Entering T4K_BlackOutline():\n");
     DEBUGMSG(debug_sdl, "BlackOutline of \"%s\"\n", t );
 
-#if HAVE_LIBSDL_PANGO
-    Set_SDL_Pango_Font_Size(size);
-    SDLPango_SetDefaultColor(context, MATRIX_TRANSPARENT_BACK_BLACK_LETTER);
-    SDLPango_SetText(context, t, -1);
-    black_letters = SDLPango_CreateSurfaceDraw(context);
-#else
-    black_letters = TTF_RenderUTF8_Blended(font, t, black);
-#endif
+    black_letters = TTF_RenderText_Blended(font, t, 0, black);
 
     if (!black_letters)
     {
@@ -1393,14 +1390,16 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 	return NULL;
     }
 
-    bg = SDL_CreateRGBSurface(SDL_SWSURFACE,
+    bg = SDL_CreateSurface(
 	    (black_letters->w) + 5,
 	    (black_letters->h) + 5,
-	    32,
-	    rmask, gmask, bmask, amask);
-    /* Use color key for eventual transparency: */
-    color_key = SDL_MapRGB(bg->format, 30, 30, 30);
-    SDL_FillRect(bg, NULL, color_key);
+	    SDL_PIXELFORMAT_RGBA32);
+    /* Start fully transparent; the glyph blits below build up the
+       per-pixel alpha channel via normal alpha compositing. (SDL3's
+       blitter gives an RGBA surface's own alpha channel priority over
+       colorkey, so the old colorkey-based transparency trick no
+       longer works here.) */
+    SDL_FillSurfaceRect(bg, NULL, 0);
 
     /* Now draw black outline/shadow 2 pixels on each side: */
     dstrect.w = black_letters->w;
@@ -1412,26 +1411,10 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 	for (dstrect.y = 1; dstrect.y < 5; dstrect.y++)
 	    SDL_BlitSurface(black_letters , NULL, bg, &dstrect );
 
-    SDL_FreeSurface(black_letters);
+    SDL_DestroySurface(black_letters);
 
     /* --- Put the color version of the text on top! --- */
-#if HAVE_LIBSDL_PANGO
-    /* convert color arg: */
-    SDLPango_Matrix* color_matrix = SDL_Colour_to_SDLPango_Matrix(c);
-
-    if (color_matrix)
-    {
-	SDLPango_SetDefaultColor(context, color_matrix);
-	free(color_matrix);
-    }
-    else  /* fall back to just using white if conversion fails: */
-	SDLPango_SetDefaultColor(context, MATRIX_TRANSPARENT_BACK_WHITE_LETTER);
-
-    white_letters = SDLPango_CreateSurfaceDraw(context);
-
-#else
-    white_letters = TTF_RenderUTF8_Blended(font, t, *c);
-#endif
+    white_letters = TTF_RenderText_Blended(font, t, 0, *c);
 
     if (!white_letters)
     {
@@ -1442,12 +1425,11 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
     dstrect.x = 1;
     dstrect.y = 1;
     SDL_BlitSurface(white_letters, NULL, bg, &dstrect);
-    SDL_FreeSurface(white_letters);
+    SDL_DestroySurface(white_letters);
 
-    /* --- Convert to the screen format for quicker blits --- */
-    SDL_SetColorKey(bg, SDL_SRCCOLORKEY|SDL_RLEACCEL, color_key);
-    out = SDL_DisplayFormatAlpha(bg);
-    SDL_FreeSurface(bg);
+    SDL_SetSurfaceBlendMode(bg, SDL_BLENDMODE_BLEND);
+    SDL_SetSurfaceRLE(bg, true);
+    out = bg;
 
     DEBUGMSG(debug_sdl, "\nLeaving T4K_BlackOutline(): \n");
 
@@ -1455,48 +1437,20 @@ SDL_Surface* T4K_BlackOutline(const char* t, int size, const SDL_Color* c)
 }
 
 
-/* This (fast) function just returns a non-outlined surf */
-/* using either SDL_Pango or SDL_ttf                     */
+/* This (fast) function just returns a non-outlined surf using SDL_ttf */
 SDL_Surface* T4K_SimpleText(const char *t, int size, const SDL_Color* col)
 {
-    SDL_Surface* surf = NULL;
+    TTF_Font* font;
 
     if (!t)
 	return NULL;
     if (!col)
 	col = &black;
 
-#if HAVE_LIBSDL_PANGO
-    if (!context)
-    {
-	fprintf(stderr, "T4K_SimpleText() - context not valid!\n");
+    font = get_font(size);
+    if (!font)
 	return NULL;
-    }
-    else
-    {
-	SDLPango_Matrix colormatrix =
-	{{
-	     {col->r,  col->r,  0,  0},
-	     {col->g,  col->g,  0,  0},
-	     {col->b,  col->b,  0,  0},
-	     {0,      255,      0,  0}
-	 }};
-	Set_SDL_Pango_Font_Size(size);
-	SDLPango_SetDefaultColor(context, &colormatrix );
-	SDLPango_SetText(context, t, -1);
-	surf = SDLPango_CreateSurfaceDraw(context);
-    }
-
-#else
-    {
-	TTF_Font* font = get_font(size);
-	if (!font)
-	    return NULL;
-	surf = TTF_RenderUTF8_Blended(font, t, *col);
-    }
-#endif
-
-    return surf;
+    return TTF_RenderText_Blended(font, t, 0, *col);
 }
 
 /* Here we calculate an estimate of the string length that will
@@ -1517,78 +1471,42 @@ int T4K_CharsForWidth(int fontsize, int pixel_width)
 	s = T4K_SimpleText(buf, fontsize, &white);
 	if(s && s->w > pixel_width)  //means string of (i++) 'x' exceeds width
 	    done = 1;
-	SDL_FreeSurface(s);
+	SDL_DestroySurface(s);
     }
     return  i;
 }
 
 int size_text(const char* text, int font_size, int* width, int* height)
 {
-#if HAVE_LIBSDL_PANGO
-    int ret = 0;
-    SDL_Surface* temptext = T4K_SimpleText(text, font_size, &black);
-    if (width)
-	*width = temptext->w;
-    if (height)
-	*height = temptext->h;
-    SDL_FreeSurface(temptext);
-    return ret;
-#else
-    return TTF_SizeUTF8(get_font(font_size), text, width, height);
-#endif
+    return TTF_GetStringSize(get_font(font_size), text, 0, width, height) ? 0 : -1;
 }
-/* This (fast) function just returns a non-outlined surf */
-/* using SDL_Pango if available, SDL_ttf as fallback     */
+
+/* This (fast) function just returns a non-outlined surf using SDL_ttf */
 SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* col, int *glyph_offset)
 {
     SDL_Surface* surf = NULL;
+    TTF_Font* font;
 
     if (!t||!col)
 	return NULL;
 
-#if HAVE_LIBSDL_PANGO
-    if (!context)
-    {
-	fprintf(stderr, "T4K_SimpleText() - context not valid!\n");
+    font = get_font(size);
+    if (!font)
 	return NULL;
-    }
-    else
+    surf = TTF_RenderText_Blended(font, t, 0, *col);
     {
-	SDLPango_Matrix colormatrix =
-	{{
-	     {col->r,  col->r,  0,  0},
-	     {col->g,  col->g,  0,  0},
-	     {col->b,  col->b,  0,  0},
-	     {0,      255,      0,  0}
-	 }};
-	Set_SDL_Pango_Font_Size(size);
-	SDLPango_SetDefaultColor(context, &colormatrix );
-	SDLPango_SetText(context, t, -1);
-	surf = SDLPango_CreateSurfaceDraw(context);
-	*glyph_offset = 0; // fixme?
-    }
-
-#else
-    {
-	TTF_Font* font = get_font(size);
-	if (!font)
-	    return NULL;
-	surf = TTF_RenderUTF8_Blended(font, t, *col);
+	int h;
+	int hmax = 0;
+	int len = strlen(t);
+	int i;
+	for (i = 0; i < len; i++)
 	{
-	    int h;
-	    int hmax = 0;
-	    int len = strlen(t);
-	    int i;
-	    for (i = 0; i < len; i++)
-	    {
-		TTF_GlyphMetrics(font, t[i], NULL, NULL, NULL, &h, NULL);
-		if (h > hmax)
-		    hmax = h;
-	    }
-	    *glyph_offset = hmax - TTF_FontAscent(font);
+	    TTF_GetGlyphMetrics(font, t[i], NULL, NULL, NULL, &h, NULL);
+	    if (h > hmax)
+		hmax = h;
 	}
+	*glyph_offset = hmax - TTF_GetFontAscent(font);
     }
-#endif
 
     return surf;
 }
@@ -1596,83 +1514,8 @@ SDL_Surface* T4K_SimpleTextWithOffset(const char *t, int size, const SDL_Color* 
 
 
 /*-----------------------------------------------------------*/
-/* Local functions, callable only within SDL_extras, divided */
-/* according with which text lib we are using:               */
+/* Local functions, callable only within t4k_sdl.c:           */
 /*-----------------------------------------------------------*/
-
-
-
-#if HAVE_LIBSDL_PANGO
-/* Local functions when using SDL_Pango:   */
-
-
-/* NOTE the scaling by 3/4 a few lines down represents a conversion from      */
-/* the usual text dpi of 72 to the typical screen dpi of 96. It gives         */
-/* font sizes fairly similar to a SDL_ttf font with the same numerical value. */
-static int Set_SDL_Pango_Font_Size(int size)
-{
-    /* static so we can "remember" values from previous time through: */
-    static int prev_pango_font_size;
-    static char prev_font_name[FONT_NAME_LENGTH];
-    /* Do nothing unless we need to change size or font: */
-    if ((size == prev_pango_font_size)
-	    &&
-	    (0 == strncmp(prev_font_name, T4K_AskFontName(), sizeof(prev_font_name))))
-	return 1;
-    else
-    {
-	char buf[64];
-
-	DEBUGMSG(debug_sdl, "Setting font size to %d\n", size);
-
-	if(context != NULL)
-	    SDLPango_FreeContext(context);
-	context = NULL;
-	snprintf(buf, sizeof(buf), "%s %d", T4K_AskFontName(), (int)((size * 3)/4));
-	context =  SDLPango_CreateContext_GivenFontDesc(buf);
-    }
-
-    if (!context)
-	return 0;
-    else
-    {
-	prev_pango_font_size = size;
-	strncpy(prev_font_name, T4K_AskFontName(), sizeof(prev_font_name));
-	return 1;
-    }
-}
-
-
-SDLPango_Matrix* SDL_Colour_to_SDLPango_Matrix(const SDL_Color *cl)
-{
-    int k = 0;
-    SDLPango_Matrix* colour = NULL;
-
-    if (!cl)
-    {
-	fprintf(stderr, "Invalid SDL_Color* arg\n");
-	return NULL;
-    }
-
-    colour = (SDLPango_Matrix*)malloc(sizeof(SDLPango_Matrix));
-
-    for(k = 0; k < 4; k++)
-    {
-	(*colour).m[0][k] = (*cl).r;
-	(*colour).m[1][k] = (*cl).g;
-	(*colour).m[2][k] = (*cl).b;
-    }
-    (*colour).m[3][0] = 0;
-    (*colour).m[3][1] = 255;
-    (*colour).m[3][2] = 0;
-    (*colour).m[3][3] = 0;
-
-    return colour;
-}
-
-#else
-
-/* Local functions when using SDL_ttf: */
 
 static void free_font_list(void)
 {
@@ -1751,7 +1594,3 @@ static TTF_Font* load_font(const char* font_name, int font_size)
 	return NULL;
     }
 }
-
-//#endif
-
-#endif

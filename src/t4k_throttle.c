@@ -27,13 +27,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "t4k_globals.h"
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 /* NOTE now store the time elsewhere to make function thread-safe                          */
 
-void T4K_Throttle(int loop_msec, Uint32* last_t)
+void T4K_Throttle(int loop_msec, Uint64* last_t)
 {
-    Uint32 now_t, wait_t;
+    Uint64 now_t, wait_t;
 
     if(!last_t)
 	return;
@@ -49,10 +49,7 @@ void T4K_Throttle(int loop_msec, Uint32* last_t)
     if (now_t < (*last_t + loop_msec))
     {
 	wait_t = (*last_t + loop_msec) - now_t;
-	//Avoid problem if we somehow wrap past uint32 size (at 49.7 days!)
-	if(wait_t < 0)
-	    wait_t = 0;
-	if(wait_t > loop_msec)
+	if(wait_t > (Uint64)loop_msec)
 	    wait_t = loop_msec;
 	SDL_Delay(wait_t);
     }
